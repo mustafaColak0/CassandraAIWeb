@@ -68,7 +68,7 @@ async function loadScenarios() {
     };
 
     try {
-        // ✅ DÜZELTİLDİ: İstek artık doğrudan Render backendine gidiyor
+        // İstek artık doğrudan Render backendine gidiyor
         const res = await fetch(`${BACKEND_URL}/api/scenarios`);
         const data = await res.json();
         scenarios = (data.scenarios && Object.keys(data.scenarios).length > 0) ? data.scenarios : fallbacks;

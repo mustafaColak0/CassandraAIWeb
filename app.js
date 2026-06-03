@@ -1,7 +1,7 @@
 let scenarios = {};
 const CHAT_SESSIONS_KEY = "cassandra_soc_history_v4";
 
-// 🚨 CANLI BAĞLANTI AYARI: Kendi gerçek Render URL'ini buraya yapıştır kanka!
+// BACKEND URLSİ (Render üzerindeki yeni backend'e yönlendiriyor)
 const BACKEND_URL = "https://cassandra-ai-backend.onrender.com"; 
 
 // 1. SİSTEM BAŞLATMA
@@ -134,7 +134,7 @@ async function runAnalysis() {
             }
         }
 
-        // ✅ DÜZELTİLDİ: İstek artık doğrudan Render backendine gidiyor
+       // Artık analiz isteği doğrudan Render backendine gidiyor
         const res = await fetch(`${BACKEND_URL}/api/analyze`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},

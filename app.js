@@ -35,33 +35,33 @@ const updateDisplay = () => {
         const vakVal = document.getElementById("vaka-select")?.value || "-";
         const expEl = document.querySelector('input[name="exp"]:checked');
         
-        // Ham değeri alıp küçük harfe çeviriyoruz ki karşılaştırma garanti olsun
         const rawExp = expEl ? expEl.value.trim().toLowerCase() : "red team expert";
-        let fullAnalystName = "🛡️ SOC Analyst"; 
+        let fullAnalystName = ""; 
 
-       // Burada uzmanlık isimlerini daha görsel ve etkileyici hale getiriyoruz
+        // Sadece Red Team için özel SVG kalkanı, diğerleri emojili kararlı tasarım
         if (rawExp.includes("red team")) {
-            fullAnalystName = "🛡️ RED TEAM EXPERT";
+            fullAnalystName = `<svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4d6d" style="vertical-align: middle; margin-right: 5px;"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg> RED TEAM EXPERT`;
         } else if (rawExp.includes("blue team")) {
-            fullAnalystName = "🔷 BLUE TEAM RESPONDER";
+            fullAnalystName = "🛡️ BLUE TEAM RESPONDER";
         } else if (rawExp.includes("chief")) {
             fullAnalystName = "🧠 CHIEF STRATEGIST";
         } else if (rawExp.includes("osint")) {
             fullAnalystName = "🔍 OSINT SPECIALIST";
         } else if (rawExp.includes("threat")) {
-            fullAnalystName = "🕵️‍♀️ THREAT INTELLIGENCE";
+            fullAnalystName = "⚖️ THREAT INTELLIGENCE";
         } else if (rawExp.includes("forensics")) {
             fullAnalystName = "🧪 FORENSICS SPECIALIST";
         } else if (rawExp.includes("compliance")) {
             fullAnalystName = "⚖️ COMPLIANCE OFFICER";
         } else {
-            // Eğer gözden kaçan bir rol olursa ham değeri büyük harfle yazdırır
             fullAnalystName = `🛡️ ${rawExp.toUpperCase()}`;
         }
         
         if(document.getElementById("display-sector")) document.getElementById("display-sector").textContent = secVal;
         if(document.getElementById("display-vaka")) document.getElementById("display-vaka").textContent = vakVal;
-        if(document.getElementById("display-analyst")) document.getElementById("display-analyst").textContent = fullAnalystName;
+        
+        // Uzman adını güncelliyoruz, böylece kullanıcı seçimine göre dinamik olarak değişiyor
+        if(document.getElementById("display-analyst")) document.getElementById("display-analyst").innerHTML = fullAnalystName;
     };
 
     document.getElementById("sector-select")?.addEventListener("change", updateDisplay);

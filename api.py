@@ -39,7 +39,7 @@ async def analyze(request: AnalysisRequest):
     try:
         # Her istek atan kullanıcı kendi 'userApiKey'sini sisteme besleyecek.
         dynamic_llm = LLM(
-            model="llama-3.3-70b-versatile",
+            model="llama-3.2-90b-vision",
             api_key=request.userApiKey,
             temperature=0.2
         )

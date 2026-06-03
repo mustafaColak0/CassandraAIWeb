@@ -23,7 +23,6 @@
     </div>
 
     <script>
-        // Sayfa yüklenirken anahtar kontrolü yap
         document.addEventListener("DOMContentLoaded", function() {
             const savedKey = localStorage.getItem("cassandra_api_key");
             if (!savedKey) {
@@ -31,7 +30,6 @@
             }
         });
 
-        // Anahtarı tarayıcı hafızasına kaydet ve ekranı kapat
         function initializeCassandraAuth() {
             const inputKey = document.getElementById("global-api-key-input").value.trim();
             if (!inputKey) {
@@ -40,7 +38,7 @@
             }
             localStorage.setItem("cassandra_api_key", inputKey);
             document.getElementById("api-auth-overlay").style.display = "none";
-            window.location.reload(); // Değişikliklerin oturması için sayfayı yenile
+            window.location.reload();
         }
     </script>
 
@@ -48,7 +46,7 @@
         <div class="scrolling-line line-2">WE SAW IT COMING WE SAW IT COMING</div>
     </div>
 
-    <div id="intro-overlay">
+    <div id="intro-overlay" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#050b14; display:flex; justify-content:center; align-items:center; z-index:9999; transition: opacity 0.8s ease; color:#00e5ff; font-size:24px;">
         <h1 class="intro-text">WE SAW IT COMING</h1>
     </div>
 
@@ -138,6 +136,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
-    <script src="app.js"></script>
+    
+    <script src="uygulama.js"></script>
 </body>
 </html>

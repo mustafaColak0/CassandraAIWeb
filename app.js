@@ -6,7 +6,6 @@ const BACKEND_URL = "https://cassandra-ai-backend.onrender.com";
 
 // 1. SİSTEM BAŞLATMA
 function initSystem() {
-    // Saat güncelleme
     setInterval(() => {
         const now = new Date();
         const local = document.getElementById("clock-local");
@@ -15,7 +14,6 @@ function initSystem() {
         if(utc) utc.textContent = `UTC ${now.toISOString().substr(11, 8)}`;
     }, 1000);
 
-    // Giriş ekranı animasyonu
     setTimeout(() => {
         const intro = document.getElementById('intro-overlay');
         if(intro) {
@@ -28,7 +26,6 @@ function initSystem() {
         }
     }, 2500);
 
-    // Seçilen değerleri anlık olarak sağ üst köşeye yansıtma
     const updateDisplay = () => {
         const secVal = document.getElementById("sector-select")?.value || "-";
         const vakVal = document.getElementById("vaka-select")?.value || "-";
@@ -44,10 +41,9 @@ function initSystem() {
     document.getElementById("vaka-select")?.addEventListener("change", updateDisplay);
     document.querySelectorAll('input[name="exp"]').forEach(r => r.addEventListener("change", updateDisplay));
     
-    // UI etkileşimi: Geçmiş Modülü
     const histBtn = document.getElementById("history-toggle-btn");
     if(histBtn) histBtn.onclick = () => document.getElementById("history-content").classList.toggle("active");
-    // Geçmiş temizleme butonu
+    
     const clearBtn = document.getElementById("clear-history-btn");
     if(clearBtn) clearBtn.onclick = () => {
         if(confirm("Tüm geçmiş silinecek. Emin misin?")) {
@@ -55,7 +51,6 @@ function initSystem() {
             renderHistory();
         }
     };
-    // İlk yüklemede değerleri güncelle
     setTimeout(updateDisplay, 500);
 }
 
@@ -68,11 +63,12 @@ async function loadScenarios() {
     };
 
     try {
-        // İstek artık doğrudan Render backendine gidiyor
         const res = await fetch(`${BACKEND_URL}/api/scenarios`);
         const data = await res.json();
         scenarios = (data.scenarios && Object.keys(data.scenarios).length > 0) ? data.scenarios : fallbacks;
-    } catch { scenarios = fallbacks; }
+    } catch (e) { 
+        scenarios = fallbacks; 
+    }
     
     const sector = document.getElementById("sector-select");
     const vaka = document.getElementById("vaka-select");
@@ -90,19 +86,29 @@ async function runAnalysis() {
     const input = document.getElementById("prompt-in");
     const btn = document.getElementById("analyze-btn");
     const fileInput = document.getElementById("file-input");
-    const text = input.value.trim();
+    const text = input && input.value ? input.value.trim() : "";
           
     if(!text && (!fileInput || !fileInput.files[0])) return;
     
+    const savedKey = localStorage.getItem("cassandra_groq_key");
+    if (!savedKey) {
+        alert("Lütfen önce giriş ekranından geçerli bir API Key girin! 🔑");
+        const modal = document.getElementById("apiKeyModal");
+        if(modal) modal.style.display = "flex";
+        return;
+    }
+
     const expertElement = document.querySelector('input[name="exp"]:checked');
     const expert = expertElement ? expertElement.value : "RED TEAM"; 
-    const vaka = document.getElementById("vaka-select").value;
-    const sector = document.getElementById("sector-select").value;
+    const vaka = document.getElementById("vaka-select") ? document.getElementById("vaka-select").value : "-";
+    const sector = document.getElementById("sector-select") ? document.getElementById("sector-select").value : "-";
     
     appendMsg("user", text || "Görsel Analiz Talebi");
-    input.value = "";
-    btn.disabled = true;
-    btn.innerText = "RUNNING...";
+    if(input) input.value = "";
+    if(btn) {
+        btn.disabled = true;
+        btn.innerText = "RUNNING...";
+    }
 
     try {
         let base64Image = null;
@@ -134,7 +140,6 @@ async function runAnalysis() {
             }
         }
 
-       // Artık analiz isteği doğrudan Render backendine gidiyor
         const res = await fetch(`${BACKEND_URL}/api/analyze`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
@@ -143,12 +148,18 @@ async function runAnalysis() {
                 expert: expert, 
                 attackVector: vaka,
                 sector: sector,
-                image: base64Image 
+                image: base64Image,
+                userApiKey: savedKey
             })
         });
         
-        if(!res.ok) throw new Error("Sunucu yanıt vermedi");
-        const data = await res.json();
+       if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || `Sunucu hatası kodu: ${res.status}`);
+        }
+    const data = await res.json();
+        if(data.error) throw new Error(data.error);
+
         const report = {
             reportId: data.reportId || Math.floor(Math.random()*9000+1000),
             expert, 
@@ -161,14 +172,16 @@ async function runAnalysis() {
         saveHistory(report);
 
     } catch (e) {
-        appendMsg("assistant", `⚠️ Hata: ${e.message === "Sunucu yanıt vermedi" ? "Bağlantı kesildi." : e.message}`);
+        appendMsg("assistant", `⚠️ Hata: ${e.message}`);
     } finally {
-        btn.disabled = false;
-        btn.innerText = "ANALYZE";
+        if(btn) {
+            btn.disabled = false;
+            btn.innerText = "ANALYZE";
+        }
         if(fileInput) fileInput.value = "";
         const preview = document.getElementById("attachment-preview");
         if(preview) preview.textContent = "";
-        input.focus();
+        if(input) input.focus();
     }
 }
 
@@ -194,26 +207,23 @@ function appendMsg(role, text, meta = "", report = null) {
         const actionsDiv = document.createElement("div");
         actionsDiv.className = "msg-actions";
         
-        // COPY
         const copyBtn = document.createElement("button");
         copyBtn.className = "action-btn copy-btn";
         copyBtn.innerText = "COPY";
         copyBtn.onclick = () => {
             navigator.clipboard.writeText(text);
             copyBtn.innerText = "✔️";
-            setTimeout(() => copyBtn.innerText = "COPY", 2000);
+            setTimeout(() => { copyBtn.innerText = "COPY"; }, 2000);
         };
         actionsDiv.appendChild(copyBtn);
 
         if(report) {
-            // PDF
             const pdfBtn = document.createElement("button");
             pdfBtn.className = "action-btn report-btn";
             pdfBtn.innerText = "STRATEGIC REPORT (PDF)";
-            pdfBtn.onclick = () => downloadPdf(report);
+            pdfBtn.onclick = () => { downloadPdf(report); };
             actionsDiv.appendChild(pdfBtn);
 
-            // SEÇİMLİ PASLA BÖLÜMÜ 
             const allExpertsList = [
                 "Red Team Expert",
                 "Blue Team Responder",
@@ -254,7 +264,7 @@ function appendMsg(role, text, meta = "", report = null) {
                 const passBtn = document.createElement("button");
                 passBtn.className = "action-btn pass-btn";
                 passBtn.style.color = "#10b981"; 
-                passBtn.innerText = `🔄 PASLA`;
+                passBtn.innerText = "🔄 PASLA";
                 passBtn.onclick = () => {
                     const targetExpert = selectTarget.value;
                     const radios = document.querySelectorAll('input[name="exp"]');
@@ -265,10 +275,12 @@ function appendMsg(role, text, meta = "", report = null) {
                         }
                     });
                     
-                    const passText = `Önceki uzman (${report.expert}) şu bulguları raporladı:\n"${text}"\n\nŞimdi rolün: ${targetExpert}. Bu durumu kendi uzmanlık perspektifinden değerlendir, eksikleri bul og bir aksiyon planı çıkar.`;
+                    const passText = `Önceki uzman (${report.expert}) şu bulguları raporladı:\n"${text}"\n\nŞimdi rolün: ${targetExpert}. Bu durumu kendi uzmanlık perspektifinden değerlendir, eksikleri bul ve bir aksiyon planı çıkar.`;
                     const input = document.getElementById("prompt-in");
-                    input.value = passText;
-                    runAnalysis();
+                    if(input) {
+                        input.value = passText;
+                        runAnalysis();
+                    }
                 };
                 
                 passContainer.appendChild(selectTarget);
@@ -323,7 +335,7 @@ function deleteHistoryItem(index) {
 function downloadPdf(data) {
     if(typeof pdfMake === 'undefined') return alert("PDF modülü yüklenemedi.");
 
-    const safeVakaName = data.attackVector.replace(/[/\\?%*:|"<>]/g, '-'); 
+    const safeVakaName = data.attackVector.replace(/[\/\\?%*:|"<>]/g, '-'); 
     const fileName = `${safeVakaName} - CAS-${data.reportId}.pdf`;
 
     function parseMarkdownToPdf(text) {
@@ -359,7 +371,7 @@ function downloadPdf(data) {
                                 margin: [0, 12, 0, 12] 
                             }
                         ]
-                    ]
+                    ] // İŞTE UNUTULAN KÖŞELİ PARANTEZ BURASIYDI!
                 },
                 layout: 'noBorders',
                 margin: [0, 0, 0, 20] 
@@ -387,19 +399,56 @@ function downloadPdf(data) {
     pdfMake.createPdf(docDef).download(fileName);
 }
 
+// 📑 GİRİŞ EKRANI (MODAL) YÖNETİMİ
+document.addEventListener("DOMContentLoaded", () => {
+    const savedKey = localStorage.getItem("cassandra_groq_key");
+    const modal = document.getElementById("apiKeyModal");
+    
+    if (!savedKey && modal) {
+        modal.style.display = "flex";
+    } else if (modal) {
+        modal.style.display = "none";
+    }
+
+    const saveBtn = document.getElementById("saveKeyBtn");
+    if(saveBtn) {
+        saveBtn.addEventListener("click", () => {
+            const keyInput = document.getElementById("modalApiKeyInput").value.trim();
+            
+            if (!keyInput.startsWith("gsk_")) {
+                alert("Lütfen 'gsk_' ile başlayan geçerli bir Groq API Key girin usta! ❌");
+                return;
+            }
+
+            localStorage.setItem("cassandra_groq_key", keyInput);
+            if(modal) modal.style.display = "none";
+            window.location.reload(); 
+        });
+    }
+});
+
 // BAŞLATICILAR
 window.onload = async () => { 
     initSystem(); 
     await loadScenarios(); 
     renderHistory(); 
 };
-document.getElementById("analyze-btn").onclick = runAnalysis;
-document.getElementById("prompt-in").onkeydown = (e) => { if(e.key === "Enter") runAnalysis(); };
-document.getElementById("attach-btn").onclick = () => document.getElementById("file-input").click();
-document.getElementById("file-input").onchange = (e) => {
-    const prev = document.getElementById("attachment-preview");
-    if(prev) prev.textContent = e.target.files[0] ? `📁 ${e.target.files[0].name}` : "";
-};
+
+if(document.getElementById("analyze-btn")) {
+    document.getElementById("analyze-btn").onclick = runAnalysis;
+}
+if(document.getElementById("prompt-in")) {
+    document.getElementById("prompt-in").onkeydown = (e) => { if(e.key === "Enter") runAnalysis(); };
+}
+if(document.getElementById("attach-btn")) {
+    document.getElementById("attach-btn").onclick = () => { document.getElementById("file-input").click(); };
+}
+if(document.getElementById("file-input")) {
+    document.getElementById("file-input").onchange = (e) => {
+        const prev = document.getElementById("attachment-preview");
+        if(prev) prev.textContent = e.target.files[0] ? `📁 ${e.target.files[0].name}` : "";
+    };
+}
 
 // 7. PANO RESİM YAPIŞTIRMA DESTEĞİ
 document.addEventListener('paste', (event) => {

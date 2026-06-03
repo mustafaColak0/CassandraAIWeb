@@ -1,4 +1,4 @@
-let scenarios = {};
+var scenarios = (typeof scenarios !== 'undefined' && scenarios) ? scenarios : {};
 const CHAT_SESSIONS_KEY = "cassandra_soc_history_v4";
 
 // BACKEND URLSİ (Render üzerindeki yeni backend'e yönlendiriyor)

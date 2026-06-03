@@ -16,7 +16,11 @@ const groq = new Groq({
 const CHAT_BG_PATH = path.join(__dirname, "public", "cs.png"); 
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: "https://mustafacolak0.github.io",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"]
+}));
 app.use(express.json({ limit: '50mb' })); 
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 

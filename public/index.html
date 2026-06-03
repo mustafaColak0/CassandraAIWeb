@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CASSANDRA // STEALTH OPS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=JetBrains+Mono&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="png" href="cs.png">
+</head>
+<body>
+
+    <div id="api-auth-overlay" style="
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background-color: #030712; z-index: 99999; display: none; 
+    flex-direction: column; align-items: center; justify-content: center; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #cbd5e1;">
+    
+    <div style="
+        background: #0f172a; padding: 40px; border-radius: 12px; 
+        border: 2px solid #00d4ff; box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); 
+        text-align: center; max-width: 450px; width: 90%;">
+        
+        <h2 style="color: #00d4ff; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;">🛡️ CASSANDRA OPS</h2>
+        <p style="font-size: 14px; color: #94a3b8; margin-bottom: 25px;">Devam etmek için siber operasyon merkezine geçerli bir API KEY tanımlamanız gerekmektedir.</p>
+        
+        <input type="password" id="global-api-key-input" placeholder="gsk_..." style="
+            width: 100%; padding: 12px; background: #020617; border: 1px solid #1e293b; 
+            border-radius: 6px; color: #fff; font-size: 16px; outline: none; 
+            margin-bottom: 20px; box-sizing: border-box; text-align: center;">
+            
+        <button onclick="initializeCassandraAuth()" style="
+            width: 100%; padding: 12px; background: rgba(0, 212, 255, 0.1); 
+            border: 1px solid #00d4ff; color: #00d4ff; font-weight: bold; 
+            border-radius: 6px; cursor: pointer; transition: 0.3s all;">
+            SİSTEMİ AKTİF ET
+        </button>
+    </div>
+</div>
+
+<script>
+    // Sayfa yüklenirken anahtar kontrolü yap
+    document.addEventListener("DOMContentLoaded", function() {
+        const savedKey = localStorage.getItem("cassandra_api_key");
+        if (!savedKey) {
+            document.getElementById("api-auth-overlay").style.display = "flex";
+        }
+    });
+
+    // Anahtarı tarayıcı hafızasına kaydet ve ekranı kapat
+    function initializeCassandraAuth() {
+        const inputKey = document.getElementById("global-api-key-input").value.trim();
+        if (!inputKey) {
+            alert("Lütfen boş bırakmayın! 🔑");
+            return;
+        }
+        localStorage.setItem("cassandra_api_key", inputKey);
+        document.getElementById("api-auth-overlay").style.display = "none";
+        window.location.reload(); // Değişikliklerin oturması için sayfayı yenile
+    }
+</script>
+
+    <div class="bg-layer">
+       
+        <div class="scrolling-line line-2">WE SAW IT COMING WE SAW IT COMING</div>
+       
+    </div>
+
+    <div id="intro-overlay">
+        <h1 class="intro-text">WE SAW IT COMING</h1>
+    </div>
+
+    <div id="app-container">
+        <aside id="sidebar">
+            <div class="sidebar-header">Learned Panel</div>
+            
+            <div class="sidebar-content">
+                <label>Sektörel Alan</label>
+                <select id="sector-select"></select>
+                
+                <label>Vaka Senaryosu</label>
+                <select id="vaka-select"></select>
+                
+                <label>Aktif Analist</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="exp" value="Red Team Expert" checked> 
+                        <span class="analyst-logo red">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4d6d"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z "/></svg>
+                        </span> Red Team Expert
+                    </label>
+                    <label><input type="radio" name="exp" value="Blue Team Responder"> <span class="analyst-logo blue">🛡️</span> Blue Team Responder</label>
+                    <label><input type="radio" name="exp" value="Chief Strategist"> <span class="analyst-logo gold">🧠</span> Chief Strategist</label>
+                    <label><input type="radio" name="exp" value="OSINT Specialist"> <span class="analyst-logo purple">🔍</span> OSINT Specialist</label>
+                    <label><input type="radio" name="exp" value="Threat Intelligence"> <span class="analyst-logo silver">⚖️</span> Threat Intelligence</label>
+                    <label><input type="radio" name="exp" value="Forensics Specialist"> <span class="analyst-logo cyan">🧪</span> Forensics Specialist</label>
+                    <label><input type="radio" name="exp" value="Compliance Officer"> <span class="analyst-logo silver">⚖️</span> Compliance Officer</label>
+                </div>
+            </div>
+
+            <div class="history-section">
+                <div class="history-header">
+                    <label style="margin:0;">ANALİZ GEÇMİŞİ</label>
+                    <button id="history-toggle-btn" class="history-control-btn">📂</button>
+                </div>
+                <div id="history-content" class="history-content active">
+                    <div id="history-list"></div>
+                    <button id="clear-history-btn" class="clear-all-btn">🗑️ TÜMÜNÜ SIFIRLA</button>
+                </div>
+            </div>
+        </aside>
+
+        <main id="main-view">
+            <header class="status-bar-wrapper">
+                <div class="status-bar">
+                    <div class="time-group">
+                        <span id="clock-local">LOCAL --:--:--</span>
+                        <span id="clock-utc">UTC --:--:--</span>
+                    </div>
+                    <div class="main-title"> CASSANDRA AI</div>
+                    <div class="threat-pill">SYSTEM: ACTIVE</div>
+                </div>
+                <div class="analysis-params-bar">
+                    <div class="param-item"><span>SEKTÖR:</span> <b id="display-sector">-</b></div>
+                    <div class="param-item"><span>VAKA:</span> <b id="display-vaka">-</b></div>
+                    <div class="param-item"><span>ANALİST:</span> <b id="display-analyst">-</b></div>
+                </div>
+            </header>
+
+            <div class="chat-column">
+                <div id="chat-flow">
+                    <div class="msg ai-msg">
+                        <div class="msg-head assistant">
+                            <span class="chat-avatar assistant gold">CSA</span>
+                            <span class="expert-tag">SYSTEM INITIALIZER</span>
+                        </div>
+                        <div class="msg-body">
+                            <p>Protokol hazır. Analiz parametrelerini yukarıdan kontrol edebilirsin.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="input-zone-wrapper">
+                    <div id="attachment-preview" class="attachment-preview"></div>
+                    <div id="input-zone">
+                        <input type="file" id="file-input" hidden />
+                        <button id="attach-btn" class="attach-btn">+</button>
+                        <input type="text" id="prompt-in" placeholder="Talimatınızı buraya yazın..." autocomplete="off">
+                        <button id="analyze-btn" class="send-btn">ANALYZE</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

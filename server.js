@@ -110,12 +110,14 @@ app.get("/chat-bg", (_req, res) => {
 });
 
 
+//  YENİ GÜVENLİ BLOKLAR:
+// Ana sayfa isteği geldiğinde index.html gönder
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Diğer tanımlanmayan istekler için de index.html döndür
-app.get('*', (req, res) => {
+// Geri kalan tüm belirsiz rotaları (SPA) yakalamak için yeni güvenli format:
+app.get("(.*)", (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 

@@ -104,21 +104,14 @@ GÖREVİN:
     }
 });
 
-// Arka plan resmi için güvenli yol yönlendirmesi
+// 4. ASSETS VE ANA SAYFA ROTASI (Güvenli ve Karakter İçermeyen Yapı)
 app.get("/chat-bg", (_req, res) => { 
     res.sendFile(path.join(__dirname, "arka-plan.png")); 
 });
 
-
-//  YENİ GÜVENLİ BLOKLAR:
-// Ana sayfa isteği geldiğinde index.html gönder
+// Render'ın veya tarayıcının istek atıp çökmesini engelleyen düz ana sayfa metni
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Geri kalan tüm belirsiz rotaları (SPA) yakalamak için yeni güvenli format:
-app.get("(.*)", (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.send("🛡️ CASSANDRA AI BACKEND RUNNING SUCCESSFULLY!");
 });
 
 const PORT = process.env.PORT || 5000;

@@ -30,15 +30,38 @@ function initSystem() {
         }
     }, 2500);
 
-    const updateDisplay = () => {
+const updateDisplay = () => {
         const secVal = document.getElementById("sector-select")?.value || "-";
         const vakVal = document.getElementById("vaka-select")?.value || "-";
         const expEl = document.querySelector('input[name="exp"]:checked');
-        const expVal = expEl ? expEl.value.split(' ')[0].toUpperCase() : "RED";
+        
+        // Ham değeri alıp küçük harfe çeviriyoruz ki karşılaştırma garanti olsun
+        const rawExp = expEl ? expEl.value.trim().toLowerCase() : "red team expert";
+        let fullAnalystName = "🛡️ SOC Analyst"; 
+
+       // Burada uzmanlık isimlerini daha görsel ve etkileyici hale getiriyoruz
+        if (rawExp.includes("red team")) {
+            fullAnalystName = "🛡️ RED TEAM EXPERT";
+        } else if (rawExp.includes("blue team")) {
+            fullAnalystName = "🔷 BLUE TEAM RESPONDER";
+        } else if (rawExp.includes("chief")) {
+            fullAnalystName = "🧠 CHIEF STRATEGIST";
+        } else if (rawExp.includes("osint")) {
+            fullAnalystName = "🔍 OSINT SPECIALIST";
+        } else if (rawExp.includes("threat")) {
+            fullAnalystName = "🕵️‍♀️ THREAT INTELLIGENCE";
+        } else if (rawExp.includes("forensics")) {
+            fullAnalystName = "🧪 FORENSICS SPECIALIST";
+        } else if (rawExp.includes("compliance")) {
+            fullAnalystName = "⚖️ COMPLIANCE OFFICER";
+        } else {
+            // Eğer gözden kaçan bir rol olursa ham değeri büyük harfle yazdırır
+            fullAnalystName = `🛡️ ${rawExp.toUpperCase()}`;
+        }
         
         if(document.getElementById("display-sector")) document.getElementById("display-sector").textContent = secVal;
         if(document.getElementById("display-vaka")) document.getElementById("display-vaka").textContent = vakVal;
-        if(document.getElementById("display-analyst")) document.getElementById("display-analyst").textContent = expVal;
+        if(document.getElementById("display-analyst")) document.getElementById("display-analyst").textContent = fullAnalystName;
     };
 
     document.getElementById("sector-select")?.addEventListener("change", updateDisplay);

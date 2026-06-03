@@ -17,7 +17,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 const CHAT_BG_PATH = path.join(__dirname, "public", "assets", "arka-plan.png");
 
 // Statik dosyaları kök dizinden oku
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
 
 // 1. OVALAY CHAT ROTASI (Axios Temelli)

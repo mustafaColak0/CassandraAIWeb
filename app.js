@@ -48,7 +48,7 @@ const updateDisplay = () => {
         } else if (rawExp.includes("osint")) {
             fullAnalystName = "🔍 OSINT SPECIALIST";
         } else if (rawExp.includes("threat")) {
-            fullAnalystName = "⚖️ THREAT INTELLIGENCE";
+            fullAnalystName = "🕵️‍♀️ THREAT INTELLIGENCE";
         } else if (rawExp.includes("forensics")) {
             fullAnalystName = "🧪 FORENSICS SPECIALIST";
         } else if (rawExp.includes("compliance")) {

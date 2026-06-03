@@ -18,7 +18,6 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(__dirname));
 
 // 🚨 RENDER'IN ARKA PLANDA SÜREKLİ 'public/index.html' ARALAYIP HATA VERMESİNİ ENGELEYEN KORUMA
-// Eğer Render olmayan bir public klasörünü sorgularsa ana dizindeki index.html'i fırlatıyoruz
 app.get("/public/index.html", (req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));
 });
@@ -30,7 +29,6 @@ const scenarioPath = path.join(__dirname, "senaryolar.js");
 if (fs.existsSync(scenarioPath)) {
     try {
         const imported = require(scenarioPath);
-        // senaryolar.js içindeki export yapısına göre veriyi güvenle çekiyoruz
         SCENARIOS = imported.SCENARIOS || imported.scenarios || imported;
         console.log("✅ senaryolar.js başarıyla sunucuya bağlandı!");
     } catch (e) {
@@ -65,7 +63,6 @@ app.get("/api/scenarios", (req, res) => {
     if (SCENARIOS) {
         const normalizedScenarios = {};
         
-        // uygulama.js içindeki select menüsüyle senaryolar.js içindeki keyleri esnekçe eşleştiriyoruz
         Object.keys(SCENARIOS).forEach(key => {
             if (key.includes("Ağ") || key.toLowerCase().includes("network")) {
                 normalizedScenarios["Ağlar"] = SCENARIOS[key];
@@ -84,7 +81,6 @@ app.get("/api/scenarios", (req, res) => {
         return res.json({ scenarios: normalizedScenarios });
     }
 
-    // ACİL DURUM YEDEĞİ (Dosya bir anlık kaybolursa sistem çökmesin)
     return res.json({ 
         scenarios: {
             "Ağlar": ["Liman Tarama", "DDoS Analizi"],
@@ -149,13 +145,14 @@ GÖREVİN:
     }
 });
 
-// 4. ASSETS VE ANA SAYFA ROTASI
+// 4. ASSETS ROTASI
 app.get("/chat-bg", (_req, res) => { 
-    res.sendFile(path.join(__dirname, "cs.png")); // Klasöründeki güncel cs.png ismine eşitlendi
+    res.sendFile(path.join(__dirname, "cs.png"));
 });
 
+// 🚨 KRİTİK DÜZELTME: Ana adrese istek gelince ekrana düz yazı basma, doğrudan siber operasyon panelini fırlat!
 app.get("/", (req, res) => {
-    res.send("🛡️ CASSANDRA AI BACKEND RUNNING SUCCESSFULLY!");
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
 const PORT = process.env.PORT || 5000;

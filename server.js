@@ -12,7 +12,7 @@ const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY 
 });
 
-// ✅ DÜZELTİLDİ: Arka plan resmi artık bilgisayara bağımlı değil, proje klasöründen çekilecek
+// SABİTLER
 const CHAT_BG_PATH = path.join(__dirname, "public", "cs.png"); 
 
 const app = express();
@@ -57,7 +57,7 @@ GÖREVİN:
             });
         }
 
-        // ✅ DÜZELTİLDİ: Groq'un resmi ve görsel destekleyen stabil Llama modeline geçildi
+        // Groq'un resmi ve görsel destekleyen stabil Llama modeline geçildi
         const completion = await groq.chat.completions.create({
             messages: [
                 { role: "system", content: systemInstruction },

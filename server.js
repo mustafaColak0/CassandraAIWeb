@@ -4,7 +4,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const Groq = require("groq-sdk"); 
 
-const { SCENARIOS } = require("./backend/scenarios");
+const { SCENARIOS } = require("./scenarios");
 dotenv.config();
 
 // GROQ İSTEMCİSİ
@@ -89,7 +89,7 @@ app.get("/chat-bg", (_req, res) => {
 
 // 3. Catch-all (index.html servisi)
 app.use((req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
 const PORT = process.env.PORT || 5000;

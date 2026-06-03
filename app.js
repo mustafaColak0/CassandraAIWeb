@@ -78,8 +78,7 @@ async function loadScenarios() {
         targetScenarios = fallbacks; 
     }
     
-    // Eğer scenarios nesnesi başka yerde 'const' ile tanımlandıysa direkt ezmek hata verdirebilir.
-    // Bu yüzden nesnenin içini boşaltıp verileri güvenle içine kopyalıyoruz (Mutate).
+// Global senaryoları güncelleyoruz, böylece diğer fonksiyonlar güncel verilere erişebilir
     Object.keys(window.scenarios).forEach(key => delete window.scenarios[key]);
     Object.assign(window.scenarios, targetScenarios);
     
@@ -412,7 +411,7 @@ function downloadPdf(data) {
     pdfMake.createPdf(docDef).download(fileName);
 }
 
-// 📑 GİRİŞ EKRANI (MODAL) YÖNETİMİ
+// GİRİŞ EKRANI (MODAL) YÖNETİMİ
 document.addEventListener("DOMContentLoaded", () => {
     const savedKey = localStorage.getItem("cassandra_groq_key");
     const modal = document.getElementById("apiKeyModal");
@@ -422,7 +421,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (modal) {
         modal.style.display = "none";
     }
-
+    // API Key kaydetme işlemi
     const saveBtn = document.getElementById("saveKeyBtn");
     if(saveBtn) {
         saveBtn.addEventListener("click", () => {

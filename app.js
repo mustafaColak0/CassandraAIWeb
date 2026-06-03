@@ -1,8 +1,6 @@
 let scenarios = {};
 const CHAT_SESSIONS_KEY = "cassandra_soc_history_v4";
 
-const BACKEND_BASE_URL = "https://cassandra-ai-backend.onrender.com"; 
-
 // 1. SİSTEM BAŞLATMA
 function initSystem() {
     // Saat güncelleme
@@ -46,7 +44,6 @@ function initSystem() {
     // UI etkileşimi: Geçmiş Modülü
     const histBtn = document.getElementById("history-toggle-btn");
     if(histBtn) histBtn.onclick = () => document.getElementById("history-content").classList.toggle("active");
-    
     // Geçmiş temizleme butonu
     const clearBtn = document.getElementById("clear-history-btn");
     if(clearBtn) clearBtn.onclick = () => {
@@ -61,6 +58,7 @@ function initSystem() {
 
 // 2. SENARYO YÜKLEME
 async function loadScenarios() {
+    // Eğer API başarısız olursa diye bir yedek (fallback) senaryo seti tanımlıyoruz
     const fallbacks = {
         "Ağ Güvenliği": ["Port Tarama", "DDoS Analizi"],
         "Web Uygulama": ["SQL Injection", "XSS", "IDOR"],
@@ -68,16 +66,15 @@ async function loadScenarios() {
     };
 
     try {
-        // 🛠️ Localhost API entegrasyonu yapıldı
-        const res = await fetch(`${BACKEND_BASE_URL}/api/scenarios`);
+        const res = await fetch("/api/scenarios");
         const data = await res.json();
         scenarios = (data.scenarios && Object.keys(data.scenarios).length > 0) ? data.scenarios : fallbacks;
     } catch { scenarios = fallbacks; }
-    
+    // Senaryolar yüklendikten sonra dropdownları dolduruyoruz
     const sector = document.getElementById("sector-select");
     const vaka = document.getElementById("vaka-select");
     if(!sector || !vaka) return;
-    
+    // Sektör dropdownunu dolduruyoruz
     sector.innerHTML = Object.keys(scenarios).map(s => `<option value="${s}">${s}</option>`).join("");
     sector.onchange = () => {
         vaka.innerHTML = scenarios[sector.value].map(v => `<option value="${v}">${v}</option>`).join("");
@@ -85,90 +82,62 @@ async function loadScenarios() {
     sector.onchange();
 }
 
-// 3. MESAJLAŞMA VE ANALİZ (METİN, RESİM VE .TXT/.LOG DOSYA ENTEGRASYONU)
-// 3. MESAJLAŞMA VE ANALİZ (METİN, RESİM, .TXT, .LOG VE .PDF DOSYA ENTEGRASYONU)
+// 3. MESAJLAŞMA VE ANALİZ
 async function runAnalysis() {
     const input = document.getElementById("prompt-in");
     const btn = document.getElementById("analyze-btn");
     const fileInput = document.getElementById("file-input");
     const text = input.value.trim();
-          
+    // Eğer hem metin yoksa hem de dosya eklenmemişse, kullanıcıyı uyarıyoruz       
     if(!text && (!fileInput || !fileInput.files[0])) return;
-    
+    // Seçilen uzmanı alıyoruz, eğer hiçbiri seçilmemişse varsayılan olarak "RED TEAM" atıyoruz
     const expertElement = document.querySelector('input[name="exp"]:checked');
     const expert = expertElement ? expertElement.value : "RED TEAM"; 
     const vaka = document.getElementById("vaka-select").value;
     const sector = document.getElementById("sector-select").value;
-    
-    // UI Bildirimi
-    let userMsgHTML = text || "";
-    if (fileInput && fileInput.files[0]) {
-        userMsgHTML += userMsgHTML ? `<br>📁 <i>Eklenti: ${fileInput.files[0].name}</i>` : `📁 <i>Dosya Analiz Talebi: ${fileInput.files[0].name}</i>`;
-    }
-    appendMsg("user", userMsgHTML);
-
+    // Kullanıcının mesajını hemen ekrana basıyoruz (dosya içeriği veya görsel eklenmiş olsa bile)
+    appendMsg("user", text || "Görsel Analiz Talebi");
     input.value = "";
     btn.disabled = true;
-    btn.style.opacity = "0.5"; 
-    btn.innerHTML = "RUNNING...";
+    btn.innerText = "RUNNING...";
 
-    try {
-        let base64Image = null;
-        let finalPrompt = text; 
+try {
+        let base64Image = null;// Eğer dosya eklenmişse, önce dosya türünü kontrol ediyoruz ve ona göre işlemi yapıyoruz
+        let finalPrompt = text; // API'ye gidecek nihai metin
     
         if (fileInput && fileInput.files[0]) {
             const file = fileInput.files[0];
-            if (file.size > 4 * 1024 * 1024) throw new Error("Dosya çok büyük (Maks 4MB)"); // PDF'ler için sınırı 4MB yaptık
+            if (file.size > 2 * 1024 * 1024) throw new Error("Dosya çok büyük (Maks 2MB)");
             
-            // 📝 .txt veya .log dosyalarını okuma mantığı
-            if (file.type.match("text.*") || file.name.endsWith(".txt") || file.name.endsWith(".log")) {
+            // 1. DURUM: Dosya bir metin dosyasıysa (.txt)
+            if (file.type.match("text.*") || file.name.endsWith(".txt")) {
+                // Dosya içeriğini okuyup metin olarak API'ye ekliyoruz
                 const fileContent = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = () => resolve(reader.result);
-                    reader.onerror = () => reject(new Error("Dosya okunurken bir hata oluştu."));
-                    reader.readAsText(file, "UTF-8");
+                    reader.onerror = reject;
+                    reader.readAsText(file); // Metin olarak oku
                 });
                 
+                // Kullanıcının yazdığı mesaja dosya içeriğini görünmez bir şekilde ekle
                 finalPrompt = finalPrompt 
-                    ? `${finalPrompt}\n\n[SİSTEM TARAFINDAN EKLENEN DOSYA İÇERİĞİ/LOGLAR]:\n${fileContent}`
-                    : `Aşağıdaki dosya içeriğini siber güvenlik perspektifinden analiz et:\n\n[SİSTEM TARAFINDAN EKLENEN DOSYA İÇERİĞİ/LOGLAR]:\n${fileContent}`;
+                    ? `${finalPrompt}\n\n--- EKLENEN DOSYA İÇERİĞİ ---\n${fileContent}`
+                    : `Lütfen şu dosya içeriğini analiz et:\n\n--- EKLENEN DOSYA İÇERİĞİ ---\n${fileContent}`;
             } 
-            // 📑 .pdf dosyalarını okuma mantığı (YENİ EKLENDİ 🔥)
-            else if (file.name.endsWith(".pdf")) {
-                const arrayBuffer = await file.arrayBuffer();
-                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                let pdfText = "";
-                
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const tokenizedText = await page.getTextContent();
-                    const pageText = tokenizedText.items.map(token => token.str).join(" ");
-                    pdfText += pageText + "\n";
-                }
-
-                if(!pdfText.trim()) throw new Error("PDF içeriği boş veya taranmış resim formatında! Okunamadı.");
-
-                finalPrompt = finalPrompt 
-                    ? `${finalPrompt}\n\n[SİSTEM TARAFINDAN EKLENEN PDF İÇERİĞİ]:\n${pdfText}`
-                    : `Aşağıdaki PDF dökümanı içeriğini siber güvenlik perspektifinden analiz et:\n\n[SİSTEM TARAFINDAN EKLENEN PDF İÇERİĞİ]:\n${pdfText}`;
-            }
-            // 📸 Resim dosyası ise base64'e çevirme mantığı
-            else if (file.type.match("image.*")) {
+            // 2. DURUM: Dosya resimse (png, jpg, jpeg, vb.)
+            else {
+                // Resmi base64 formatına çeviriyoruz ve sadece veri kısmını alıyoruz (data:image/png;base64,... kısmını temizliyoruz)
                 base64Image = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = () => resolve(reader.result.split(',')[1]);
-                    reader.onerror = () => reject(new Error("Resim işlenirken bir hata oluştu."));
-                    reader.readAsDataURL(file); 
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file); // Resim olarak oku
                 });
-            } else {
-                throw new Error("Desteklenmeyen dosya formatı! Lütfen .pdf, .txt, .log veya resim yükleyin.");
             }
         }
 
-        const userKey = localStorage.getItem("cassandra_api_key");
-
-        const res = await fetch(`${BACKEND_BASE_URL}/api/analyze`, {
+        // fetch isteğini güncelliyoruz: Artık finalPrompt ve base64Image'i API'ye gönderiyoruz
+        const res = await fetch("/api/analyze", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({ 
@@ -176,17 +145,12 @@ async function runAnalysis() {
                 expert: expert, 
                 attackVector: vaka,
                 sector: sector,
-                image: base64Image,
-                userApiKey: userKey 
+                image: base64Image 
             })
         });
         
+        if(!res.ok) throw new Error("Sunucu yanıt vermedi");
         const data = await res.json();
-        
-        if (!res.ok || data.error) {
-            throw new Error(data.error || "Sunucu analizi tamamlayamadı.");
-        }
-
         const report = {
             reportId: data.reportId || Math.floor(Math.random()*9000+1000),
             expert, 
@@ -194,19 +158,15 @@ async function runAnalysis() {
             analysis: data.analysis,
             timestamp: new Date().toISOString()
         };
-
+        // API'den gelen cevaba göre mesajı ekrana basıyoruz
         appendMsg("assistant", data.analysis, `${expert} // CAS-${report.reportId}`, report);
         saveHistory(report);
 
     } catch (e) {
-        appendMsg("assistant", `⚠️ Hata: ${e.message}`);
+        appendMsg("assistant", `⚠️ Hata: ${e.message === "Sunucu yanıt vermedi" ? "Bağlantı kesildi." : e.message}`);
     } finally {
         btn.disabled = false;
-        btn.style.opacity = "1";
-        btn.style.color = "#00e5ff"; 
-        btn.style.textShadow = "0 0 8px rgba(0, 229, 255, 0.6)"; 
-        btn.innerHTML = "ANALYZE";
-        
+        btn.innerText = "ANALYZE";
         if(fileInput) fileInput.value = "";
         const preview = document.getElementById("attachment-preview");
         if(preview) preview.textContent = "";
@@ -232,7 +192,7 @@ function appendMsg(role, text, meta = "", report = null) {
             </div>
             <div class="msg-body">${cleanText}</div>
         `;
-        
+        // Mesajın altına aksiyon butonları ekliyoruz (COPY, PDF, PASLA)
         const actionsDiv = document.createElement("div");
         actionsDiv.className = "msg-actions";
         
@@ -255,7 +215,10 @@ function appendMsg(role, text, meta = "", report = null) {
             pdfBtn.onclick = () => downloadPdf(report);
             actionsDiv.appendChild(pdfBtn);
 
+            
+          
             // SEÇİMLİ PASLA BÖLÜMÜ 
+           // HTML'de name özelliği unutulmuş olma ihtimaline karşı tüm rolleri garantili bir listeye alıyoruz
             const allExpertsList = [
                 "Red Team Expert",
                 "Blue Team Responder",
@@ -273,6 +236,7 @@ function appendMsg(role, text, meta = "", report = null) {
                 passContainer.style.gap = "5px";
                 passContainer.style.marginLeft = "10px";
 
+                // Açılır Kutu (Dropdown)
                 const selectTarget = document.createElement("select");
                 selectTarget.style.background = "#1f2937";
                 selectTarget.style.color = "#22d3ee";
@@ -282,8 +246,10 @@ function appendMsg(role, text, meta = "", report = null) {
                 selectTarget.style.fontSize = "11px";
                 selectTarget.style.cursor = "pointer";
 
+                // Mevcut uzmanı al, boşlukları sil ve küçük harfe çevir (Kesin eşleşme için)
                 const currentExpert = (report.expert || "").trim().toLowerCase();
 
+                // Kendisi hariç diğer uzmanları ekle
                 allExpertsList.forEach(exp => {
                     if (exp.toLowerCase() !== currentExpert) {
                         const opt = document.createElement("option");
@@ -293,34 +259,35 @@ function appendMsg(role, text, meta = "", report = null) {
                     }
                 });
 
+                // Pasla Butonu
                 const passBtn = document.createElement("button");
                 passBtn.className = "action-btn pass-btn";
                 passBtn.style.color = "#10b981"; 
-                passBtn.style.fontWeight = "bold";
-                passBtn.innerText = "🔄 PASLA";
-                
+                passBtn.innerText = `🔄 PASLA`;
+                // Pasla butonuna tıklandığında seçilen hedefe göre mesajı güncelle ve analizi tetikle
                 passBtn.onclick = () => {
                     const targetExpert = selectTarget.value;
-        
+                    
+                    // UI'daki takım butonunu bul ve otomatik değiştir
                     const radios = document.querySelectorAll('input[name="exp"]');
-        
                     radios.forEach(r => {
+                        // Burada da garanti olsun diye toLowerCase ile arıyoruz
                         if(r.value.trim().toLowerCase() === targetExpert.toLowerCase()) {
                             r.checked = true;
                             r.dispatchEvent(new Event('change')); 
                         }
                     });
-        
-                    const passText = `Önceki uzman (${report.expert || "Sistem"}) şu bulguları raporladı:\n"${text}"\n\nŞimdi rolün: ${targetExpert}. Bu durumu kendi uzmanlık perspektifinden değerlendir, eksikleri bul ve bir aksiyon planı çıkar.`;
-        
+                    
+                    // Dinamik paslaşma metnini oluştur
+                    const passText = `Önceki uzman (${report.expert}) şu bulguları raporladı:\n"${text}"\n\nŞimdi rolün: ${targetExpert}. Bu durumu kendi uzmanlık perspektifinden değerlendir, eksikleri bul ve bir aksiyon planı çıkar.`;
+                    // Kullanıcının yazdığı mesaj kutusuna paslaşma metnini ekle
                     const input = document.getElementById("prompt-in");
-                    if(input) {
-                        input.value = passText;
-                    }
-        
+                    input.value = passText;
+                    
+                    // Analizi tetikle
                     runAnalysis();
                 };
-                
+                // Pasla bölümünü aksiyonlar arasına ekle
                 passContainer.appendChild(selectTarget);
                 passContainer.appendChild(passBtn);
                 actionsDiv.appendChild(passContainer);
@@ -329,7 +296,7 @@ function appendMsg(role, text, meta = "", report = null) {
         
         div.appendChild(actionsDiv);
     }
-    
+    // Mesajı akışa ekledikten sonra otomatik olarak en alta kaydırıyoruz
     flow.appendChild(div);
     flow.scrollTop = flow.scrollHeight;
 }
@@ -362,7 +329,7 @@ function renderHistory() {
         list.appendChild(div);
     });
 }
-
+// Geçmişten tek bir öğeyi silme fonksiyonu
 function deleteHistoryItem(index) {
     const history = JSON.parse(localStorage.getItem(CHAT_SESSIONS_KEY) || "[]");
     history.splice(index, 1);
@@ -374,9 +341,11 @@ function deleteHistoryItem(index) {
 function downloadPdf(data) {
     if(typeof pdfMake === 'undefined') return alert("PDF modülü yüklenemedi.");
 
+    // 1. DOSYA İSMİ DEĞİŞİKLİĞİ (Vaka Adı - CAS-ID)
     const safeVakaName = data.attackVector.replace(/[/\\?%*:|"<>]/g, '-'); 
     const fileName = `${safeVakaName} - CAS-${data.reportId}.pdf`;
 
+    // 2. MARKDOWN ÇÖZÜCÜ (En iyi metin okuma deneyimi için)
     function parseMarkdownToPdf(text) {
         const paragraphs = text.split('\n');
         const formatted = [];
@@ -391,10 +360,12 @@ function downloadPdf(data) {
         return formatted;
     }
 
+    // 3. GÖRSELDEKİ BİREBİR PDF TASARIMI
     const docDef = {
         pageSize: 'A4',
         pageMargins: [40, 40, 40, 60], 
         content: [
+            // Siyah/Neon Mavi Banner Başlık
             {
                 table: {
                     widths: ['*'],
@@ -405,8 +376,8 @@ function downloadPdf(data) {
                                 alignment: 'center',
                                 fontSize: 16,
                                 bold: true,
-                                color: '#00e5ff', 
-                                fillColor: '#050b14', 
+                                color: '#00e5ff', // Neon mavi
+                                fillColor: '#050b14', // Koyu siyah/lacivert zemin
                                 margin: [0, 12, 0, 12] 
                             }
                         ]
@@ -415,6 +386,8 @@ function downloadPdf(data) {
                 layout: 'noBorders',
                 margin: [0, 0, 0, 20] 
             },
+            
+            //Keskin Çizgili Tablo Yapısı
             {
                 table: {
                     headerRows: 0,
@@ -426,8 +399,11 @@ function downloadPdf(data) {
                         [{ text: 'TARİH', color: '#111827' }, { text: new Date(data.timestamp || Date.now()).toLocaleString('tr-TR'), color: '#111827' }]
                     ]
                 },
+                // Varsayılan tablo stili çizgili (grid) olduğu için layout belirtmiyoruz, tam resimdeki gibi çıkıyor.
                 margin: [0, 0, 0, 25]
             },
+            
+            // AI Metni (Markdown çözülmüş temiz format)
             ...parseMarkdownToPdf(data.analysis)
         ],
         defaultStyle: {
@@ -435,16 +411,16 @@ function downloadPdf(data) {
         }
     };
 
+    // PDF'i oluştur ve indir
     pdfMake.createPdf(docDef).download(fileName);
 }
-
 // BAŞLATICILAR
+// Sayfa yüklendiğinde sistemi başlat, senaryoları yükle ve geçmişi renderla
 window.onload = async () => { 
     initSystem(); 
     await loadScenarios(); 
     renderHistory(); 
 };
-
 document.getElementById("analyze-btn").onclick = runAnalysis;
 document.getElementById("prompt-in").onkeydown = (e) => { if(e.key === "Enter") runAnalysis(); };
 document.getElementById("attach-btn").onclick = () => document.getElementById("file-input").click();
@@ -452,24 +428,29 @@ document.getElementById("file-input").onchange = (e) => {
     const prev = document.getElementById("attachment-preview");
     if(prev) prev.textContent = e.target.files[0] ? `📁 ${e.target.files[0].name}` : "";
 };
-
 // 7. PANO RESİM YAPIŞTIRMA DESTEĞİ
 document.addEventListener('paste', (event) => {
+    // Panodaki verileri al
     const items = (event.clipboardData || event.originalEvent.clipboardData).items;
     
     for (let index in items) {
         const item = items[index];
         
+        // Eğer yapıştırılan şey bir dosya ve bir resimse
         if (item.kind === 'file' && item.type.includes('image')) {
             const blob = item.getAsFile();
+            
+            // Senin HTML'deki dosya yükleme inputunu bul
             const fileInput = document.querySelector('input[type="file"]');
             
             if (fileInput) {
+                // Yapıştırılan resmi file input'un içine sanal olarak yerleştir
                 const dataTransfer = new DataTransfer();
                 const file = new File([blob], `Ekran_Goruntusu_${Date.now()}.png`, { type: item.type });
                 dataTransfer.items.add(file);
                 fileInput.files = dataTransfer.files;
                 
+                //Kullanıcının yazdığı mesaj kutusuna ufak bir bildirim bırak
                 const promptIn = document.getElementById("prompt-in");
                 if (promptIn && promptIn.value === "") {
                     promptIn.value = "[📸 Ekran görüntüsü eklendi, analiz için butona basın...]";

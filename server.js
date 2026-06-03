@@ -4,7 +4,6 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const Groq = require("groq-sdk"); 
 const axios = require("axios");
-const { SCENARIOS } = require("./backend/scenarios");
 dotenv.config();
 
 const app = express();
@@ -14,13 +13,10 @@ app.use(cors({ origin: "*" }));
 app.use(express.json({ limit: '50mb' })); 
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-const CHAT_BG_PATH = path.join(__dirname, "public", "assets", "arka-plan.png");
-
-// Statik dosyaları kök dizinden oku
+// Statik dosyaları doğrudan kök dizinden servis et
 app.use(express.static(__dirname));
 
-
-// 1. OVALAY CHAT ROTASI (Axios Temelli)
+// 1. OVALAY CHAT ROTASI (Axios Temelli OpenAI Bağlantısı)
 app.post('/api/chat', async (req, res) => {
     const { prompt, userApiKey } = req.body;
     if (!userApiKey) return res.status(400).json({ error: "API Key eksik 🔑" });
@@ -42,18 +38,25 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
-//  2. SENARYOLAR API
+// 2. SENARYOLAR API (Yedek Koruma/Fallback Modlu)
 app.get("/api/scenarios", (req, res) => {
-    return res.json({ scenarios: SCENARIOS });
+    // Klasör silindiği için sistemin çökmesini engellemek adına doğrudan veriyi döndürüyoruz
+    return res.json({ 
+        scenarios: {
+            "Ağ Güvenliği": ["Port Tarama", "DDoS Analizi"],
+            "Web Uygulama": ["SQL Injection", "XSS", "IDOR"],
+            "Sistem Sızma": ["Privilege Escalation", "Lateral Movement"]
+        } 
+    });
 });
 
-//  3. DİNAMİK ANALİZ ROTASI (Groq Temelli)
+// 3. DİNAMİK ANALİZ ROTASI (Groq Temelli Llama 4 Modeli)
 app.post("/api/analyze", async (req, res) => {
-    const { expert, image, attackVector, sector, prompt, userApiKey } = req.body;
+    const { expert, image, attackVector, sector, prompt } = req.body;
 
-   if (!process.env.GROQ_API_KEY) {
-    return res.status(400).json({ error: "Sunucuda API Key tanımlanmamış! 🔑" });
-}
+    if (!process.env.GROQ_API_KEY) {
+        return res.status(400).json({ error: "Sunucuda API Key tanımlanmamış! 🔑" });
+    }
 
     try {
         const dynamicGroq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -97,14 +100,22 @@ GÖREVİN:
 
     } catch (error) {
         console.error("DİNAMİK API HATASI:", error);
-        return res.status(401).json({ error: "Girdiğiniz API Key geçersiz veya Groq sunucuları reddetti! ❌" });
+        return res.status(500).json({ error: "Groq API veya analiz işlemi sırasında bir hata oluştu! ❌" });
     }
 });
 
-app.get("/chat-bg", (_req, res) => { res.sendFile(CHAT_BG_PATH); });
+// Arka plan resmi için güvenli yol yönlendirmesi
+app.get("/chat-bg", (_req, res) => { 
+    res.sendFile(path.join(__dirname, "arka-plan.png")); 
+});
 
-// Diğer tüm rotalar için index.html'i döndür (SPA desteği)
-app.use((req, res) => {
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Diğer tanımlanmayan istekler için de index.html döndür
+app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 

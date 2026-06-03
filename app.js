@@ -2,7 +2,7 @@ let scenarios = {};
 const CHAT_SESSIONS_KEY = "cassandra_soc_history_v4";
 
 // 🚨 CANLI BAĞLANTI AYARI: Kendi gerçek Render URL'ini buraya yapıştır kanka!
-const BACKEND_URL = "https://cassandraaiweb.onrender.com"; 
+const BACKEND_URL = "https://cassandra-ai-backend.onrender.com"; 
 
 // 1. SİSTEM BAŞLATMA
 function initSystem() {

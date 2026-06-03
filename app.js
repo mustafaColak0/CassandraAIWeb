@@ -1,10 +1,14 @@
-var scenarios = (typeof scenarios !== 'undefined' && scenarios) ? scenarios : {};
+// 1. SİSTEM BAŞLATMA VE GLOBAL TANIMLAMALAR
+// Diğer dosyalarla çakışmaması için window objesi üzerinden güvenli kontrol yapıyoruz
+if (!window.scenarios) {
+    window.scenarios = {};
+}
+
 const CHAT_SESSIONS_KEY = "cassandra_soc_history_v4";
 
 // BACKEND URLSİ (Render üzerindeki yeni backend'e yönlendiriyor)
 const BACKEND_URL = "https://cassandra-ai-backend.onrender.com"; 
 
-// 1. SİSTEM BAŞLATMA
 function initSystem() {
     setInterval(() => {
         const now = new Date();
@@ -62,21 +66,30 @@ async function loadScenarios() {
         "Sistem Sızma": ["Privilege Escalation", "Lateral Movement"]
     };
 
+    let targetScenarios = fallbacks;
+
     try {
         const res = await fetch(`${BACKEND_URL}/api/scenarios`);
         const data = await res.json();
-        scenarios = (data.scenarios && Object.keys(data.scenarios).length > 0) ? data.scenarios : fallbacks;
+        if (data.scenarios && Object.keys(data.scenarios).length > 0) {
+            targetScenarios = data.scenarios;
+        }
     } catch (e) { 
-        scenarios = fallbacks; 
+        targetScenarios = fallbacks; 
     }
+    
+    // Eğer scenarios nesnesi başka yerde 'const' ile tanımlandıysa direkt ezmek hata verdirebilir.
+    // Bu yüzden nesnenin içini boşaltıp verileri güvenle içine kopyalıyoruz (Mutate).
+    Object.keys(window.scenarios).forEach(key => delete window.scenarios[key]);
+    Object.assign(window.scenarios, targetScenarios);
     
     const sector = document.getElementById("sector-select");
     const vaka = document.getElementById("vaka-select");
     if(!sector || !vaka) return;
     
-    sector.innerHTML = Object.keys(scenarios).map(s => `<option value="${s}">${s}</option>`).join("");
+    sector.innerHTML = Object.keys(window.scenarios).map(s => `<option value="${s}">${s}</option>`).join("");
     sector.onchange = () => {
-        vaka.innerHTML = scenarios[sector.value].map(v => `<option value="${v}">${v}</option>`).join("");
+        vaka.innerHTML = window.scenarios[sector.value].map(v => `<option value="${v}">${v}</option>`).join("");
     };
     sector.onchange();
 }
@@ -154,10 +167,10 @@ async function runAnalysis() {
         });
         
        if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error || `Sunucu hatası kodu: ${res.status}`);
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.error || `Sunucu hatası kodu: ${res.status}`);
         }
-    const data = await res.json();
+        const data = await res.json();
         if(data.error) throw new Error(data.error);
 
         const report = {
@@ -371,7 +384,7 @@ function downloadPdf(data) {
                                 margin: [0, 12, 0, 12] 
                             }
                         ]
-                    ] // İŞTE UNUTULAN KÖŞELİ PARANTEZ BURASIYDI!
+                    ]
                 },
                 layout: 'noBorders',
                 margin: [0, 0, 0, 20] 

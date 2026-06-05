@@ -34,7 +34,7 @@ Sisteminizde **Node.js** (v16 veya üzeri) kurulu olmalıdır
 
 ### 2. Projeyi Klonlayın veya İndirin
 ```bash
-git clone [https://github.com/KULLANICI_ADIN/cassandra-ai.git](https://github.com/KULLANICI_ADIN/cassandra-ai.git)
+git clone [https://github.com/mustafaColak0/cassandra-ai.git](https://github.com/mustafaColak0/cassandra-ai.git)
 cd cassandra-ai
 ```
 

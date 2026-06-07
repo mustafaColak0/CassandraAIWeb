@@ -145,89 +145,79 @@ async function runAnalysis() {
         btn.innerText = "RUNNING...";
     }
 
-try {
-        let base64Image = null;// Eğer dosya eklenmişse, önce dosya türünü kontrol ediyoruz ve ona göre işlemi yapıyoruz
-        let finalPrompt = text; // API'ye gidecek nihai metin
+    try {
+        let base64Image = null;
+        let finalPrompt = text; 
     
         if (fileInput && fileInput.files[0]) {
             const file = fileInput.files[0];
             if (file.size > 2 * 1024 * 1024) throw new Error("Dosya çok büyük (Maks 2MB)");
             
-            // 1. DURUM: Dosya bir metin dosyasıysa (.txt)
             if (file.type.match("text.*") || file.name.endsWith(".txt")) {
-                // Dosya içeriğini okuyup metin olarak API'ye ekliyoruz
                 const fileContent = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = () => resolve(reader.result);
                     reader.onerror = reject;
-                    reader.readAsText(file); // Metin olarak oku
+                    reader.readAsText(file); 
                 });
                 
-                // Kullanıcının yazdığı mesaja dosya içeriğini görünmez bir şekilde ekle
                 finalPrompt = finalPrompt 
                     ? `${finalPrompt}\n\n--- EKLENEN DOSYA İÇERİĞİ ---\n${fileContent}`
                     : `Lütfen şu dosya içeriğini analiz et:\n\n--- EKLENEN DOSYA İÇERİĞİ ---\n${fileContent}`;
             } 
-            // 2. DURUM: Dosya resimse (png, jpg, jpeg, vb.)
             else {
-                // Resmi base64 formatına çeviriyoruz ve sadece veri kısmını alıyoruz (data:image/png;base64,... kısmını temizliyoruz)
                 base64Image = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = () => resolve(reader.result.split(',')[1]);
                     reader.onerror = reject;
-                    reader.readAsDataURL(file); // Resim olarak oku
+                    reader.readAsDataURL(file); 
                 });
             }
         }
 
-const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        // --- RENDER BACKEND'İNE TAM ADRESİYLE POST İSTEĞİ GÖNDERME ---
+        const res = await fetch(`${BACKEND_URL}/api/analyze`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${savedKey}` // Kullanıcının girdiği Groq API anahtarı
-            },
-            body: JSON.stringify({
-                model: "meta-llama/llama-4-scout-17b-16e-instruct", // Senin canavar orijinal modelin
-                messages: [
-                    {
-                        role: "system",
-                        content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. Analizlerini bir siber güvenlik uzmanı gözüyle profesyonelce yap. Cevaplarını Türkçe olarak ver.`
-                    },
-                    {
-                        role: "user",
-                        content: base64Image 
-                            ? [
-                                { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik vakasını ve görseli analiz et." },
-                                { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
-                              ]
-                            : finalPrompt
-                    }
-                ],
-                temperature: 0.5,
-                max_tokens: 2048
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ 
+                prompt: finalPrompt, 
+                expert: expert, 
+                attackVector: vaka,
+                sector: sector,
+                image: base64Image,
+                userApiKey: savedKey
             })
         });
         
         if (!res.ok) {
             const errorData = await res.json().catch(() => ({}));
-            throw new Error(errorData.error?.message || `Groq API Hatası: ${res.status}`);
+            throw new Error(errorData.error || `Sunucu hatası kodu: ${res.status}`);
         }
         
         const data = await res.json();
+        if(data.error) throw new Error(data.error);
+
+        // Backend'inden 'analysis' veya doğrudan Groq'tan ham obje gelme ihtimaline karşı güvenli okuma:
+        const extractedAnalysis = data.analysis || (data.choices && data.choices[0]?.message?.content) || "";
+        
+        if (!extractedAnalysis) {
+            throw new Error("Yapay zekadan geçerli bir analiz yanıtı alınamadı.");
+        }
+
         const report = {
             reportId: data.reportId || Math.floor(Math.random()*9000+1000),
             expert, 
             attackVector: vaka, 
-            analysis: data.analysis,
+            analysis: extractedAnalysis,
             timestamp: new Date().toISOString()
         };
-        // API'den gelen cevaba göre mesajı ekrana basıyoruz
-        appendMsg("assistant", data.analysis, `${expert} // JAN-${report.reportId}`, report);
+        
+        appendMsg("assistant", extractedAnalysis, `${expert} // CAS-${report.reportId}`, report);
         saveHistory(report);
 
     } catch (e) {
-        appendMsg("assistant", `⚠️ Hata: ${e.message === "Sunucu yanıt vermedi" ? "Bağlantı kesildi." : e.message}`);
-    }finally {
+        appendMsg("assistant", `⚠️ Hata: ${e.message}`);
+    } finally {
         if(btn) {
             btn.disabled = false;
             btn.innerText = "ANALYZE";

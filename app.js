@@ -145,59 +145,43 @@ async function runAnalysis() {
         btn.innerText = "RUNNING...";
     }
 
-    try {
-        let base64Image = null;
-        let finalPrompt = text; 
-    
-        if (fileInput && fileInput.files[0]) {
-            const file = fileInput.files[0];
-            if (file.size > 2 * 1024 * 1024) throw new Error("Dosya çok büyük (Maks 2MB)");
-            
-            if (file.type.match("text.*") || file.name.endsWith(".txt")) {
-                const fileContent = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = reject;
-                    reader.readAsText(file); 
-                });
-                
-                finalPrompt = finalPrompt 
-                    ? `${finalPrompt}\n\n--- EKLENEN DOSYA İÇERİĞİ ---\n${fileContent}`
-                    : `Lütfen şu dosya içeriğini analiz et:\n\n--- EKLENEN DOSYA İÇERİĞİ ---\n${fileContent}`;
-            } 
-            else {
-                base64Image = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result.split(',')[1]);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(file); 
-                });
-            }
-        }
+  try {
+    let userContent;
+
+    // Eğer bir resim yüklenmişse (base64Image boş değilse)
+    if (base64Image) {
+        userContent = [
+            { type: "text", text: finalPrompt || "Bu resmi siber güvenlik perspektifinden analiz et." },
+            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
+        ];
+    } else {
+        // Eğer sadece metin veya .txt dosyası varsa
+        userContent = finalPrompt;
+    }
 
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${savedKey}`
-    },
-    body: JSON.stringify({
-        model: "llama-3.1-8b-instant", 
-        messages: [
-            {
-                role: "system",
-                content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. Analizlerini bir siber güvenlik uzmanı gözüyle profesyonelce yap. Cevaplarını Türkçe olarak ver.`
-            },
-            {
-                role: "user",
-                content: finalPrompt 
-            }
-        ],
-        temperature: 0.2
-    })
-});
-        
-  if (!res.ok) {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${savedKey}`
+        },
+        body: JSON.stringify({
+            model: "llama-3.2-11b-vision-preview", // Aktif ve kararlı resmi vizyon modeli
+            messages: [
+                {
+                    role: "system",
+                    content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. Analizlerini bir siber güvenlik uzmanı gözüyle profesyonelce yap. Cevaplarını Türkçe olarak ver.`
+                },
+                {
+                    role: "user",
+                    content: userContent // Resim varsa array, yoksa string giden dinamik içerik
+                }
+            ],
+            temperature: 0.2
+        })
+    });
+
+    if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.error?.message || `Groq API Hatası: ${res.status}`);
     }
@@ -209,6 +193,7 @@ async function runAnalysis() {
         reportId: Math.floor(Math.random()*9000+1000),
         expert, 
         attackVector: vaka, 
+        alignment: sector,
         analysis: aiResponse,
         timestamp: new Date().toISOString()
     };

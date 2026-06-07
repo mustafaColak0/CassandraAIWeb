@@ -182,7 +182,7 @@ async function runAnalysis() {
             "Authorization": `Bearer ${savedKey}` // Kullanıcının girdiği key'i buraya basıyoruz
         },
         body: JSON.stringify({
-            model: "llama-3.2-11b-vision-preview", // ya da projedeki favori Groq modelin hangisiyse (örn: llama3-8b-8192)
+            model: "llama-3.2-11b-vision-instant", // ya da projedeki favori Groq modelin hangisiyse (örn: llama3-8b-8192)
             messages: [
                 {
                     role: "system",

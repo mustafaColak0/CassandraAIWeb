@@ -175,32 +175,27 @@ async function runAnalysis() {
             }
         }
 
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${savedKey}` // Kullanıcının girdiği key'i buraya basıyoruz
-        },
-        body: JSON.stringify({
-            model: "llama-3.1-8b-instant", // ya da projedeki favori Groq modelin hangisiyse (örn: llama3-8b-8192)
-            messages: [
-                {
-                    role: "system",
-                   content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. Analizlerini bir uzman gözüyle profesyonelce yap.`
-                },
-                {
-                    role: "user",
-                    content: base64Image 
-                        ? [
-                            { type: "text", text: finalPrompt },
-                            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
-                          ]
-                        : finalPrompt
-                }
-            ],
-            temperature: 0.2
-        })
-    });
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${savedKey}`
+    },
+    body: JSON.stringify({
+        model: "llama-3.1-8b-instant", 
+        messages: [
+            {
+                role: "system",
+                content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. Analizlerini bir siber güvenlik uzmanı gözüyle profesyonelce yap. Cevaplarını Türkçe olarak ver.`
+            },
+            {
+                role: "user",
+                content: finalPrompt 
+            }
+        ],
+        temperature: 0.2
+    })
+});
         
   if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));

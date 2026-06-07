@@ -145,66 +145,70 @@ async function runAnalysis() {
         btn.innerText = "RUNNING...";
     }
 
-  try {
-    let messageContent;
-
-    // Eğer resim yüklenmişse (base64Image boş değilse) vizyon formatını uyguluyoruz
-    if (base64Image) {
-        messageContent = [
-            { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik vakasını ve görseli analiz et." },
-            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
-        ];
-    } else {
-        // Eğer resim yoksa, sadece metin veya .txt dosyası varsa düz metin formatı
-        messageContent = finalPrompt;
-    }
-
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${savedKey}`
-        },
-        body: JSON.stringify({
-            model: "meta-llama/llama-4-scout-17b-16e-instruct", // Senin orijinal canavar modelin
-            messages: [
-                {
-                    role: "system",
-                    content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. Analizlerini bir siber güvenlik uzmanı gözüyle profesyonelce yap. Cevaplarını Türkçe olarak ver.`
-                },
-                {
-                    role: "user",
-                    content: messageContent // Resim varsa array, yoksa düz metin gönderen akıllı yapı
-                }
-            ],
-            temperature: 0.5,
-            max_tokens: 2048
-        })
-    });
-
-    if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `Groq API Hatası: ${res.status}`);
-    }
+try {
+        let base64Image = null;// Eğer dosya eklenmişse, önce dosya türünü kontrol ediyoruz ve ona göre işlemi yapıyoruz
+        let finalPrompt = text; // API'ye gidecek nihai metin
     
-    const groqData = await res.json();
-    const aiResponse = groqData.choices[0].message.content;
+        if (fileInput && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            if (file.size > 2 * 1024 * 1024) throw new Error("Dosya çok büyük (Maks 2MB)");
+            
+            // 1. DURUM: Dosya bir metin dosyasıysa (.txt)
+            if (file.type.match("text.*") || file.name.endsWith(".txt")) {
+                // Dosya içeriğini okuyup metin olarak API'ye ekliyoruz
+                const fileContent = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsText(file); // Metin olarak oku
+                });
+                
+                // Kullanıcının yazdığı mesaja dosya içeriğini görünmez bir şekilde ekle
+                finalPrompt = finalPrompt 
+                    ? `${finalPrompt}\n\n--- EKLENEN DOSYA İÇERİĞİ ---\n${fileContent}`
+                    : `Lütfen şu dosya içeriğini analiz et:\n\n--- EKLENEN DOSYA İÇERİĞİ ---\n${fileContent}`;
+            } 
+            // 2. DURUM: Dosya resimse (png, jpg, jpeg, vb.)
+            else {
+                // Resmi base64 formatına çeviriyoruz ve sadece veri kısmını alıyoruz (data:image/png;base64,... kısmını temizliyoruz)
+                base64Image = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file); // Resim olarak oku
+                });
+            }
+        }
 
-    const report = {
-        reportId: Math.floor(Math.random()*9000+1000),
-        expert, 
-        attackVector: vaka, 
-        alignment: sector,
-        analysis: aiResponse,
-        timestamp: new Date().toISOString()
-    };
-    
-    appendMsg("assistant", aiResponse, `${expert} // CAS-${report.reportId}`, report);
-    saveHistory(report);
+   const res = await fetch("/api/analyze", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ 
+                prompt: finalPrompt, 
+                expert: expert, 
+                attackVector: vaka,
+                sector: sector,
+                image: base64Image,
+                apiKey: localStorage.getItem("USER_GROQ_KEY")
+            })
+        });
+        // Eğer sunucu yanıt vermediyse hata fırlatıyoruz
+        if(!res.ok) throw new Error("Sunucu yanıt vermedi");
+        const data = await res.json();
+        const report = {
+            reportId: data.reportId || Math.floor(Math.random()*9000+1000),
+            expert, 
+            attackVector: vaka, 
+            analysis: data.analysis,
+            timestamp: new Date().toISOString()
+        };
+        // API'den gelen cevaba göre mesajı ekrana basıyoruz
+        appendMsg("assistant", data.analysis, `${expert} // JAN-${report.reportId}`, report);
+        saveHistory(report);
 
-} catch (e) {
-    appendMsg("assistant", `⚠️ Hata: ${e.message}`);
-}finally {
+    } catch (e) {
+        appendMsg("assistant", `⚠️ Hata: ${e.message === "Sunucu yanıt vermedi" ? "Bağlantı kesildi." : e.message}`);
+    }finally {
         if(btn) {
             btn.disabled = false;
             btn.innerText = "ANALYZE";

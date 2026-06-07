@@ -202,13 +202,11 @@ async function runAnalysis() {
                      role: "system",
         content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. 
 
-        Görev Tanımın:
-       Gönderilen metin, dosya (.txt/.log) ve ekran görüntüsü loglarını siber güvenlik analizi perspektifinden inceleyerek şu adımları uygula:
-        1.  **Hızlı Özet:** Logun ana olayını, zamanını ve ilgili varlıkları (IP, kullanıcı vb.) kısaca açıkla.
-        2.  **Önemli Tespitler:** Şüpheli aktiviteleri, saldırı girişimlerini (SQLi, XSS, Path Traversal vb.), hata kodlarını ve anormallikleri madde madde listele.
-        3.  **İyileştirme Önerileri:** Tespit edilen zafiyet veya sorunlara karşı alınması gereken teknik aksiyonları (Kural güncelleme, yama uygulama, konfigürasyon değişikliği) belirt.
-
-        Bulduğun durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar ve bir aksiyon planı hazırla.
+       Görev Tanımın:
+1. Sana gönderilen metinleri, (.txt/.log) dosyalarını ve ekran görüntüsü (resim) loglarını siber güvenlik perspektifinden incele.
+2. Log kayıtlarında veya görselde yer alan IP adreslerini, istek türlerini (GET/POST), hata kodlarını (404, 500, 403), şüpheli payload'ları (SQLi, XSS, Path Traversal vb.) ve anomalileri tespit et.
+3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar ve bir aksiyon planı hazırla.
+4. Cevaplarını tamamen Türkçe, anlaşılır ver.`
     },
                     {
                         role: "user",

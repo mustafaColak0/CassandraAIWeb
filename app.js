@@ -146,17 +146,17 @@ async function runAnalysis() {
     }
 
   try {
-    let userContent;
+    let messageContent;
 
-    // Eğer bir resim yüklenmişse (base64Image boş değilse)
+    // Eğer resim yüklenmişse (base64Image boş değilse) vizyon formatını uyguluyoruz
     if (base64Image) {
-        userContent = [
-            { type: "text", text: finalPrompt || "Bu resmi siber güvenlik perspektifinden analiz et." },
+        messageContent = [
+            { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik vakasını ve görseli analiz et." },
             { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
         ];
     } else {
-        // Eğer sadece metin veya .txt dosyası varsa
-        userContent = finalPrompt;
+        // Eğer resim yoksa, sadece metin veya .txt dosyası varsa düz metin formatı
+        messageContent = finalPrompt;
     }
 
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -166,7 +166,7 @@ async function runAnalysis() {
             "Authorization": `Bearer ${savedKey}`
         },
         body: JSON.stringify({
-            model: "llama-3.2-11b-vision-preview", // Aktif ve kararlı resmi vizyon modeli
+            model: "meta-llama/llama-4-scout-17b-16e-instruct", // Senin orijinal canavar modelin
             messages: [
                 {
                     role: "system",
@@ -174,10 +174,11 @@ async function runAnalysis() {
                 },
                 {
                     role: "user",
-                    content: userContent // Resim varsa array, yoksa string giden dinamik içerik
+                    content: messageContent // Resim varsa array, yoksa düz metin gönderen akıllı yapı
                 }
             ],
-            temperature: 0.2
+            temperature: 0.5,
+            max_tokens: 2048
         })
     });
 

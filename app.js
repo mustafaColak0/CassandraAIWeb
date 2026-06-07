@@ -186,7 +186,7 @@ async function runAnalysis() {
             messages: [
                 {
                     role: "system",
-                    content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${attackVector}. Analizlerini bir uzman gözüyle profesyonelce yap.`
+                   content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. Analizlerini bir uzman gözüyle profesyonelce yap.`
                 },
                 {
                     role: "user",

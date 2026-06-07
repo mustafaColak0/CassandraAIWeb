@@ -180,20 +180,39 @@ try {
             }
         }
 
-   const res = await fetch("/api/analyze", {
+const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ 
-                prompt: finalPrompt, 
-                expert: expert, 
-                attackVector: vaka,
-                sector: sector,
-                image: base64Image,
-                apiKey: localStorage.getItem("USER_GROQ_KEY")
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${savedKey}` // Kullanıcının girdiği Groq API anahtarı
+            },
+            body: JSON.stringify({
+                model: "meta-llama/llama-4-scout-17b-16e-instruct", // Senin canavar orijinal modelin
+                messages: [
+                    {
+                        role: "system",
+                        content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. Analizlerini bir siber güvenlik uzmanı gözüyle profesyonelce yap. Cevaplarını Türkçe olarak ver.`
+                    },
+                    {
+                        role: "user",
+                        content: base64Image 
+                            ? [
+                                { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik vakasını ve görseli analiz et." },
+                                { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
+                              ]
+                            : finalPrompt
+                    }
+                ],
+                temperature: 0.5,
+                max_tokens: 2048
             })
         });
-        // Eğer sunucu yanıt vermediyse hata fırlatıyoruz
-        if(!res.ok) throw new Error("Sunucu yanıt vermedi");
+        
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.error?.message || `Groq API Hatası: ${res.status}`);
+        }
+        
         const data = await res.json();
         const report = {
             reportId: data.reportId || Math.floor(Math.random()*9000+1000),

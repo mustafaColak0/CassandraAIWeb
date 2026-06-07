@@ -175,40 +175,55 @@ async function runAnalysis() {
             }
         }
 
-        const res = await fetch(`${BACKEND_URL}/api/analyze`, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ 
-                prompt: finalPrompt, 
-                expert: expert, 
-                attackVector: vaka,
-                sector: sector,
-                image: base64Image,
-                userApiKey: savedKey
-            })
-        });
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${savedKey}` // Kullanıcının girdiği key'i buraya basıyoruz
+        },
+        body: JSON.stringify({
+            model: "groq/llama-3.1-8b-instant", // ya da projedeki favori Groq modelin hangisiyse (örn: llama3-8b-8192)
+            messages: [
+                {
+                    role: "system",
+                    content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${attackVector}. Analizlerini bir uzman gözüyle profesyonelce yap.`
+                },
+                {
+                    role: "user",
+                    content: base64Image 
+                        ? [
+                            { type: "text", text: finalPrompt },
+                            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
+                          ]
+                        : finalPrompt
+                }
+            ],
+            temperature: 0.2
+        })
+    });
         
-       if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            throw new Error(errorData.error || `Sunucu hatası kodu: ${res.status}`);
-        }
-        const data = await res.json();
-        if(data.error) throw new Error(data.error);
+  if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || `Groq API Hatası: ${res.status}`);
+    }
+    
+    const groqData = await res.json();
+    const aiResponse = groqData.choices[0].message.content;
 
-        const report = {
-            reportId: data.reportId || Math.floor(Math.random()*9000+1000),
-            expert, 
-            attackVector: vaka, 
-            analysis: data.analysis,
-            timestamp: new Date().toISOString()
-        };
-        
-        appendMsg("assistant", data.analysis, `${expert} // CAS-${report.reportId}`, report);
-        saveHistory(report);
+    const report = {
+        reportId: Math.floor(Math.random()*9000+1000),
+        expert, 
+        attackVector: vaka, 
+        analysis: aiResponse,
+        timestamp: new Date().toISOString()
+    };
+    
+    appendMsg("assistant", aiResponse, `${expert} // CAS-${report.reportId}`, report);
+    saveHistory(report);
 
-    } catch (e) {
-        appendMsg("assistant", `⚠️ Hata: ${e.message}`);
-    } finally {
+} catch (e) {
+    appendMsg("assistant", `⚠️ Hata: ${e.message}`);
+}finally {
         if(btn) {
             btn.disabled = false;
             btn.innerText = "ANALYZE";

@@ -125,6 +125,7 @@ async function runAnalysis() {
           
     if(!text && (!fileInput || !fileInput.files[0])) return;
     
+    // Kullanıcının saklanan Groq API anahtarını alıyoruz
     const savedKey = localStorage.getItem("cassandra_groq_key");
     if (!savedKey) {
         alert("Lütfen önce giriş ekranından geçerli bir API Key girin! 🔑");
@@ -149,6 +150,7 @@ async function runAnalysis() {
         let base64Image = null;
         let finalPrompt = text; 
     
+        // Dosya veya resim yükleme kontrolü
         if (fileInput && fileInput.files[0]) {
             const file = fileInput.files[0];
             if (file.size > 2 * 1024 * 1024) throw new Error("Dosya çok büyük (Maks 2MB)");
@@ -175,44 +177,63 @@ async function runAnalysis() {
             }
         }
 
-        // --- RENDER BACKEND'İNE TAM ADRESİYLE POST İSTEĞİ GÖNDERME ---
-        const res = await fetch(`${BACKEND_URL}/api/analyze`, {
+        // --- ENGELE TAKILMAYAN DOĞRUDAN GROQ BAĞLANTISI ---
+        // Kullanıcı resim yüklediyse Llama 4 Scout'un bayıldığı array yapısını kuruyoruz
+        let messageContent;
+        if (base64Image) {
+            messageContent = [
+                { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik vakasını ve görseli analiz et." },
+                { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
+            ];
+        } else {
+            messageContent = finalPrompt;
+        }
+
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ 
-                prompt: finalPrompt, 
-                expert: expert, 
-                attackVector: vaka,
-                sector: sector,
-                image: base64Image,
-                userApiKey: savedKey
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${savedKey}`
+            },
+            body: JSON.stringify({
+                model: "meta-llama/llama-4-scout-17b-16e-instruct", // Orijinal canavar modelin
+                messages: [
+                    {
+                        role: "system",
+                        content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. Analizlerini bir siber güvenlik uzmanı gözüyle profesyonelce yap. Cevaplarını Türkçe olarak ver.`
+                    },
+                    {
+                        role: "user",
+                        content: messageContent
+                    }
+                ],
+                temperature: 0.5,
+                max_tokens: 2048
             })
         });
         
         if (!res.ok) {
             const errorData = await res.json().catch(() => ({}));
-            throw new Error(errorData.error || `Sunucu hatası kodu: ${res.status}`);
+            throw new Error(errorData.error?.message || `Groq API Hatası: ${res.status}`);
         }
         
         const data = await res.json();
-        if(data.error) throw new Error(data.error);
+        const aiResponse = data.choices[0].message.content; // Doğrudan Groq'tan gelen cevabı okuyoruz
 
-        // Backend'inden 'analysis' veya doğrudan Groq'tan ham obje gelme ihtimaline karşı güvenli okuma:
-        const extractedAnalysis = data.analysis || (data.choices && data.choices[0]?.message?.content) || "";
-        
-        if (!extractedAnalysis) {
+        if (!aiResponse) {
             throw new Error("Yapay zekadan geçerli bir analiz yanıtı alınamadı.");
         }
 
         const report = {
-            reportId: data.reportId || Math.floor(Math.random()*9000+1000),
+            reportId: Math.floor(Math.random() * 9000 + 1000),
             expert, 
             attackVector: vaka, 
-            analysis: extractedAnalysis,
+            analysis: aiResponse,
             timestamp: new Date().toISOString()
         };
         
-        appendMsg("assistant", extractedAnalysis, `${expert} // CAS-${report.reportId}`, report);
+        // Ekrana basma ve geçmişe kaydetme fonksiyonları tetikleniyor
+        appendMsg("assistant", aiResponse, `${expert} // CAS-${report.reportId}`, report);
         saveHistory(report);
 
     } catch (e) {

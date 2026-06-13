@@ -2,6 +2,10 @@
 
 Cassandra AI, siber güvenlik vakalarını, saldırı vektörlerini ve log dosyalarını yapay zeka desteğiyle analiz eden gelişmiş bir **Siber Operasyon Merkezi (SOC) Asistanı** ve simülasyon platformudur. Çoklu uzman rolü (Multi-Agent) desteği ve görsel analiz yeteneği sayesinde siber tehditleri farklı sektör perspektiflerinden değerlendirerek stratejik ve teknik raporlar üretir.
 
+### 🌐 Canlı Önizleme / Live Demo
+Projenin web arayüzünü canlı ortamda test etmek ve deneyimlemek için aşağıdaki bağlantıyı kullanabilirsiniz:
+👉 **[Cassandra AI Web Interface](https://mustafacolak0.github.io/CassandraAIWeb/)**
+
 <img width="800" height="362" alt="Cass-ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/4c855629-06e2-4c38-8390-c7cdd7a6d363" />
 
 

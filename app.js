@@ -214,7 +214,7 @@ async function runAnalysis() {
                         content: messageContent
                     }
                 ],
-                temperature: 0.5,
+                temperature: 0.2,
                 max_tokens: 2048
             })
         });

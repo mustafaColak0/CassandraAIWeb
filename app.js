@@ -77,7 +77,7 @@ function initSystem() {
         }
     };
 
-    const newChatBtn = document.getElementById("new-chat-btn");
+ const newChatBtn = document.getElementById("new-chat-btn");
     if (newChatBtn) {
         newChatBtn.onclick = () => {
             const flow = document.getElementById("chat-flow");
@@ -98,15 +98,29 @@ function initSystem() {
                 flow.scrollTop = flow.scrollHeight;
             }
             
+            // 1. NOKTA ATIŞI: Kesin olarak aktif chat ID'sini sıfırlıyoruz
             window.currentChatId = null; 
+            
             const promptIn = document.getElementById("prompt-in");
             if (promptIn) promptIn.value = "";
             const preview = document.getElementById("attachment-preview");
             if (preview) preview.innerHTML = "";
+            
+            // 2. NOKTA ATIŞI: Eğer input içinde hayalet dosya kaldıysa tamamen uçuruyoruz
+            const fileInput = document.getElementById("file-input");
+            if (fileInput) fileInput.value = "";
             window.selectedFile = null;
 
             const firstAnalyst = document.querySelector('input[name="exp"]');
             if (firstAnalyst) firstAnalyst.checked = true;
+
+            // 3. NOKTA ATIŞI: Sektör ve vaka seçimlerini de default (ilk) ayarlarına çekiyoruz
+            const sectorSelect = document.getElementById("sector-select");
+            if (sectorSelect) {
+                sectorSelect.selectedIndex = 0;
+                sectorSelect.dispatchEvent(new Event('change')); // Vaka listesini de tetiklesin
+            }
+
             setTimeout(updateDisplay, 100);
         };
     }

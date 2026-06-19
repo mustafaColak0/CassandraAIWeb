@@ -446,6 +446,72 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     60% { content: '..'; }
     80%, 100% { content: '...'; }
 }
+.cyber-c-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid transparent;
+    border-left: 2px solid var(--neon);   /* Kusursuz 'C' formu için sol, üst ve alt kenarlar aktif */
+    border-top: 2px solid var(--neon);
+    border-bottom: 2px solid var(--neon);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 4px var(--neon));
+    animation: spinC 0.8s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+@keyframes spinC {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 2. Soldan Sağa Akan Dinamik Çizgisel Geçiş */
+.neon-scan-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(34, 211, 238, 0.05); /* Rayın yatağı */
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.neon-scan-line::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 80%;
+    height: 100%;
+    /* Tehlike renginden neon maviye kayan dinamik siber akış */
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        var(--danger) 30%, 
+        var(--neon) 70%, 
+        transparent 100__%
+    );
+    animation: scanLinear 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes scanLinear {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* 3. Metnin Sonundaki Dinamik Üç Nokta (...) Efekti */
+.typing-text::after {
+    content: '';
+    animation: loadingDots 1.5s steps(4, end) infinite;
+}
+
+@keyframes loadingDots {
+    0%, 20% { content: ''; }
+    40% { content: '.'; }
+    60% { content: '..'; }
+    80%, 100% { content: '...'; }
+}
+
 
 /* Sohbet alanına özel çakan renkli flaşlar */
 #chat-flow::after {

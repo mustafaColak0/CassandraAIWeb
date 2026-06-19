@@ -1,16 +1,13 @@
 // 1. SİSTEM BAŞLATMA VE GLOBAL TANIMLAMALAR
-// Diğer dosyalarla çakışmaması için window objesi üzerinden güvenli kontrol yapıyoruz
 if (!window.scenarios) {
     window.scenarios = {};
 }
 
 const CHAT_SESSIONS_KEY = "cassandra_soc_history_v4";
 
-// Global değişkenlerin hata vermemesi için başlangıç tanımlamaları
 if (typeof window.currentChatId === 'undefined') window.currentChatId = null;
 if (typeof window.selectedFile === 'undefined') window.selectedFile = null;
 
-// BACKEND URLSİ (Render üzerindeki yeni backend'e yönlendiriyor)
 const BACKEND_URL = "https://cassandra-ai-backend.onrender.com"; 
 
 function initSystem() {
@@ -42,7 +39,6 @@ function initSystem() {
         const rawExp = expEl ? expEl.value.trim().toLowerCase() : "red team expert";
         let fullAnalystName = ""; 
 
-        // Sadece Red Team için özel SVG kalkanı, diğerleri emojili kararlı tasarım
         if (rawExp.includes("red team")) {
             fullAnalystName = `<svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4d6d" style="vertical-align: middle; margin-right: 5px;"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg> RED TEAM EXPERT`;
         } else if (rawExp.includes("blue team")) {
@@ -63,8 +59,6 @@ function initSystem() {
         
         if(document.getElementById("display-sector")) document.getElementById("display-sector").textContent = secVal;
         if(document.getElementById("display-vaka")) document.getElementById("display-vaka").textContent = vakVal;
-        
-        // Uzman adını güncelliyoruz, böylece kullanıcı seçimine göre dinamik olarak değişiyor
         if(document.getElementById("display-analyst")) document.getElementById("display-analyst").innerHTML = fullAnalystName;
     };
 
@@ -83,15 +77,12 @@ function initSystem() {
         }
     };
 
-    // YENİ SOHBET BUTONU İŞLEVİ
     const newChatBtn = document.getElementById("new-chat-btn");
     if (newChatBtn) {
         newChatBtn.onclick = () => {
-            // 1. Akışı sıfırla (Ekranda yeni başlatma mesajı çıkarır)
             const flow = document.getElementById("chat-flow");
             if (flow) {
-                flow.innerHTML = ""; // Ekrandaki eski mesajları uçurur
-                
+                flow.innerHTML = ""; 
                 const div = document.createElement("div");
                 div.className = "msg ai-msg";
                 div.innerHTML = `
@@ -107,27 +98,19 @@ function initSystem() {
                 flow.scrollTop = flow.scrollHeight;
             }
             
-            // 2. Hafızadaki aktif sohbet ID'sini temizle
             window.currentChatId = null; 
-            
-            // 3. Input alanını ve ekleri temizle
             const promptIn = document.getElementById("prompt-in");
             if (promptIn) promptIn.value = "";
-            
             const preview = document.getElementById("attachment-preview");
             if (preview) preview.innerHTML = "";
-            
             window.selectedFile = null;
 
-            // 4. Analist seçimini varsayılana çek (Red Team)
             const firstAnalyst = document.querySelector('input[name="exp"]');
             if (firstAnalyst) firstAnalyst.checked = true;
-
-            // 5. Ekran güncelleme tetikleyicisi
             setTimeout(updateDisplay, 100);
         };
     }
-} // <--- UNUTULAN VE SİSTEMİ KİLİTLEYEN PARANTEZ BURASIYDI, DÜZELTİLDİ!
+}
 
 // 2. SENARYO YÜKLEME
 async function loadScenarios() {
@@ -149,7 +132,6 @@ async function loadScenarios() {
         targetScenarios = fallbacks; 
     }
     
-    // Global senaryoları güncelliyoruz, böylece diğer fonksiyonlar güncel verilere erişebilir
     Object.keys(window.scenarios).forEach(key => delete window.scenarios[key]);
     Object.assign(window.scenarios, targetScenarios);
     
@@ -173,7 +155,6 @@ async function runAnalysis() {
           
     if(!text && (!fileInput || !fileInput.files[0])) return;
     
-    // Kullanıcının saklanan Groq API anahtarını alıyoruz
     const savedKey = localStorage.getItem("cassandra_groq_key");
     if (!savedKey) {
         alert("Lütfen önce giriş ekranından geçerli bir API Key girin! 🔑");
@@ -194,16 +175,14 @@ async function runAnalysis() {
         btn.innerText = "RUNNING...";
     }
 
-    // BİLDİRİMİ AÇMA
     if(document.getElementById('cassandra-status-area')) {
         document.getElementById('cassandra-status-area').style.display = 'flex';
     }
 
-    // Sohbet akışına geçici "Yazıyor..." balonu ekle
     const flow = document.getElementById("chat-flow");
     if (flow) {
         const loadingDiv = document.createElement("div");
-        loadingDiv.id = "cassandra-loading-bubble"; // Kaldırmak için ID verdik
+        loadingDiv.id = "cassandra-loading-bubble";
         loadingDiv.className = "msg ai-msg";
         loadingDiv.innerHTML = `
             <div class="msg-head assistant">
@@ -215,14 +194,13 @@ async function runAnalysis() {
             </div>
         `;
         flow.appendChild(loadingDiv);
-        flow.scrollTop = flow.scrollHeight; // Ekranı en aşağı kaydır
+        flow.scrollTop = flow.scrollHeight;
     }
 
     try {
         let base64Image = null;
         let finalPrompt = text; 
     
-        // Dosya veya resim yükleme kontrolü
         if (fileInput && fileInput.files[0]) {
             const file = fileInput.files[0];
             if (file.size > 2 * 1024 * 1024) throw new Error("Dosya çok büyük (Maks 2MB)");
@@ -249,7 +227,6 @@ async function runAnalysis() {
             }
         }
 
-        // --- ENGELE TAKILMAYAN DOĞRUDAN GROQ BAĞLANTISI ---
         let messageContent;
         if (base64Image) {
             messageContent = [
@@ -272,13 +249,12 @@ async function runAnalysis() {
                     {
                         role: "system",
                         content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. 
-
-                       Görev Tanımın:
-1. Sana gönderilen metinleri, (.txt/.log) dosyalarını ve ekran görüntüsü (resim) loglarını siber güvenlik perspektifinden incele.
-2. Log kayıtlarında veya görselde yer alan IP adreslerini, istek türlerini (GET/POST), hata kodlarını (404, 500, 403), şüpheli payload'ları (SQLi, XSS, Path Traversal vb.) ve anomalileri tespit et.
-3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar ve bir aksiyon planı hazırla.
-4. Cevaplarını tamamen Türkçe, anlaşılır ver.
- HALÜSİNASYON ENGELLEME KURALI: Analizlerinde sadece siber güvenlik literatüründe (NIST, ISO, MITRE ATT&CK vb.) GERÇEKTEN var olan terim ve framework'leri kullan. Eğer kullanıcının sorduğu terim veya kısaltma siber güvenlik dünyasında YOKSA, kesinlikle kendi kafandan uydurma. Bilmiyorsan "Bu terim siber güvenlik literatüründe bulunamadı" de.`
+                        Görev Tanımın:
+                        1. Sana gönderilen metinleri, (.txt/.log) dosyalarını ve ekran görüntüsü (resim) loglarını siber güvenlik perspektifinden incele.
+                        2. Log kayıtlarında veya görselde yer alan IP adreslerini, istek türlerini (GET/POST), hata kodlarını (404, 500, 403), şüpheli payload'ları (SQLi, XSS, Path Traversal vb.) ve anomalileri tespit et.
+                        3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar ve bir aksiyon planı hazırla.
+                        4. Cevaplarını tamamen Türkçe, anlaşılır ver.
+                        HALÜSİNASYON ENGELLEME KURALI: Analizlerinde sadece siber güvenlik literatüründe (NIST, ISO, MITRE ATT&CK vb.) GERÇEKTEN var olan terim ve framework'leri kullan. Eğer kullanıcının sorduğu terim veya kısaltma siber güvenlik dünyasında YOKSA, kesinlikle kendi kafandan uydurma. Bilmiyorsan "Bu terim siber güvenlik literatüründe bulunamadı" de.`
                     },
                     {
                         role: "user",
@@ -310,18 +286,15 @@ async function runAnalysis() {
             timestamp: new Date().toISOString()
         };
         
-        // Ekrana basma ve geçmişe kaydetme fonksiyonları tetikleniyor
         appendMsg("assistant", aiResponse, `${expert} // CAS-${report.reportId}`, report);
         saveHistory(report);
 
     } catch (e) {
         appendMsg("assistant", `⚠️ Hata: ${e.message}`);
-    } finally {
-        // Cevap geldiğinde veya hata oluştuğunda geçici balonu uçur
+    } {
         const tempBubble = document.getElementById("cassandra-loading-bubble");
         if(tempBubble) tempBubble.remove();
         
-        // BİLDİRİMİ KAPATMA
         if(document.getElementById('cassandra-status-area')) {
             document.getElementById('cassandra-status-area').style.display = 'none';
         }
@@ -420,7 +393,7 @@ function appendMsg(role, text, meta = "", report = null) {
                 passBtn.onclick = () => {
                     const targetExpert = selectTarget.value;
                     const radios = document.querySelectorAll('input[name="exp"]');
-                    radius.forEach(r => {
+                    radios.forEach(r => {
                         if(r.value.trim().toLowerCase() === targetExpert.toLowerCase()) {
                             r.checked = true;
                             r.dispatchEvent(new Event('change')); 
@@ -561,7 +534,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (modal) {
         modal.style.display = "none";
     }
-    // API Key kaydetme işlemi
+    
     const saveBtn = document.getElementById("saveKeyBtn");
     if(saveBtn) {
         saveBtn.addEventListener("click", () => {
@@ -632,4 +605,4 @@ document.addEventListener('paste', (event) => {
             }
         }
     }
-};
+});

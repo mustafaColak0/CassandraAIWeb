@@ -488,7 +488,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const keyInput = document.getElementById("modalApiKeyInput").value.trim();
             
             if (!keyInput.startsWith("gsk_")) {
-                alert("Lütfen 'gsk_' ile başlayan geçerli bir Groq API Key girin usta! ❌");
+                alert("Lütfen 'gsk_' ile başlayan geçerli bir Groq API Key giriniz ❌");
                 return;
             }
 

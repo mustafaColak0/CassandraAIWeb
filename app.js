@@ -305,7 +305,8 @@ async function runAnalysis() {
         const report = {
             reportId: Math.floor(Math.random() * 9000 + 1000),
             expert, 
-            attackVector: vaka, 
+            attackVector: vaka,
+            userPrompt: finalPrompt,
             analysis: aiResponse,
             timestamp: new Date().toISOString()
         };
@@ -468,18 +469,21 @@ function renderHistory() {
                 deleteHistoryItem(history.length - 1 - idx);
             }    else {
     // 1. Önce ekranı jilet gibi temizliyoruz
-                const flow = document.getElementById("chat-flow");
-                if (flow) {
-                    flow.innerHTML = ""; 
-                }
+    const flow = document.getElementById("chat-flow");
+    if (flow) {
+        flow.innerHTML = ""; 
+    }
 
     // 2. Aktif vaka kimliğini tıklanan raporun ID'si yapıyoruz
-                window.currentChatId = item.reportId; 
+    window.currentChatId = item.reportId; 
 
-    // 3. ÖNEMLİ DEĞİŞİKLİK: appendMsg'e report nesnesini göndermiyoruz (null geçiyoruz) 
-    // Böylece geçmişe tıkladığında altında pasla/pdf butonları türeyip sistemi tetiklemeyecek.
-                appendMsg("assistant", item.analysis, `ARŞİV: ${item.reportId}`, null);
-                }
+    // 3. Önce senin ne sorduğunu/hangi logu attığını ekrana basıyoruz
+    // Eğer eski raporlarda userPrompt yoksa varsayılan bir metin yazdırıyoruz
+    appendMsg("user", item.userPrompt || "Geçmiş Log/Talep İçeriği");
+
+    // 4. Sonra yapay zekanın verdiği cevabı tüm butonlarıyla (Copy, PDF, Pasla) birlikte basıyoruz
+    appendMsg("assistant", item.analysis, `ARŞİV: ${item.reportId} // ${item.expert}`, item);
+    }
             };
             list.appendChild(div);
          });

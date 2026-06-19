@@ -115,6 +115,58 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
   border-top: 1px solid rgba(255,255,255,0.05); 
   padding-top: 15px;
 }
+/* Yeni Sohbet Butonu */
+.new-chat-btn {
+    width: 100%;
+    background: rgba(34, 211, 238, 0.1); /* Neon mavi transparan */
+    border: 1px solid var(--neon);
+    color: var(--neon);
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: bold;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.new-chat-btn:hover {
+    background: var(--neon);
+    color: #000; /* Üzerine gelince yazı siyah olsun, parlasın */
+    box-shadow: 0 0 10px var(--neon);
+}
+
+/* CassandraAI Bildirim Alanı */
+.cassandra-status-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px dashed var(--neon);
+    border-radius: 4px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    font-size: 0.75rem;
+    color: #e2e8f0;
+}
+
+/* Dönme Efekti (Spinner) */
+.spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(34, 211, 238, 0.2);
+    border-top-color: var(--neon);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
 
 /* Tüm aksiyon butonların */
 .action-btn { 

@@ -170,6 +170,25 @@ async function runAnalysis() {
     // BİLDİRİMİ AÇMA
     document.getElementById('cassandra-status-area').style.display = 'flex';
 
+    // Sohbet akışına geçici "Yazıyor..." balonu ekle
+    const flow = document.getElementById("chat-flow");
+    if (flow) {
+        const loadingDiv = document.createElement("div");
+        loadingDiv.id = "cassandra-loading-bubble"; // Kaldırmak için ID verdik
+        loadingDiv.className = "msg ai-msg";
+        loadingDiv.innerHTML = `
+            <div class="msg-head assistant">
+                <span class="chat-avatar assistant blink-animation">CSA</span>
+                <span class="expert-tag">CASSANDRA AI // THINKING</span>
+            </div>
+            <div class="msg-body" style="color: #8892b0; font-style: italic;">
+                <span class="typing-effect">Cassandra AI mesajınıza yanıt üretiyor...</span>
+            </div>
+        `;
+        flow.appendChild(loadingDiv);
+        flow.scrollTop = flow.scrollHeight; // Ekranı en aşağı kaydır
+    }
+
     try {
         let base64Image = null;
         let finalPrompt = text; 
@@ -270,8 +289,15 @@ async function runAnalysis() {
     } catch (e) {
         appendMsg("assistant", `⚠️ Hata: ${e.message}`);
     } finally {
+
+        // Cevap geldiğinde veya hata oluştuğunda geçici balonu uçur
+        const tempBubble = document.getElementById("cassandra-loading-bubble");
+        if(tempBubble) tempBubble.remove();
+        
         // BİLDİRİMİ KAPATMA
         document.getElementById('cassandra-status-area').style.display = 'none';
+
+        
         
         if(btn) {
             btn.disabled = false;

@@ -54,36 +54,35 @@
                         </span> Red Team Expert
                     </label>
                     <label><input type="radio" name="exp" value="Blue Team Responder"> <span class="analyst-logo blue">🛡️</span> Blue Team Responder</label>
-                    <label><input type="radio" name="exp" value="Chief Strategist"> <span class="analyst-logo gold">🧠</span> Chief Strategist</label>
-                    <label><input type="radio" name="exp" value="OSINT Specialist"> <span class="analyst-logo purple">🔍</span> OSINT Specialist</label>
-                    <label><input type="radio" name="exp" value="Threat Intelligence"> <span class="analyst-logo silver">🕵️‍♀️</span> Threat Intelligence</label>
-                    <label><input type="radio" name="exp" value="Forensics Specialist"> <span class="analyst-logo cyan">🧪</span> Forensics Specialist</label>
-                    <label><input type="radio" name="exp" value="Compliance Officer"> <span class="analyst-logo silver">⚖️</span> Compliance Officer</label>
-                </div>
-            </div>
+            <label><input type="radio" name="exp" value="Chief Strategist"> <span class="analyst-logo gold">🧠</span> Chief Strategist</label>
+            <label><input type="radio" name="exp" value="OSINT Specialist"> <span class="analyst-logo purple">🔍</span> OSINT Specialist</label>
+            <label><input type="radio" name="exp" value="Threat Intelligence"> <span class="analyst-logo silver">🕵️‍♀️</span> Threat Intelligence</label>
+            <label><input type="radio" name="exp" value="Forensics Specialist"> <span class="analyst-logo cyan">🧪</span> Forensics Specialist</label>
+            <label><input type="radio" name="exp" value="Compliance Officer"> <span class="analyst-logo silver">⚖️</span> Compliance Officer</label>
+        </div>
+    </div>
+    
+    <div class="new-chat-section">
+        <button id="new-chat-btn" class="new-chat-btn">➕ Yeni Sohbet</button>
+    </div>
+
+    <div class="history-section">
+        <div class="history-header">
+            <label style="margin:0;">ANALİZ GEÇMİŞİ</label>
+            <button id="history-toggle-btn" class="history-control-btn">📂</button>
+        </div>
+        <div id="history-content" class="history-content active">
+            <div id="history-list"></div>
             
-            <div class="new-chat-section">
-                <button id="new-chat-btn" class="new-chat-btn">➕ Yeni Sohbet</button>
+            <div id="cassandra-status-area" class="cassandra-status-area" style="display: none;">
+                <div class="spinner"></div>
+                <span>CassandraAI yanıt üretiyor...</span>
             </div>
 
-            <!-- ANALİZ GEÇMİŞİ ALANI -->
-            <div class="history-section">
-                <div class="history-header">
-                    <label style="margin:0;">ANALİZ GEÇMİŞİ</label>
-                    <button id="history-toggle-btn" class="history-control-btn">📂</button>
-                </div>
-                <div id="history-content" class="history-content active">
-                    <div id="history-list"></div>
-                    
-                    <div id="cassandra-status-area" class="cassandra-status-area" style="display: none;">
-                        <div class="spinner"></div>
-                        <span>CassandraAI yanıt üretiyor...</span>
-                    </div>
-
-                    <button id="clear-history-btn" class="clear-all-btn">🗑️ TÜMÜNÜ SIFIRLA</button>
-                </div>
-            </div>
-        </aside>
+            <button id="clear-history-btn" class="clear-all-btn">🗑️ TÜMÜNÜ SIFIRLA</button>
+        </div>
+    </div>
+</aside>
 
         <!-- SAĞ PANEL (MAIN VIEW) -->
         <main id="main-view">

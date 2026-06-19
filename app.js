@@ -1,6 +1,4 @@
 // 1. GLOBAL TANIMLAMALAR & CASSANDRA AI SİSTEM BAŞLATICI
-// ============================================================================
-
 // Eğer window üzerinde senaryolar nesnesi tanımlı değilse siber matrisi bozmamak için başlatıyoruz.
 if (!window.scenarios) {
     window.scenarios = {};

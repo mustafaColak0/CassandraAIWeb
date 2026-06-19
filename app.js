@@ -79,30 +79,30 @@ const updateDisplay = () => {
         }
     };
     // YENİ SOHBET BUTONU
-   const newChatBtn = document.getElementById("new-chat-btn");
-    if(newChatBtn) {
-        newChatBtn.onclick = () => {
-            const flow = document.getElementById("chat-flow");
-            if(flow) {
-                flow.innerHTML = ""; // Ekrandaki mesajları temizler
-                const div = document.createElement("div");
-                div.className = "msg ai-msg";
-                div.innerHTML = `
-                <div class="msg-head assistant">
+  const newChatBtn = document.getElementById("new-chat-btn");
+if (newChatBtn) {
+    newChatBtn.onclick = () => {
+        const flow = document.getElementById("chat-flow");
+        if (flow) {
+        const loadingDiv = document.createElement("div");
+        loadingDiv.id = "cassandra-loading-bubble";
+        loadingDiv.className = "msg ai-msg";
+        loadingDiv.innerHTML = `
+            <div class="msg-head assistant">
                 <div class="cyber-c-spinner"></div>
-                <span class="expert-tag" style="margin-left: 5px;">CASSANDRA AI // THINKING</span>
-                </div>
-                <div class="msg-body" style="color: #8892b0; font-style: italic; position: relative; padding-bottom: 10px;">
-                <span class="typing-text">Cassandra AI mesajınıza yanıt üretiyor</span>
-                
-                <div class="neon-scan-line"></div>
-                </div>
-                    `;
-                flow.appendChild(div);
-                flow.scrollTop = flow.scrollHeight; // Sayfayı aşağı kaydırır
-            }
-        };
-    }
+                <span class="expert-tag" style="margin-left: 5px; color: #22d3ee;">CASSANDRA AI // THINKING</span>
+        </div>
+        <div class="msg-body" style="color: #8892b0; font-style: italic; position: relative; padding-bottom: 12px;">
+            <span class="typing-text">Cassandra AI mesajınıza yanıt üretiyor</span>
+            
+            <div class="neon-scan-line"></div>
+        </div>
+    `;
+    flow.appendChild(loadingDiv);
+    flow.scrollTop = flow.scrollHeight;
+}
+    };
+}
     setTimeout(updateDisplay, 500);
 }
 

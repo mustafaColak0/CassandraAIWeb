@@ -6,6 +6,10 @@ if (!window.scenarios) {
 
 const CHAT_SESSIONS_KEY = "cassandra_soc_history_v4";
 
+// Global değişkenlerin hata vermemesi için başlangıç tanımlamaları
+if (typeof window.currentChatId === 'undefined') window.currentChatId = null;
+if (typeof window.selectedFile === 'undefined') window.selectedFile = null;
+
 // BACKEND URLSİ (Render üzerindeki yeni backend'e yönlendiriyor)
 const BACKEND_URL = "https://cassandra-ai-backend.onrender.com"; 
 
@@ -79,65 +83,52 @@ function initSystem() {
         }
     };
 
-// YENİ SOHBET BUTONU İŞLEVİ
-const newChatBtn = document.getElementById("new-chat-btn");
-if (newChatBtn) {
-    newChatBtn.onclick = () => {
-        // 1. Akışı sıfırla (Ekranda yeni başlatma mesajı çıkarır)
-        const flow = document.getElementById("chat-flow");
-        if (flow) {
-            flow.innerHTML = ""; // Ekrandaki eski mesajları uçurur
+    // YENİ SOHBET BUTONU İŞLEVİ
+    const newChatBtn = document.getElementById("new-chat-btn");
+    if (newChatBtn) {
+        newChatBtn.onclick = () => {
+            // 1. Akışı sıfırla (Ekranda yeni başlatma mesajı çıkarır)
+            const flow = document.getElementById("chat-flow");
+            if (flow) {
+                flow.innerHTML = ""; // Ekrandaki eski mesajları uçurur
+                
+                const div = document.createElement("div");
+                div.className = "msg ai-msg";
+                div.innerHTML = `
+                    <div class="msg-head assistant">
+                        <span class="chat-avatar assistant gold">CSA</span>
+                        <span class="expert-tag">SYSTEM INITIALIZER</span>
+                    </div>
+                    <div class="msg-body">
+                        <p>Yeni analiz paneli başlatıldı. Lütfen incelemek istediğiniz log girdilerini veya görsel dosyaları sisteme aktarın.</p>
+                    </div>
+                `;
+                flow.appendChild(div);
+                flow.scrollTop = flow.scrollHeight;
+            }
             
-            const div = document.createElement("div");
-            div.className = "msg ai-msg";
+            // 2. Hafızadaki aktif sohbet ID'sini temizle
+            window.currentChatId = null; 
             
-            // TERS TIRNAK (`) AÇILIŞI VE KAPANIŞI TAMAMEN DÜZELTİLDİ
-            div.innerHTML = `
-                <div class="msg-head assistant">
-                    <div class="cyber-c-spinner"></div>
-                    <span class="expert-tag" style="margin-left: 5px;">CASSANDRA AI // THINKING</span>
-                </div>
-                <div class="msg-body" style="color: #8892b0; font-style: italic; position: relative; padding-bottom: 10px;">
-                    <span class="typing-text">Cassandra AI mesajınıza yanıt üretiyor...</span>
-                    <div class="neon-scan-line"></div>
-                </div>
-            `;
+            // 3. Input alanını ve ekleri temizle
+            const promptIn = document.getElementById("prompt-in");
+            if (promptIn) promptIn.value = "";
             
-            flow.appendChild(div);
-            flow.scrollTop = flow.scrollHeight; // Sayfayı aşağı kaydırır
-        }
-        
-        // 2. Hafızadaki aktif sohbet ID'sini temizle
-        if (typeof currentChatId !== 'undefined') {
-            currentChatId = null; 
-        }
-        
-        // 3. Input alanını ve ekleri temizle
-        const promptIn = document.getElementById("prompt-in");
-        if (promptIn) promptIn.value = "";
-        
-        const preview = document.getElementById("attachment-preview");
-        if (preview) preview.innerHTML = "";
-        
-        if (typeof selectedFile !== 'undefined') {
-            selectedFile = null;
-        }
+            const preview = document.getElementById("attachment-preview");
+            if (preview) preview.innerHTML = "";
+            
+            window.selectedFile = null;
 
-        // 4. Analist seçimini varsayılana çek (Red Team)
-        const firstAnalyst = document.querySelector('input[name="exp"]');
-        if (firstAnalyst) firstAnalyst.checked = true;
+            // 4. Analist seçimini varsayılana çek (Red Team)
+            const firstAnalyst = document.querySelector('input[name="exp"]');
+            if (firstAnalyst) firstAnalyst.checked = true;
 
-        // 5. Ekran güncelleme tetikleyicisi
-        if (typeof updateDisplay === 'function') {
+            // 5. Ekran güncelleme tetikleyicisi
             setTimeout(updateDisplay, 100);
-        }
-    };
-}
+        };
+    }
+} // <--- UNUTULAN VE SİSTEMİ KİLİTLEYEN PARANTEZ BURASIYDI, DÜZELTİLDİ!
 
-// Dosyanın altındaki diğer fonksiyonların tetikleyicisi (Eğer gerekiyorsa)
-if (typeof updateDisplay === 'function') {
-    setTimeout(updateDisplay, 500);
-}
 // 2. SENARYO YÜKLEME
 async function loadScenarios() {
     const fallbacks = {
@@ -204,7 +195,9 @@ async function runAnalysis() {
     }
 
     // BİLDİRİMİ AÇMA
-    document.getElementById('cassandra-status-area').style.display = 'flex';
+    if(document.getElementById('cassandra-status-area')) {
+        document.getElementById('cassandra-status-area').style.display = 'flex';
+    }
 
     // Sohbet akışına geçici "Yazıyor..." balonu ekle
     const flow = document.getElementById("chat-flow");
@@ -257,7 +250,6 @@ async function runAnalysis() {
         }
 
         // --- ENGELE TAKILMAYAN DOĞRUDAN GROQ BAĞLANTISI ---
-        // Kullanıcı resim yüklediyse Llama 4 Scout'un bayıldığı array yapısını kuruyoruz
         let messageContent;
         if (base64Image) {
             messageContent = [
@@ -275,7 +267,7 @@ async function runAnalysis() {
                 "Authorization": `Bearer ${savedKey}`
             },
             body: JSON.stringify({
-                model: "meta-llama/llama-4-scout-17b-16e-instruct", // Orijinal canavar modelin
+                model: "meta-llama/llama-4-scout-17b-16e-instruct", 
                 messages: [
                     {
                         role: "system",
@@ -304,7 +296,7 @@ async function runAnalysis() {
         }
         
         const data = await res.json();
-        const aiResponse = data.choices[0].message.content; // Doğrudan Groq'tan gelen cevabı okuyoruz
+        const aiResponse = data.choices[0].message.content; 
 
         if (!aiResponse) {
             throw new Error("Yapay zekadan geçerli bir analiz yanıtı alınamadı.");
@@ -325,13 +317,14 @@ async function runAnalysis() {
     } catch (e) {
         appendMsg("assistant", `⚠️ Hata: ${e.message}`);
     } finally {
-
         // Cevap geldiğinde veya hata oluştuğunda geçici balonu uçur
         const tempBubble = document.getElementById("cassandra-loading-bubble");
         if(tempBubble) tempBubble.remove();
         
         // BİLDİRİMİ KAPATMA
-        document.getElementById('cassandra-status-area').style.display = 'none';
+        if(document.getElementById('cassandra-status-area')) {
+            document.getElementById('cassandra-status-area').style.display = 'none';
+        }
 
         if(btn) {
             btn.disabled = false;
@@ -427,7 +420,7 @@ function appendMsg(role, text, meta = "", report = null) {
                 passBtn.onclick = () => {
                     const targetExpert = selectTarget.value;
                     const radios = document.querySelectorAll('input[name="exp"]');
-                    radios.forEach(r => {
+                    radius.forEach(r => {
                         if(r.value.trim().toLowerCase() === targetExpert.toLowerCase()) {
                             r.checked = true;
                             r.dispatchEvent(new Event('change')); 

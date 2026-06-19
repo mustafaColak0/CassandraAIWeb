@@ -10,7 +10,6 @@
 
 * { box-sizing: border-box; }
 
-/* Nükleer Seçim ve Gövde Ayarları */
 html, body { user-select: auto !important; -webkit-user-select: auto !important; }
 body { margin: 0; padding: 0; height: 100vh; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; display: flex; overflow: hidden; }
 
@@ -40,17 +39,21 @@ body { margin: 0; padding: 0; height: 100vh; background: var(--bg); color: var(-
     display: flex; 
     flex-direction: column; 
     z-index: 20; 
-    height: calc(100vh - 45px) !important; /* 🌟 Windows taskbar arkasına kaçmayı engelleyen ana bariyer */
+    height: 100vh;
 }
 .sidebar-header { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--neon); margin-bottom: 20px; text-shadow: 0 0 10px rgba(34, 211, 238, 0.3); }
 label { font-size: 0.75rem; color: var(--neon); margin: 10px 0 5px 0; display: block; text-transform: uppercase; opacity: 0.8; font-weight: 600; }
 
-/* Cursor Pointer */
 select { width: 100%; background: var(--panel-2); border: 1px solid var(--border); color: #fff; padding: 8px 10px; border-radius: 4px; margin-bottom: 8px; outline: none; font-family: 'Inter', sans-serif; font-size: 0.85rem; cursor: pointer; transition: 0.2s;}
 select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238, 0.2); }
 
-/* Analistler arası boşluklar */
-.radio-group label { background: rgba(255, 255, 255, 0.02); border: 1px solid transparent; border-radius: 6px; cursor: pointer; display: flex; align-items: center; font-size: 0.85rem; margin-bottom: 3px; transition: 0.2s; padding: 6px 10px; }
+/* Analistler arası sabit ve temiz yerleşim */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.radio-group label { background: rgba(255, 255, 255, 0.02); border: 1px solid transparent; border-radius: 6px; cursor: pointer; display: flex; align-items: center; font-size: 0.85rem; margin-bottom: 0px; transition: 0.2s; padding: 6px 10px; }
 .radio-group label:hover { background: rgba(34, 211, 238, 0.05); }
 
 /* Geçmiş paneli */
@@ -59,10 +62,10 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     padding-top: 15px; 
     border-top: 1px solid var(--border); 
     position: relative;  
-    flex: 1; /* Sidebar içindeki tüm boşluğu bu alana veriyoruz */
+    flex: 1; 
     display: flex; 
     flex-direction: column; 
-    min-height: 0; /* İçerik taşmalarını engellemek için kritik flex kilidi */
+    min-height: 0; 
 }
 .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-shrink: 0; }
 .history-control-btn { background: transparent; border: 1px solid var(--border); color: var(--neon); border-radius: 4px; cursor: pointer; padding: 2px 8px; }
@@ -76,7 +79,7 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     flex-direction: column; 
     gap: 5px; 
     padding-right: 5px; 
-    flex: 1; /* Kartlar sığmadığında sadece bu liste kendi içinde scroll olacak */
+    flex: 1; 
     padding-bottom: 10px;
 }
 #history-list::-webkit-scrollbar { width: 4px; }
@@ -88,7 +91,7 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 
 .clear-all-btn { 
     width: 100%;  
-    margin-top: auto !important; /* 🌟 Harika detay: Butonu listenin en altına iter */
+    margin-top: auto !important; 
     margin-bottom: 5px !important; 
     background: rgba(255, 77, 109, 0.1); 
     border: 1px solid var(--danger);  
@@ -125,7 +128,7 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 #chat-flow::-webkit-scrollbar { width: 6px; }
 #chat-flow::-webkit-scrollbar-thumb { background: rgba(34, 211, 238, 0.3); border-radius: 10px; }
 
-/* SOHBET YAZI ŞEKLİ GÜZELLEŞTİRMESİ (MARKDOWN DESTEĞİ) */
+/* BALONCUKLAR */
 .msg { 
     position: relative; 
     z-index: 2; 
@@ -161,7 +164,6 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 .msg-body pre { background: #050914; padding: 15px; border-radius: 8px; overflow-x: auto; border: 1px solid rgba(34, 211, 238, 0.15); margin-bottom: 15px; }
 .msg-body pre code { background: transparent; border: none; color: #d3e9f5; padding: 0; }
 
-/* MESAJ BUTONLARI  */
 .msg-actions { 
   display: flex; 
   gap: 12px; 
@@ -170,7 +172,7 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
   border-top: 1px solid rgba(255,255,255,0.05); 
   padding-top: 15px;
 }
-/* Yeni Sohbet Butonu */
+
 .new-chat-btn {
     width: 100%;
     background: rgba(34, 211, 238, 0.1); 
@@ -194,7 +196,6 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     box-shadow: 0 0 10px var(--neon);
 }
 
-/* CassandraAI Bildirim Alanı */
 .cassandra-status-area {
     display: flex;
     align-items: center;
@@ -210,7 +211,6 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     flex-shrink: 0;
 }
 
-/* Dönme Efekti (Spinner) */
 .spinner {
     width: 14px;
     height: 14px;
@@ -223,7 +223,6 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     to { transform: rotate(360deg); }
 }
 
-/* Tüm aksiyon butonların */
 .action-btn { 
   padding: 8px 16px !important; 
   background: rgba(0,0,0,0.2) !important; 
@@ -251,7 +250,6 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 .action-btn.report-btn, .report-btn { border: 1px solid var(--danger) !important; color: var(--danger) !important; background: rgba(0, 0, 0, 0.3) !important; }
 .action-btn.report-btn:hover, .report-btn:hover { background: var(--danger) !important; color: white !important; box-shadow: 0 0 15px rgba(255,77,109,0.6) !important; }
 
-/* GÖRSELDEKİ ANALYZE BUTONU & DOSYA EKLEME */
 #input-zone-wrapper { flex-shrink: 0; padding: 20px 30px; background: var(--panel); border-top: 1px solid var(--border); position: relative; z-index: 999; }
 .attachment-preview { font-size: 0.8rem; color: var(--neon); margin-bottom: 8px; min-height: 15px; }
 
@@ -267,7 +265,6 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 .attach-btn:hover { background: var(--neon); color: black; }
 #prompt-in { flex: 1; background: transparent; border: none; outline: none; color: white; font-size: 0.95rem; padding: 0 10px; font-family: 'Inter', sans-serif; min-width: 0; }
 
-/* ANALYZE BUTONU GRADIENT */
 .send-btn {
   background: linear-gradient(90deg, var(--danger) 0%, var(--neon) 100%);
   border: none;
@@ -299,7 +296,6 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 }
 @keyframes buttonShine { 0% { left: -140%; } 100% { left: 140%; } }
 
-/* Masaüstü ve Genel Yapı */
 .container { width: 95%; max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; height: 100vh; padding: 10px; }
 .main-content { display: flex; gap: 20px; flex: 1; overflow: hidden; }
 
@@ -364,35 +360,4 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     radial-gradient(circle at 82% 48%, rgba(255, 59, 92, 0.22), transparent 20%),
     radial-gradient(circle at 55% 82%, rgba(0, 212, 255, 0.20), transparent 18%);
   opacity: 0; animation: lightningFlash 3.2s ease-in-out infinite;
-}
-
-/* 1. Sol Menünün Genel Düzeni (Taşmaları Engellemek İçin) */
-.sidebar, [id*="sidebar"], .learned-panel {
-    display: flex;
-    flex-direction: column;
-    height: 100vh; /* Tam ekran yüksekliği */
-    overflow-y: auto; /* İçerik taşarsa sadece kendi içinde kaydırılabilir olsun */
-    box-sizing: border-box;
-}
-
-/* 2. Aktif Analist Listesindeki Aşırı Boşlukların Çözümü */
-.analyst-list-container, 
-div:has(> input[name="exp"]) {
-    display: flex;
-    flex-direction: column;
-    gap: 8px !important; /* Butonların arasını sabit ve sıkı tutar */
-    justify-content: flex-start !important; /* Butonları yukarı doğru yaslar, yaymaz */
-    margin-bottom: 20px;
-}
-
-/* 3. Butonların Kapsayıcısına Yayılma Demeyi Bırakın */
-input[name="exp"] + label, 
-.analyst-radio-label {
-    margin-bottom: 0 !important; /* Ekstra marginleri sıfırla */
-}
-
-/* 4. Alt Alta Binen Fazlalık Geçmiş Penceresi/Buton Alanı Çözümü */
-.history-section, 
-.analiz-gecmisi-container {
-    margin-top: auto; /* Geçmiş panelini otomatik olarak en alta iter */
 }

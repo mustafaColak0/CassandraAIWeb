@@ -32,15 +32,15 @@ body { margin: 0; padding: 0; height: 100vh; background: var(--bg); color: var(-
 
 /* SIDEBAR & GEÇMİŞ */
 #sidebar { 
-  width: 320px; 
-  flex-shrink: 0; 
-  background: rgba(10, 19, 32, 0.95); 
-  border-right: 1px solid var(--border); 
-  padding: 20px; 
-  display: flex; 
-  flex-direction: column; 
-  z-index: 20; 
-  height: 100%; /* Windows Görev Çubuğuna çarpmaması için tam iskelet boyutu */
+    width: 320px; 
+    flex-shrink: 0; 
+    background: rgba(10, 19, 32, 0.95); 
+    border-right: 1px solid var(--border); 
+    padding: 20px; 
+    display: flex; 
+    flex-direction: column; 
+    z-index: 20; 
+    height: calc(100vh - 45px) !important; /* 🌟 Windows taskbar arkasına kaçmayı engelleyen ana bariyer */
 }
 .sidebar-header { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--neon); margin-bottom: 20px; text-shadow: 0 0 10px rgba(34, 211, 238, 0.3); }
 label { font-size: 0.75rem; color: var(--neon); margin: 10px 0 5px 0; display: block; text-transform: uppercase; opacity: 0.8; font-weight: 600; }
@@ -55,49 +55,50 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 
 /* Geçmiş paneli */
 .history-section { 
-  margin-top: 15px; 
-  padding-top: 15px; 
-  border-top: 1px solid var(--border); 
-  position: relative;  
-  flex: 1; /* Sidebar içindeki kalan boşluğu dikeyde düzgünce doldurur */
-  min-height: 0; /* Flexbox dikey taşma kilit koruması */
-  display: flex; 
-  flex-direction: column; 
+    margin-top: 15px; 
+    padding-top: 15px; 
+    border-top: 1px solid var(--border); 
+    position: relative;  
+    flex: 1; /* Sidebar içindeki tüm boşluğu bu alana veriyoruz */
+    display: flex; 
+    flex-direction: column; 
+    min-height: 0; /* İçerik taşmalarını engellemek için kritik flex kilidi */
 }
-.history-header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-shrink: 0; }
 .history-control-btn { background: transparent; border: 1px solid var(--border); color: var(--neon); border-radius: 4px; cursor: pointer; padding: 2px 8px; }
 
 .history-content { display: none; }
 .history-content.active { display: flex !important; flex-direction: column; flex: 1; min-height: 0; }
 
 #history-list { 
-  overflow-y: auto !important; 
-  display: flex; 
-  flex-direction: column; 
-  gap: 5px; 
-  padding-right: 5px; 
-  flex: 1; /* Listenin sadece kendi içinde kayması için flex dağılımı */
+    overflow-y: auto !important; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 5px; 
+    padding-right: 5px; 
+    flex: 1; /* Kartlar sığmadığında sadece bu liste kendi içinde scroll olacak */
+    padding-bottom: 10px;
 }
 #history-list::-webkit-scrollbar { width: 4px; }
 #history-list::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 4px; }
 
-.history-item { position: relative; padding: 8px 10px; background: rgba(0,0,0,0.3); border-left: 2px solid var(--neon); cursor: pointer; font-size: 0.75rem; transition: 0.2s; line-height: 1.3; flex-shrink: 0;}
+.history-item { position: relative; padding: 8px 10px; background: rgba(0,0,0,0.3); border-left: 2px solid var(--neon); cursor: pointer; font-size: 0.75rem; transition: 0.2s; line-height: 1.3; flex-shrink: 0; }
 .history-item:hover { background: rgba(34, 211, 238, 0.1); }
-.delete-history-btn { position: absolute; right: 8px; top: 8px; color: var(--danger); cursor: pointer; font-weight: bold; z-index: 5; }
+.delete-history-btn { position: absolute; right: 8px; top: 8px; color: var(--danger); cursor: pointer; font-weight: bold; }
 
 .clear-all-btn { 
-  width: 100%;  
-  margin-top: 10px !important;  
-  margin-bottom: 5px !important; 
-  background: rgba(255, 77, 109, 0.1); 
-  border: 1px solid var(--danger);  
-  color: var(--danger);  
-  padding: 8px;  
-  border-radius: 4px;  
-  cursor: pointer;  
-  font-size: 0.75rem;  
-  font-weight: bold;
-  flex-shrink: 0; /* Butonun asla aşağı sıkışıp ezilmesini engeller */
+    width: 100%;  
+    margin-top: auto !important; /* 🌟 Harika detay: Butonu listenin en altına iter */
+    margin-bottom: 5px !important; 
+    background: rgba(255, 77, 109, 0.1); 
+    border: 1px solid var(--danger);  
+    color: var(--danger);  
+    padding: 8px;  
+    border-radius: 4px;  
+    cursor: pointer;  
+    font-size: 0.75rem;  
+    font-weight: bold;
+    flex-shrink: 0; 
 }
 
 /* SAĞ PANEL: MAIN VIEW */
@@ -111,30 +112,31 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 .threat-pill { padding: 4px 12px; border: 1px solid #00ff00; color: #00ff00; background: rgba(0, 255, 0, 0.05); font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; font-weight: 700; border-radius: 20px; letter-spacing: 1px; }
 
 /* ANALİZ BİLGİ PANELİ ÇERÇEVESİ */
-.analysis-params-bar { 
-    height: 35px; background: rgba(34, 211, 238, 0.03); border-top: 1px solid rgba(34, 211, 238, 0.1); 
-    display: flex; align-items: center; padding: 0 25px; gap: 30px; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; 
+.analysis-params-bar {  
+    height: 35px; background: rgba(34, 211, 238, 0.03); border-top: 1px solid rgba(34, 211, 238, 0.1);  
+    display: flex; align-items: center; padding: 0 25px; gap: 30px; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace;  
 }
 .param-item span { color: var(--neon); opacity: 0.6; margin-right: 5px; }
 .param-item b { color: white; font-weight: 600; }
 
 /* SOHBET AKIŞI */
 .chat-column { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
-#chat-flow { flex: 1; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; position: relative; z-index: 2; }
+#chat-flow { flex: 1; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
 #chat-flow::-webkit-scrollbar { width: 6px; }
 #chat-flow::-webkit-scrollbar-thumb { background: rgba(34, 211, 238, 0.3); border-radius: 10px; }
 
 /* SOHBET YAZI ŞEKLİ GÜZELLEŞTİRMESİ (MARKDOWN DESTEĞİ) */
 .msg { 
-  position: relative; 
-  z-index: 2; 
-  max-width: 85%; 
-  padding: 20px 25px; 
-  border-radius: 10px; 
-  background: var(--panel-2); 
-  border: 1px solid rgba(255,255,255,0.03); 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  overflow: hidden; /* 🌟 Çizginin ve spinner'ın kutu dışına taşmasını net engeller */
+    position: relative; 
+    z-index: 2; 
+    width: fit-content; 
+    max-width: 85%; 
+    padding: 20px 25px; 
+    border-radius: 10px; 
+    background: var(--panel-2); 
+    border: 1px solid rgba(255,255,255,0.03); 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    overflow: hidden; 
 }
 .ai-msg { align-self: flex-start; border-left: 3px solid var(--neon); }
 .user-msg { align-self: flex-end; border-right: 3px solid var(--neon); background: rgba(34, 211, 238, 0.05); }
@@ -171,7 +173,7 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 /* Yeni Sohbet Butonu */
 .new-chat-btn {
     width: 100%;
-    background: rgba(34, 211, 238, 0.1); /* Neon mavi transparan */
+    background: rgba(34, 211, 238, 0.1); 
     border: 1px solid var(--neon);
     color: var(--neon);
     padding: 10px;
@@ -186,10 +188,9 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     gap: 8px;
     flex-shrink: 0;
 }
-
 .new-chat-btn:hover {
     background: var(--neon);
-    color: #000; /* Üzerine gelince yazı siyah olsun, parlasın */
+    color: #000; 
     box-shadow: 0 0 10px var(--neon);
 }
 
@@ -218,7 +219,6 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
-
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
@@ -239,38 +239,17 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
   justify-content: center !important;
   gap: 6px !important;
   outline: none !important;
-  appearance: none !important;        /* Windows 95 efektini kökten siler */
-  -webkit-appearance: none !important; /* Safari/Chrome için sıfırlama */
-  flex: 1;                            /* Mobilde butonlar eşit genişlikte olsun */
-  min-width: 100px;                   /* Tıklama alanını büyüt */
+  appearance: none !important;        
+  -webkit-appearance: none !important; 
+  flex: 1;                            
+  min-width: 100px;                   
   text-align: center;
 }
 
-/* COPY BUTONU ÖZEL STİLİ (BURASI ÖNEMLİ) */
-.action-btn.copy-btn, .copy-btn { 
-  border: 1px solid var(--neon) !important; 
-  color: var(--neon) !important; 
-  background: rgba(0, 0, 0, 0.3) !important;
-}
-
-.action-btn.copy-btn:hover, .copy-btn:hover { 
-  background: var(--neon) !important; 
-  color: #000 !important; 
-  box-shadow: 0 0 15px rgba(34, 211, 238, 0.6) !important; 
-}
-
-/* REPORT BUTONU ÖZEL STİLİ */
-.action-btn.report-btn, .report-btn { 
-  border: 1px solid var(--danger) !important; 
-  color: var(--danger) !important; 
-  background: rgba(0, 0, 0, 0.3) !important;
-}
-
-.action-btn.report-btn:hover, .report-btn:hover { 
-  background: var(--danger) !important; 
-  color: white !important; 
-  box-shadow: 0 0 15px rgba(255,77,109,0.6) !important; 
-}
+.action-btn.copy-btn, .copy-btn { border: 1px solid var(--neon) !important; color: var(--neon) !important; background: rgba(0, 0, 0, 0.3) !important; }
+.action-btn.copy-btn:hover, .copy-btn:hover { background: var(--neon) !important; color: #000 !important; box-shadow: 0 0 15px rgba(34, 211, 238, 0.6) !important; }
+.action-btn.report-btn, .report-btn { border: 1px solid var(--danger) !important; color: var(--danger) !important; background: rgba(0, 0, 0, 0.3) !important; }
+.action-btn.report-btn:hover, .report-btn:hover { background: var(--danger) !important; color: white !important; box-shadow: 0 0 15px rgba(255,77,109,0.6) !important; }
 
 /* GÖRSELDEKİ ANALYZE BUTONU & DOSYA EKLEME */
 #input-zone-wrapper { flex-shrink: 0; padding: 20px 30px; background: var(--panel); border-top: 1px solid var(--border); position: relative; z-index: 999; }
@@ -286,7 +265,6 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     display: flex; justify-content: center; align-items: center; flex-shrink: 0;
 }
 .attach-btn:hover { background: var(--neon); color: black; }
-
 #prompt-in { flex: 1; background: transparent; border: none; outline: none; color: white; font-size: 0.95rem; padding: 0 10px; font-family: 'Inter', sans-serif; min-width: 0; }
 
 /* ANALYZE BUTONU GRADIENT */
@@ -307,13 +285,7 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
-
-.send-btn:hover {
-  filter: brightness(1.07);
-  transform: translateY(-1px) scale(1.01);
-  box-shadow: 0 10px 24px rgba(0, 212, 255, 0.32), 0 6px 20px rgba(255, 59, 92, 0.34);
-}
-
+.send-btn:hover { filter: brightness(1.07); transform: translateY(-1px) scale(1.01); box-shadow: 0 10px 24px rgba(0, 212, 255, 0.32), 0 6px 20px rgba(255, 59, 92, 0.34); }
 .send-btn::before {
   content: "";
   position: absolute;
@@ -325,266 +297,71 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
   transform: skewX(-18deg);
   animation: buttonShine 2.8s infinite;
 }
-
-@keyframes buttonShine {
-  0% { left: -140%; }
-  100% { left: 140%; }
-}
+@keyframes buttonShine { 0% { left: -140%; } 100% { left: 140%; } }
 
 /* Masaüstü ve Genel Yapı */
-.container {
-    width: 95%;
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    padding: 10px;
-}
-
-/* Analiz Paneli ve Mesaj Alanı Yan Yana (Masaüstü) */
-.main-content {
-    display: flex;
-    gap: 20px;
-    flex: 1;
-    overflow: hidden; /* Taşmaları engelle */
-}
+.container { width: 95%; max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; height: 100vh; padding: 10px; }
+.main-content { display: flex; gap: 20px; flex: 1; overflow: hidden; }
 
 /* ARKA PLAN */
 .bg-layer { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.09; display: flex; flex-direction: column; justify-content: space-around; }
 .scrolling-line { font-family: 'Rajdhani', sans-serif; font-size: 8rem; white-space: nowrap; animation: scrollRight 30s linear infinite; pointer-events: none; }
 @keyframes scrollRight { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 
+/* RESPONSIVE (MOBILE) */
 @media (max-width: 768px) {
-    /* Masaüstündeki tüm katı yükseklik ve taşma kilitlerini kırıyoruz */
-    html, body, #app-container, .container, .main-content {
-        height: auto !important;
-        min-height: 100vh !important;
-        overflow: auto !important;
-        overflow-x: hidden !important; /* Yana doğru kaymayı (scroll) tamamen engeller */
-        flex-direction: column !important; /* Yan yana duran her şeyi yukarıdan aşağıya diz */
-    }
-
-    /* Seçim panelini (Sidebar) tam genişlik yap ve yüksekliğini içeriği kadar ayarla */
-    #sidebar, .sidebar {
-        width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        border-right: none !important;
-        border-bottom: 1px solid var(--border) !important;
-        padding: 15px !important;
-        flex-shrink: 0 !important;
-        z-index: 20 !important;
-    }
-
-    /* Sağ panelin (Main View) kilitlerini aç ve tüm mobil genişliği kaplamasını sağla */
-    #main-view, .chat-area {
-        width: 100% !important;
-        height: auto !important;
-        overflow: visible !important;
-        display: flex !important;
-        flex-direction: column !important;
-        flex: 1 !important;
-    }
-
-    /* Üst taraftaki durum çubuğunu mobil ekran için optimize et */
-    .status-bar {
-        padding: 0 15px !important;
-        height: auto !important;
-        min-height: 50px !important;
-        flex-wrap: wrap !important;
-        gap: 10px !important;
-    }
-    
-    /* Ekranı rahatlatmak için zaman grubunu mobilde tamamen gizle */
-    .time-group {
-        display: none !important;
-    }
-
-    /* İŞTE CHAT'İ GÖSTERECEK KRİTİK AYAR: Mesaj geçmişine net bir pencere açıyoruz */
-    #chat-flow {
-        padding: 15px !important;
-        height: 55vh !important; /* Chat alanına dikeyde geniş ve bağımsız bir kaydırma alanı ver */
-        min-height: 350px !important;
-        overflow-y: auto !important;
-        position: relative !important;
-        z-index: 2 !important;
-    }
-
-    /* Mesaj balonları ekrandan taşmasın */
-    .msg {
-        max-width: 95% !important;
-        padding: 12px 18px !important;
-    }
-
-    /* Analist butonlarını (Red Team Expert vb.) yan yana 2'li şık bir ızgara (grid) yap */
-    .radio-group, .analyst-grid {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        gap: 6px !important;
-        margin-top: 5px !important;
-    }
-
-    .radio-group label, .analyst-grid label {
-        margin-bottom: 0 !important;
-        padding: 8px !important;
-        font-size: 0.75rem !important;
-        justify-content: center !important;
-    }
-
-    /* Mesaj yazma kutusunu ve büyük Analyze butonunu ekranın en altına çivile */
-    #input-zone-wrapper {
-        padding: 12px 15px !important;
-        position: sticky !important;
-        bottom: 0 !important;
-        background: var(--panel) !important;
-        z-index: 9999 !important;
-        border-top: 1px solid var(--border) !important;
-    }
-
-    /* Analyze butonunun boyutunu mobil ekrana uyarla */
-    .send-btn {
-        padding: 0 20px !important;
-        min-height: 48px !important;
-        font-size: 14px !important;
-        border-radius: 10px !important;
-    }
-
-    /* Üst başlığı mobilde kibarlaştır */
-    h1, .main-title {
-        font-size: 1.1rem !important;
-        letter-spacing: 1px !important;
-    }
-
-    /* Arka plandaki şimşek efektlerinin sola yanaşmasını sağla, ekran dışına taşmasınlar */
-    #chat-flow::before, #chat-flow::after {
-        left: 0 !important;
-    }
+    html, body, #app-container, .container, .main-content { height: auto !important; min-height: 100vh !important; overflow: auto !important; overflow-x: hidden !important; flex-direction: column !important; }
+    #sidebar, .sidebar { width: 100% !important; max-width: 100% !important; height: auto !important; border-right: none !important; border-bottom: 1px solid var(--border) !important; padding: 15px !important; flex-shrink: 0 !important; z-index: 20 !important; }
+    #main-view, .chat-area { width: 100% !important; height: auto !important; overflow: visible !important; display: flex !important; flex-direction: column !important; flex: 1 !important; }
+    .status-bar { padding: 0 15px !important; height: auto !important; min-height: 50px !important; flex-wrap: wrap !important; gap: 10px !important; }
+    .time-group { display: none !important; }
+    #chat-flow { padding: 15px !important; height: 55vh !important; min-height: 350px !important; overflow-y: auto !important; position: relative !important; z-index: 2 !important; }
+    .msg { max-width: 95% !important; padding: 12px 18px !important; }
+    .radio-group, .analyst-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 6px !important; margin-top: 5px !important; }
+    .radio-group label, .analyst-grid label { margin-bottom: 0 !important; padding: 8px !important; font-size: 0.75rem !important; justify-content: center !important; }
+    #input-zone-wrapper { padding: 12px 15px !important; position: sticky !important; bottom: 0 !important; background: var(--panel) !important; z-index: 9999 !important; border-top: 1px solid var(--border) !important; }
+    .send-btn { padding: 0 20px !important; min-height: 48px !important; font-size: 14px !important; border-radius: 10px !important; }
+    h1, .main-title { font-size: 1.1rem !important; letter-spacing: 1px !important; }
+    #chat-flow::before, #chat-flow::after { left: 0 !important; }
 }
 
-/* --- CHAT ALANI YILDIRIM VE FLAŞ EFEKTLERİ --- */
-
-/* Chat alanına özel şimşek hareketleri */
+/* ANIMASYONLAR VE SİBER EFEKTLER */
 #chat-flow::before {
-  content: "";
-  position: fixed; /* Ekrana sabitler, sen scroll yapsan da kaymaz */
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 320px; /* Sidebar genişliğini es geçiyoruz */
-  pointer-events: none;
-  z-index: 0; /* Mesajların arkasında durması için */
+  content: ""; position: fixed; top: 0; right: 0; bottom: 0; left: 320px; pointer-events: none; z-index: 0;
   background:
     linear-gradient(125deg, transparent 0 38%, rgba(255, 255, 255, 0.18) 39%, transparent 41%) 15% 25% / 220px 280px no-repeat,
     linear-gradient(130deg, transparent 0 43%, rgba(0, 212, 255, 0.28) 44%, transparent 46%) 85% 35% / 180px 240px no-repeat,
     linear-gradient(120deg, transparent 0 35%, rgba(255, 59, 92, 0.28) 36%, transparent 38%) 60% 75% / 240px 300px no-repeat;
-  opacity: 0.8;
-  animation: lightningMove 5s linear infinite; /* Ana ekrana göre biraz daha seri hareket */
+  opacity: 0.8; animation: lightningMove 5s linear infinite;
 }
+@keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+.blink-animation { animation: pulse 1.5s infinite ease-in-out; }
+.typing-effect::after { content: ''; animation: dots 1.5s steps(4, end) infinite; }
+@keyframes dots { 0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; } }
 
-/* Yapay zeka düşünürken logonun hafifçe yanıp sönmesi için */
-@keyframes pulse {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
-}
-.blink-animation {
-    animation: pulse 1.5s infinite ease-in-out;
-}
-
-/* Üç noktanın hareketli animasyonu */
-.typing-effect::after {
-    content: '';
-    animation: dots 1.5s steps(4, end) infinite;
-}
-@keyframes dots {
-    0%, 20% { content: ''; }
-    40% { content: '.'; }
-    60% { content: '..'; }
-    80%, 100% { content: '...'; }
-}
-
-/* 1. 'C' Şeklindeki Neon Spinner */
 .cyber-c-spinner {
-    width: 18px;
-    height: 18px;
-    border: 2px solid transparent;
-    border-left: 2px solid var(--neon);   /* Kusursuz 'C' formu için sol, üst ve alt kenarlar aktif */
-    border-top: 2px solid var(--neon);
-    border-bottom: 2px solid var(--neon);
-    border-radius: 50%;
-    filter: drop-shadow(0 0 4px var(--neon));
-    animation: spinC 0.8s linear infinite;
-    display: inline-block;
-    vertical-align: middle;
+    width: 18px; height: 18px; border: 2px solid transparent;
+    border-left: 2px solid var(--neon); border-top: 2px solid var(--neon); border-bottom: 2px solid var(--neon);
+    border-radius: 50%; filter: drop-shadow(0 0 4px var(--neon)); animation: spinC 0.8s linear infinite;
+    display: inline-block; vertical-align: middle;
 }
+@keyframes spinC { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-@keyframes spinC {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* 2. Soldan Sağa Akan Dinamik Çizgisel Geçiş */
-.neon-scan-line {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: rgba(34, 211, 238, 0.05); /* Rayın yatağı */
-    border-radius: 2px;
-    overflow: hidden;
-}
-
+.neon-scan-line { position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: rgba(34, 211, 238, 0.05); border-radius: 2px; overflow: hidden; }
 .neon-scan-line::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 80%;
-    height: 100%;
-    /* 🌟 DÜZELTİLDİ: Sözdizimi hatası giderildi (100__% yerine 100% yapıldı) */
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        var(--danger) 30%, 
-        var(--neon) 70%, 
-        transparent 100%
-    );
+    content: ""; position: absolute; top: 0; left: -100%; width: 80%; height: 100%;
+    background: linear-gradient(90deg, transparent 0%, var(--danger) 30%, var(--neon) 70%, transparent 100%);
     animation: scanLinear 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
+@keyframes scanLinear { 0% { left: -100%; } 100% { left: 100%; } }
+.typing-text::after { content: ''; animation: loadingDots 1.5s steps(4, end) infinite; }
+@keyframes loadingDots { 0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; } }
 
-@keyframes scanLinear {
-    0% { left: -100%; }
-    100% { left: 100%; }
-}
-
-/* 3. Metnin Sonundaki Dinamik Üç Nokta (...) Efekti */
-.typing-text::after {
-    content: '';
-    animation: loadingDots 1.5s steps(4, end) infinite;
-}
-
-@keyframes loadingDots {
-    0%, 20% { content: ''; }
-    40% { content: '.'; }
-    60% { content: '..'; }
-    80%, 100% { content: '...'; }
-}
-
-/* Sohbet alanına özel çakan renkli flaşlar */
 #chat-flow::after {
-  content: "";
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 320px;
-  pointer-events: none;
-  z-index: 0;
+  content: ""; position: fixed; top: 0; right: 0; bottom: 0; left: 320px; pointer-events: none; z-index: 0;
   background: 
     radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.15), transparent 15%),
     radial-gradient(circle at 82% 48%, rgba(255, 59, 92, 0.22), transparent 20%),
     radial-gradient(circle at 55% 82%, rgba(0, 212, 255, 0.20), transparent 18%);
-  opacity: 0;
-  animation: lightningFlash 3.2s ease-in-out infinite;
+  opacity: 0; animation: lightningFlash 3.2s ease-in-out infinite;
 }

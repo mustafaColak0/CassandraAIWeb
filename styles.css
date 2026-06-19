@@ -29,13 +29,13 @@ body { margin: 0; padding: 0; height: 100vh; background: var(--bg); color: var(-
 /* ANA İSKELET */
 #app-container { position: relative; z-index: 10; display: flex; width: 100vw; height: 100vh; overflow: hidden; }
 
-/* SOL PANEL  */
+/* SOL PANEL (SIDEBAR) KESİN ÇÖZÜMÜ */
 #sidebar { 
     width: 320px; 
     flex-shrink: 0; 
     background: rgba(10, 19, 32, 0.95); 
     border-right: 1px solid var(--border); 
-    padding: 15px; /* Sıkıştırmak için padding azaltıldı */
+    padding: 12px; 
     display: flex; 
     flex-direction: column; 
     z-index: 20; 
@@ -46,48 +46,49 @@ body { margin: 0; padding: 0; height: 100vh; background: var(--bg); color: var(-
     font-size: 1.3rem; 
     font-weight: 700; 
     color: var(--neon); 
-    margin-bottom: 10px; 
+    margin-bottom: 8px; 
     text-shadow: 0 0 10px rgba(34, 211, 238, 0.3); 
     flex-shrink: 0; 
 }
 
-/* Form elemanları ve analist listesi için kaydırılabilir alan */
+/* Üst form elemanlarını sarmalayan alan (Boşluklar tamamen sıfırlandı) */
 .sidebar-scroll-area {
     flex: 1;
     overflow-y: auto;
     min-height: 0;
     padding-right: 4px;
-    margin-bottom: 10px;
+    margin-bottom: 0px; /* Boşluk kaldırıldı */
 }
 .sidebar-scroll-area::-webkit-scrollbar { width: 4px; }
 .sidebar-scroll-area::-webkit-scrollbar-thumb { background: rgba(34, 211, 238, 0.2); border-radius: 4px; }
 
-label { font-size: 0.72rem; color: var(--neon); margin: 8px 0 4px 0; display: block; text-transform: uppercase; opacity: 0.8; font-weight: 600; }
+label { font-size: 0.72rem; color: var(--neon); margin: 6px 0 3px 0; display: block; text-transform: uppercase; opacity: 0.8; font-weight: 600; }
 
-select { width: 100%; background: var(--panel-2); border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 4px; margin-bottom: 6px; outline: none; font-family: 'Inter', sans-serif; font-size: 0.82rem; cursor: pointer; transition: 0.2s;}
+select { width: 100%; background: var(--panel-2); border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 4px; margin-bottom: 4px; outline: none; font-family: 'Inter', sans-serif; font-size: 0.82rem; cursor: pointer; transition: 0.2s;}
 select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238, 0.2); }
 
-.radio-group { display: flex; flex-direction: column; gap: 4px; }
+.radio-group { display: flex; flex-direction: column; gap: 3px; }
 .radio-group label { background: rgba(255, 255, 255, 0.02); border: 1px solid transparent; border-radius: 4px; cursor: pointer; display: flex; align-items: center; font-size: 0.8rem; margin: 0; transition: 0.2s; padding: 5px 8px; width: 100%; text-transform: none; }
 .radio-group label:hover { background: rgba(34, 211, 238, 0.05); border-color: rgba(34, 211, 238, 0.1); }
 .radio-group input[type="radio"] { margin-right: 8px; cursor: pointer; }
 
+/* Yeni Sohbet Alanı (Analistlerin hemen dibine çekildi) */
 .new-chat-section {
-    margin-top: 5px;
-    margin-bottom: 10px;
+    margin-top: 4px;
+    margin-bottom: 6px;
     flex-shrink: 0;
 }
 
-/* ANALİZ GEÇMİŞİ ALANI  */
+/* ANALİZ GEÇMİŞİ ALANI */
 .history-section { 
-    padding-top: 8px; 
+    padding-top: 6px; 
     border-top: 1px solid var(--border); 
-    max-height: 220px; /* Sabit maksimum yükseklik ile taşma tamamen önlendi */
+    max-height: 220px; 
     display: flex; 
     flex-direction: column; 
     flex-shrink: 0; 
 }
-.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-shrink: 0; }
+.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-shrink: 0; }
 .history-control-btn { background: transparent; border: 1px solid var(--border); color: var(--neon); border-radius: 4px; cursor: pointer; padding: 2px 6px; font-size: 0.75rem; }
 
 .history-content { display: none; }
@@ -100,7 +101,7 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     gap: 4px; 
     padding-right: 4px; 
     flex: 1; 
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 #history-list::-webkit-scrollbar { width: 4px; }
 #history-list::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 4px; }
@@ -114,7 +115,7 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     background: rgba(255, 77, 109, 0.08); 
     border: 1px solid var(--danger);  
     color: var(--danger);  
-    padding: 6px;  
+    padding: 5px;  
     border-radius: 4px;  
     cursor: pointer;  
     font-size: 0.7rem;  
@@ -145,12 +146,13 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 #chat-flow::-webkit-scrollbar { width: 5px; }
 #chat-flow::-webkit-scrollbar-thumb { background: rgba(34, 211, 238, 0.25); border-radius: 10px; }
 
+/* MESAJ KUTULARI */
 .msg { 
     position: relative; 
     z-index: 2; 
-    width: fit-content;      /* İçeriğe tam oturması sağlandı */
+    width: fit-content;      
     max-width: 80%; 
-    min-width: 240px;        /* Çok daralmasını önlemek için ideal limit */
+    min-width: 240px;        
     padding: 12px 18px; 
     border-radius: 8px; 
     background: var(--panel-2); 
@@ -166,7 +168,6 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 .chat-avatar.assistant.gold { background: #ffd700; box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
 .expert-tag { font-family: "Rajdhani", sans-serif; color: var(--neon); font-size: 0.88rem; font-weight: bold; letter-spacing: 0.5px; }
 
-/* İçerik Boşluk Düzenlemeleri */
 .msg-body { font-family: 'Inter', sans-serif; font-size: 0.9rem; line-height: 1.5; color: #e2e8f0; }
 .msg-body p { margin: 0 0 8px 0; }
 .msg-body p:last-child { margin: 0; }
@@ -177,7 +178,6 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 .msg-body ul, .msg-body ol { margin: 0 0 10px 0; padding-left: 18px; }
 .msg-body li { margin-bottom: 4px; }
 
-/* Buton ve Yapay Zeka Düşünme Çubuğu Bölümü */
 .msg-actions { 
   display: flex; 
   gap: 8px; 
@@ -186,12 +186,13 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
   padding-top: 10px;
 }
 
+/* YENİ SOHBET BUTONU SİBER STİL */
 .new-chat-btn {
     width: 100%;
-    background: rgba(34, 211, 238, 0.08); 
+    background: rgba(34, 211, 238, 0.05); 
     border: 1px solid var(--border);
     color: var(--neon);
-    padding: 8px;
+    padding: 7px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.78rem;
@@ -203,7 +204,7 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     gap: 6px;
     flex-shrink: 0;
 }
-.new-chat-btn:hover { background: var(--neon); color: #000; box-shadow: 0 0 10px var(--neon); }
+.new-chat-btn:hover { background: rgba(34, 211, 238, 0.15); border-color: var(--neon); box-shadow: 0 0 10px rgba(34, 211, 238, 0.3); }
 
 .cassandra-status-area {
     display: flex;
@@ -219,9 +220,10 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     flex-shrink: 0;
 }
 
+/* BUTONLARIN ORİJİNAL RENK AYARLARI */
 .action-btn { 
   padding: 6px 12px !important; 
-  background: rgba(0,0,0,0.2) !important; 
+  background: rgba(0,0,0,0.3) !important; 
   border-radius: 4px !important; 
   cursor: pointer !important; 
   font-size: 0.72rem !important; 
@@ -234,10 +236,29 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
   justify-content: center !important;
   gap: 4px !important;
   outline: none !important;
-  border: 1px solid var(--border) !important;
-  color: var(--neon) !important;
 }
-.action-btn:hover { background: var(--neon) !important; color: #000 !important; }
+
+/* COPY & PASLA BUTONLARI (NEON MAVİ TEMALI) */
+.action-btn.copy-btn, .copy-btn, .pasla-btn { 
+  border: 1px solid var(--neon) !important; 
+  color: var(--neon) !important; 
+}
+.action-btn.copy-btn:hover, .copy-btn:hover, .pasla-btn:hover { 
+  background: var(--neon) !important; 
+  color: #000 !important; 
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.5) !important; 
+}
+
+/* STRATEGIC REPORT BUTONU (NEON KIRMIZI/DANGER TEMALI) */
+.action-btn.report-btn, .report-btn { 
+  border: 1px solid var(--danger) !important; 
+  color: var(--danger) !important; 
+}
+.action-btn.report-btn:hover, .report-btn:hover { 
+  background: var(--danger) !important; 
+  color: white !important; 
+  box-shadow: 0 0 12px rgba(255, 77, 109, 0.5) !important; 
+}
 
 #input-zone-wrapper { flex-shrink: 0; padding: 15px 20px; background: var(--panel); border-top: 1px solid var(--border); position: relative; z-index: 999; }
 .attachment-preview { font-size: 0.75rem; color: var(--neon); margin-bottom: 6px; min-height: 12px; }

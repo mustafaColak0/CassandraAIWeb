@@ -468,22 +468,22 @@ function renderHistory() {
                 deleteHistoryItem(history.length - 1 - idx);
             }    else {
     // 1. Önce ekranı jilet gibi temizliyoruz
-    const flow = document.getElementById("chat-flow");
-    if (flow) {
-        flow.innerHTML = ""; 
-    }
+                const flow = document.getElementById("chat-flow");
+                if (flow) {
+                    flow.innerHTML = ""; 
+                }
 
     // 2. Aktif vaka kimliğini tıklanan raporun ID'si yapıyoruz
-    window.currentChatId = item.reportId; 
+                window.currentChatId = item.reportId; 
 
     // 3. ÖNEMLİ DEĞİŞİKLİK: appendMsg'e report nesnesini göndermiyoruz (null geçiyoruz) 
     // Böylece geçmişe tıkladığında altında pasla/pdf butonları türeyip sistemi tetiklemeyecek.
-    appendMsg("assistant", item.analysis, `ARŞİV: ${item.reportId}`, null);
-}
-        };
-        list.appendChild(div);
-    });
-}
+                appendMsg("assistant", item.analysis, `ARŞİV: ${item.reportId}`, null);
+                }
+            };
+            list.appendChild(div);
+         });
+      }
 
 function deleteHistoryItem(index) {
     const history = JSON.parse(localStorage.getItem(CHAT_SESSIONS_KEY) || "[]");

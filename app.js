@@ -88,16 +88,16 @@ const updateDisplay = () => {
                 const div = document.createElement("div");
                 div.className = "msg ai-msg";
                 div.innerHTML = `
-            <div class="msg-head assistant">
+                <div class="msg-head assistant">
                 <div class="cyber-c-spinner"></div>
                 <span class="expert-tag" style="margin-left: 5px;">CASSANDRA AI // THINKING</span>
-            </div>
-            <div class="msg-body" style="color: #8892b0; font-style: italic; position: relative; padding-bottom: 10px;">
+                </div>
+                <div class="msg-body" style="color: #8892b0; font-style: italic; position: relative; padding-bottom: 10px;">
                 <span class="typing-text">Cassandra AI mesajınıza yanıt üretiyor</span>
                 
                 <div class="neon-scan-line"></div>
-            </div>
-        `;
+                </div>
+                    `;
                 flow.appendChild(div);
                 flow.scrollTop = flow.scrollHeight; // Sayfayı aşağı kaydırır
             }

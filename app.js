@@ -1,4 +1,3 @@
-// ============================================================================
 // 1. GLOBAL TANIMLAMALAR & CASSANDRA AI SİSTEM BAŞLATICI
 // ============================================================================
 
@@ -79,7 +78,9 @@ function initSystem() {
     };
 
     // HUD elementlerinin durum değişikliklerine event listener'ların bağlanması
+    // 'change_hud' asenkron veri yüklenme anlarında tetiklenecek özel durum dinleyicisidir
     document.getElementById("sector-select")?.addEventListener("change", updateDisplay);
+    document.getElementById("sector-select")?.addEventListener("change_hud", updateDisplay);
     document.getElementById("vaka-select")?.addEventListener("change", updateDisplay);
     document.querySelectorAll('input[name="exp"]').forEach(r => r.addEventListener("change", updateDisplay));
     
@@ -145,6 +146,9 @@ function initSystem() {
             setTimeout(updateDisplay, 100);
         };
     }
+    
+    // Sistem ilk açıldığında tire kalmaması için HUD panelini ilk verilerle çalıştırır
+    updateDisplay();
 }
 
 // ============================================================================
@@ -165,9 +169,11 @@ async function loadScenarios() {
 
     try {
         const res = await fetch(`${BACKEND_URL}/api/scenarios`);
-        const data = await res.json();
-        if (data.scenarios && Object.keys(data.scenarios).length > 0) {
-            targetScenarios = data.scenarios;
+        if (res.ok) {
+            const data = await res.json();
+            if (data.scenarios && Object.keys(data.scenarios).length > 0) {
+                targetScenarios = data.scenarios;
+            }
         }
     } catch (e) { 
         targetScenarios = fallbacks; // Bağlantı hatasında siber kesintiyi önlemek için lokal veriyi basar
@@ -184,7 +190,12 @@ async function loadScenarios() {
     // Dropdown seçeneklerini DOM üzerinde asenkron inşa eder
     sector.innerHTML = Object.keys(window.scenarios).map(s => `<option value="${s}">${s}</option>`).join("");
     sector.onchange = () => {
-        vaka.innerHTML = window.scenarios[sector.value].map(v => `<option value="${v}">${v}</option>`).join("");
+        if (window.scenarios[sector.value]) {
+            vaka.innerHTML = window.scenarios[sector.value].map(v => `<option value="${v}">${v}</option>`).join("");
+        }
+        // Veriler yüklendiğinde HUD'ın boş (tire) kalmasını önlemek için özel olayı ateşleriz
+        const updateEvent = new Event('change_hud', { bubbles: true });
+        sector.dispatchEvent(updateEvent);
     };
     sector.onchange();
 }
@@ -685,9 +696,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Sistem yükleme zinciri tetikleyicileri
+// CRITICAL FIX: Önce asenkron verileri çekip kutuları besliyoruz, ardından HUD paneli (initSystem) ayağa kalkıyor.
 window.onload = async () => { 
-    initSystem(); 
     await loadScenarios(); 
+    initSystem(); 
     renderHistory(); 
 };
 

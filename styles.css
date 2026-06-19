@@ -425,6 +425,27 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
   opacity: 0.8;
   animation: lightningMove 5s linear infinite; /* Ana ekrana göre biraz daha seri hareket */
 }
+/* Yapay zeka düşünürken logonun hafifçe yanıp sönmesi için */
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+.blink-animation {
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Üç noktanın hareketli animasyonu */
+.typing-effect::after {
+    content: '';
+    animation: dots 1.5s Steps(4, end) infinite;
+}
+@keyframes dots {
+    0%, 20% { content: ''; }
+    40% { content: '.'; }
+    60% { content: '..'; }
+    80%, 100% { content: '...'; }
+}
 
 /* Sohbet alanına özel çakan renkli flaşlar */
 #chat-flow::after {

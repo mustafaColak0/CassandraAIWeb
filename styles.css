@@ -44,12 +44,13 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 .radio-group label:hover { background: rgba(34, 211, 238, 0.05); }
 
 /* Geçmiş paneli */
-.history-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
+.history-section {  margin-top: 15px;  padding-top: 15px; border-top: 1px solid var(--border); display: flex; flex-direction: column;max-height: calc(100vh - 400px);}
 .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .history-control-btn { background: transparent; border: 1px solid var(--border); color: var(--neon); border-radius: 4px; cursor: pointer; padding: 2px 8px; }
 .history-content { display: none; }
 .history-content.active { display: block; }
-#history-list { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; padding-right: 5px; }
+#history-list { max-height: 100%;overflow-y: auto; display: flex; flex-direction: column; gap: 5px; padding-right: 5px; flex-grow: 1;} 
+    
 #history-list::-webkit-scrollbar { width: 4px; }
 #history-list::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 4px; }
 .history-item { position: relative; padding: 8px 10px; background: rgba(0,0,0,0.3); border-left: 2px solid var(--neon); cursor: pointer; font-size: 0.75rem; transition: 0.2s; line-height: 1.3;}

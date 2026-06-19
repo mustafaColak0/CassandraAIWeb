@@ -79,31 +79,55 @@ function initSystem() {
         }
     };
 
-    // YENİ SOHBET BUTONU
-    const newChatBtn = document.getElementById("new-chat-btn");
-    if (newChatBtn) {
-        newChatBtn.onclick = () => {
-            const flow = document.getElementById("chat-flow");
-            if (flow) {
-                const loadingDiv = document.createElement("div");
-                loadingDiv.id = "cassandra-loading-bubble";
-                loadingDiv.className = "msg ai-msg";
-                loadingDiv.innerHTML = `
-                    <div class="msg-head assistant">
-                        <div class="cyber-c-spinner"></div>
-                        <span class="expert-tag" style="margin-left: 5px; color: #22d3ee;">CASSANDRA AI // THINKING</span>
-                    </div>
-                    <div class="msg-body" style="color: #8892b0; font-style: italic; position: relative; padding-bottom: 12px;">
-                        <span class="typing-text">Cassandra AI mesajınıza yanıt üretiyor</span>
-                        <div class="neon-scan-line"></div>
-                    </div>
-                `;
-                flow.appendChild(loadingDiv);
-                flow.scrollTop = flow.scrollHeight;
-            }
-        };
-    }
-    setTimeout(updateDisplay, 500);
+// YENİ SOHBET BUTONU İŞLEVİ
+const newChatBtn = document.getElementById("new-chat-btn");
+if (newChatBtn) {
+    newChatBtn.onclick = () => {
+        // 1. Akışı sıfırla (Ekranda yeni başlatma mesajı çıkarır)
+        const flow = document.getElementById("chat-flow");
+        if (flow) {
+            flow.innerHTML = ""; // Ekrandaki eski mesajları uçurur
+            
+            const div = document.createElement("div");
+            div.className = "msg ai-msg";
+            div.innerHTML = `
+                <div class="msg-head assistant">
+                    <span class="chat-avatar assistant gold">CSA</span>
+                    <span class="expert-tag">SYSTEM INITIALIZER</span>
+                </div>
+                <div class="msg-body">
+                    <p>Yeni analiz paneli başlatıldı. Lütfen incelemek istediğiniz log girdilerini veya görsel dosyaları sisteme aktarın.</p>
+                </div>
+            `;
+            flow.appendChild(div);
+            flow.scrollTop = flow.scrollHeight;
+        }
+        
+        // 2. Hafızadaki aktif sohbet ID'sini temizle (Eski oturum üzerine yazmasın)
+        if (typeof currentChatId !== 'undefined') {
+            currentChatId = null; 
+        }
+        
+        // 3. Input alanını ve ekleri temizle
+        const promptIn = document.getElementById("prompt-in");
+        if (promptIn) promptIn.value = "";
+        
+        const preview = document.getElementById("attachment-preview");
+        if (preview) preview.innerHTML = "";
+        
+        if (typeof selectedFile !== 'undefined') {
+            selectedFile = null;
+        }
+
+        // 4. İsteğe bağlı: Analist seçimini ilk analiste (Red Team) geri döndür
+        const firstAnalyst = document.querySelector('input[name="exp"]');
+        if (firstAnalyst) firstAnalyst.checked = true;
+
+        // Ekranı güncellemek için tetikleme yapıyorsan:
+        if (typeof updateDisplay === 'function') {
+            setTimeout(updateDisplay, 100);
+        }
+    };
 }
 
 // 2. SENARYO YÜKLEME

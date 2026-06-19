@@ -78,6 +78,18 @@ const updateDisplay = () => {
             renderHistory();
         }
     };
+    // YENİ SOHBET BUTONU
+    const newChatBtn = document.getElementById("new-chat-btn");
+    if(newChatBtn) {
+        newChatBtn.onclick = () => {
+            const flow = document.getElementById("chat-flow");
+            if(flow) {
+                flow.innerHTML = ""; // Ekrandaki mesajları temizler
+                // İsteğe bağlı: Yeni sohbet açıldığında AI'dan ilk mesaj gelsin
+                appendMsg("assistant", "Yeni analiz paneli başlatıldı. Lütfen incelemek istediğiniz log girdilerini veya görsel dosyaları sisteme aktarın.", "SYSTEM // RESET");
+            }
+            };
+    }
     setTimeout(updateDisplay, 500);
 }
 

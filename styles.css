@@ -365,3 +365,34 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     radial-gradient(circle at 55% 82%, rgba(0, 212, 255, 0.20), transparent 18%);
   opacity: 0; animation: lightningFlash 3.2s ease-in-out infinite;
 }
+
+/* 1. Sol Menünün Genel Düzeni (Taşmaları Engellemek İçin) */
+.sidebar, [id*="sidebar"], .learned-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Tam ekran yüksekliği */
+    overflow-y: auto; /* İçerik taşarsa sadece kendi içinde kaydırılabilir olsun */
+    box-sizing: border-box;
+}
+
+/* 2. Aktif Analist Listesindeki Aşırı Boşlukların Çözümü */
+.analyst-list-container, 
+div:has(> input[name="exp"]) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px !important; /* Butonların arasını sabit ve sıkı tutar */
+    justify-content: flex-start !important; /* Butonları yukarı doğru yaslar, yaymaz */
+    margin-bottom: 20px;
+}
+
+/* 3. Butonların Kapsayıcısına Yayılma Demeyi Bırakın */
+input[name="exp"] + label, 
+.analyst-radio-label {
+    margin-bottom: 0 !important; /* Ekstra marginleri sıfırla */
+}
+
+/* 4. Alt Alta Binen Fazlalık Geçmiş Penceresi/Buton Alanı Çözümü */
+.history-section, 
+.analiz-gecmisi-container {
+    margin-top: auto; /* Geçmiş panelini otomatik olarak en alta iter */
+}

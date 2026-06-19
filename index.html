@@ -4,39 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CASSANDRA // STEALTH OPS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=JetBrains+Mono&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght mix;600;700&family=JetBrains+Mono&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="png" href="cs.png">
 </head>
 <body>
 
+    <!-- API KEY GİRİŞ MODALİ -->
     <div id="apiKeyModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 30, 0.95); z-index: 99999; display: flex; justify-content: center; align-items: center; font-family: 'Poppins', sans-serif;">
         <div style="background: #111936; padding: 40px; border-radius: 16px; box-shadow: 0 0 30px rgba(0, 210, 255, 0.3); text-align: center; max-width: 450px; width: 90%; border: 1px solid #00d2ff;">
             <h2 style="color: #00d2ff; margin-bottom: 10px; font-size: 24px; text-transform: uppercase; letter-spacing: 1px;">🛡️ Cassandra AI Giriş</h2>
             <p style="color: #a2b4dc; font-size: 14px; margin-bottom: 25px;">Uygulamayı kullanabilmek için lütfen geçerli bir Groq API Key girin. Anahtarınız tarayıcınızda güvenle saklanacaktır.</p>
-            
             <input type="password" id="modalApiKeyInput" placeholder="gsk_..." style="width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #2c3a6b; background: #070d24; color: #fff; font-size: 16px; margin-bottom: 20px; outline: none; transition: 0.3s; box-sizing: border-box;">
-            
             <button id="saveKeyBtn" style="width: 100%; padding: 14px; border: none; border-radius: 8px; background: linear-gradient(45deg, #0072ff, #00d2ff); color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase;">Sisteme Bağlan</button>
-            
             <p style="margin-top: 15px; font-size: 11px; color: #64748b;">Anahtarınız yoksa <a href="https://console.groq.com/" target="_blank" style="color: #00d2ff; text-decoration: none; font-weight: bold;">Groq Console</a> üzerinden ücretsiz alabilirsiniz.</p>
         </div>
     </div>
 
+    <!-- SİBER ARKA PLAN KATMANI -->
     <div class="bg-layer">
         <div class="scrolling-line line-2">WE SAW IT COMING WE SAW IT COMING</div>
     </div>
 
+    <!-- INTRO EKRANI -->
     <div id="intro-overlay">
         <h1 class="intro-text">WE SAW IT COMING</h1>
     </div>
 
+    <!-- ANA UYGULAMA PANELİ -->
     <div id="app-container">
         
+        <!-- SOL PANEL (SIDEBAR) -->
         <aside id="sidebar">
             <div class="sidebar-header">Learned Panel</div>
             
-            <div class="sidebar-content">
+            <div class="sidebar-scroll-area">
                 <label>Sektörel Alan</label>
                 <select id="sector-select"></select>
                 
@@ -60,10 +62,11 @@
                 </div>
             </div>
             
-            <div class="new-chat-section" style="margin-top: 15px; margin-bottom: 15px;">
+            <div class="new-chat-section">
                 <button id="new-chat-btn" class="new-chat-btn">➕ Yeni Sohbet</button>
             </div>
 
+            <!-- ANALİZ GEÇMİŞİ ALANI -->
             <div class="history-section">
                 <div class="history-header">
                     <label style="margin:0;">ANALİZ GEÇMİŞİ</label>
@@ -74,7 +77,7 @@
                     
                     <div id="cassandra-status-area" class="cassandra-status-area" style="display: none;">
                         <div class="spinner"></div>
-                        <span>CassandraAI sorunuza yanıt üretiyor...</span>
+                        <span>CassandraAI yanıt üretiyor...</span>
                     </div>
 
                     <button id="clear-history-btn" class="clear-all-btn">🗑️ TÜMÜNÜ SIFIRLA</button>
@@ -82,6 +85,7 @@
             </div>
         </aside>
 
+        <!-- SAĞ PANEL (MAIN VIEW) -->
         <main id="main-view">
             <header class="status-bar-wrapper">
                 <div class="status-bar">
@@ -125,6 +129,7 @@
         </main>
     </div>
 
+    <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>

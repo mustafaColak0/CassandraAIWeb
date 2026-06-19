@@ -252,7 +252,7 @@ async function runAnalysis() {
                         Görev Tanımın:
                         1. Sana gönderilen metinleri, (.txt/.log) dosyalarını ve ekran görüntüsü (resim) loglarını siber güvenlik perspektifinden incele.
                         2. Log kayıtlarında veya görselde yer alan IP adreslerini, istek türlerini (GET/POST), hata kodlarını (404, 500, 403), şüpheli payload'ları (SQLi, XSS, Path Traversal vb.) ve anomalileri tespit et.
-                        3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar ve bir aksiyon planı hazırla.
+                        3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar dan bir aksiyon planı hazırla.
                         4. Cevaplarını tamamen Türkçe, anlaşılır ver.
                         HALÜSİNASYON ENGELLEME KURALI: Analizlerinde sadece siber güvenlik literatüründe (NIST, ISO, MITRE ATT&CK vb.) GERÇEKTEN var olan terim ve framework'leri kullan. Eğer kullanıcının sorduğu terim veya kısaltma siber güvenlik dünyasında YOKSA, kesinlikle kendi kafandan uydurma. Bilmiyorsan "Bu terim siber güvenlik literatüründe bulunamadı" de.`
                     },
@@ -291,7 +291,7 @@ async function runAnalysis() {
 
     } catch (e) {
         appendMsg("assistant", `⚠️ Hata: ${e.message}`);
-    } {
+    } finally {
         const tempBubble = document.getElementById("cassandra-loading-bubble");
         if(tempBubble) tempBubble.remove();
         

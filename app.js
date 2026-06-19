@@ -1,16 +1,27 @@
-// 1. SİSTEM BAŞLATMA VE GLOBAL TANIMLAMALAR
+// ============================================================================
+// 1. GLOBAL TANIMLAMALAR & CASSANDRA AI SİSTEM BAŞLATICI
+// ============================================================================
+
+// Eğer window üzerinde senaryolar nesnesi tanımlı değilse siber matrisi bozmamak için başlatıyoruz.
 if (!window.scenarios) {
     window.scenarios = {};
 }
 
+// LocalStorage üzerinde siber güvenlik vaka geçmişini tutacağımız benzersiz anahtar sürümü
 const CHAT_SESSIONS_KEY = "cassandra_soc_history_v4";
 
+// Oturumlar arası çakışmayı ve üst üste binmeyi önleyen reaktif durum (state) değişkenleri
 if (typeof window.currentChatId === 'undefined') window.currentChatId = null;
 if (typeof window.selectedFile === 'undefined') window.selectedFile = null;
 
+// Backend API entegrasyonu için merkezi URL yapılandırması
 const BACKEND_URL = "https://cassandra-ai-backend.onrender.com"; 
 
+/**
+ * Siber Arayüz Saatlerini, Karşılama Ekranını ve Dinamik Değişim Tetikleyicilerini Başlatır
+ */
 function initSystem() {
+    // SOC (Security Operations Center) operasyonel takibi için Local ve UTC saat döngüsü
     setInterval(() => {
         const now = new Date();
         const local = document.getElementById("clock-local");
@@ -19,6 +30,7 @@ function initSystem() {
         if(utc) utc.textContent = `UTC ${now.toISOString().substr(11, 8)}`;
     }, 1000);
 
+    // Açılış intro ekranını (overlay) sönümleyerek terminal odağını prompt kutusuna çeker
     setTimeout(() => {
         const intro = document.getElementById('intro-overlay');
         if(intro) {
@@ -31,6 +43,9 @@ function initSystem() {
         }
     }, 2500);
 
+    /**
+     * Seçilen Analist, Sektör ve Vaka tipine göre üst gösterge panelini (HUD) günceller
+     */
     const updateDisplay = () => {
         const secVal = document.getElementById("sector-select")?.value || "-";
         const vakVal = document.getElementById("vaka-select")?.value || "-";
@@ -39,6 +54,7 @@ function initSystem() {
         const rawExp = expEl ? expEl.value.trim().toLowerCase() : "red team expert";
         let fullAnalystName = ""; 
 
+        // Analist rollerine göre siber temalı görsel ve metinsel rozet atamaları
         if (rawExp.includes("red team")) {
             fullAnalystName = `<svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4d6d" style="vertical-align: middle; margin-right: 5px;"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg> RED TEAM EXPERT`;
         } else if (rawExp.includes("blue team")) {
@@ -62,13 +78,16 @@ function initSystem() {
         if(document.getElementById("display-analyst")) document.getElementById("display-analyst").innerHTML = fullAnalystName;
     };
 
+    // HUD elementlerinin durum değişikliklerine event listener'ların bağlanması
     document.getElementById("sector-select")?.addEventListener("change", updateDisplay);
     document.getElementById("vaka-select")?.addEventListener("change", updateDisplay);
     document.querySelectorAll('input[name="exp"]').forEach(r => r.addEventListener("change", updateDisplay));
     
+    // Geçmiş paneli (Sidebar/Drawer) açma/kapama tetikleyicisi
     const histBtn = document.getElementById("history-toggle-btn");
     if(histBtn) histBtn.onclick = () => document.getElementById("history-content").classList.toggle("active");
     
+    // Tüm local geçmişi temizleme mekanizması ve arayüz sıfırlaması
     const clearBtn = document.getElementById("clear-history-btn");
     if(clearBtn) clearBtn.onclick = () => {
         if(confirm("Tüm geçmiş silinecek. Emin misin?")) {
@@ -77,12 +96,13 @@ function initSystem() {
         }
     };
 
- const newChatBtn = document.getElementById("new-chat-btn");
+    // NEW CHAT (Yeni Analiz Paneli Başlatma) Buton Mantığı
+    const newChatBtn = document.getElementById("new-chat-btn");
     if (newChatBtn) {
         newChatBtn.onclick = () => {
             const flow = document.getElementById("chat-flow");
             if (flow) {
-                flow.innerHTML = ""; 
+                flow.innerHTML = ""; // Terminal akışını jilet gibi temizler
                 const div = document.createElement("div");
                 div.className = "msg ai-msg";
                 div.innerHTML = `
@@ -98,27 +118,28 @@ function initSystem() {
                 flow.scrollTop = flow.scrollHeight;
             }
             
-            // 1. NOKTA ATIŞI: Kesin olarak aktif chat ID'sini sıfırlıyoruz
+            // KESİN ARINMA: Aktif vaka kimliğini sıfırlayarak yeni analizi bağımsız hücreye alır
             window.currentChatId = null; 
             
+            // Giriş alanları ve dosya önizleme yapılarını temizleme
             const promptIn = document.getElementById("prompt-in");
             if (promptIn) promptIn.value = "";
             const preview = document.getElementById("attachment-preview");
             if (preview) preview.innerHTML = "";
             
-            // 2. NOKTA ATIŞI: Eğer input içinde hayalet dosya kaldıysa tamamen uçuruyoruz
+            // Input içinde saklı kalabilecek hayalet dosya referanslarını imha etme
             const fileInput = document.getElementById("file-input");
             if (fileInput) fileInput.value = "";
             window.selectedFile = null;
 
+            // Form elementlerini ve dropdown yapılarını başlangıç (default) ayarlarına çekme
             const firstAnalyst = document.querySelector('input[name="exp"]');
             if (firstAnalyst) firstAnalyst.checked = true;
 
-            // 3. NOKTA ATIŞI: Sektör ve vaka seçimlerini de default (ilk) ayarlarına çekiyoruz
             const sectorSelect = document.getElementById("sector-select");
             if (sectorSelect) {
                 sectorSelect.selectedIndex = 0;
-                sectorSelect.dispatchEvent(new Event('change')); // Vaka listesini de tetiklesin
+                sectorSelect.dispatchEvent(new Event('change')); // Vaka listesini otomatik senkronize eder
             }
 
             setTimeout(updateDisplay, 100);
@@ -126,7 +147,13 @@ function initSystem() {
     }
 }
 
-// 2. SENARYO YÜKLEME
+// ============================================================================
+// 2. SENARYO VE VERİ YÜKLEME KATMANI
+// ============================================================================
+
+/**
+ * Backend üzerinden veya yerel yedek (fallback) havuzundan siber saldırı senaryolarını yükler
+ */
 async function loadScenarios() {
     const fallbacks = {
         "Ağ Güvenliği": ["Port Tarama", "DDoS Analizi"],
@@ -143,9 +170,10 @@ async function loadScenarios() {
             targetScenarios = data.scenarios;
         }
     } catch (e) { 
-        targetScenarios = fallbacks; 
+        targetScenarios = fallbacks; // Bağlantı hatasında siber kesintiyi önlemek için lokal veriyi basar
     }
     
+    // Bellekteki eski senaryo nesne referanslarını temizleyip yenilerini eşler
     Object.keys(window.scenarios).forEach(key => delete window.scenarios[key]);
     Object.assign(window.scenarios, targetScenarios);
     
@@ -153,6 +181,7 @@ async function loadScenarios() {
     const vaka = document.getElementById("vaka-select");
     if(!sector || !vaka) return;
     
+    // Dropdown seçeneklerini DOM üzerinde asenkron inşa eder
     sector.innerHTML = Object.keys(window.scenarios).map(s => `<option value="${s}">${s}</option>`).join("");
     sector.onchange = () => {
         vaka.innerHTML = window.scenarios[sector.value].map(v => `<option value="${v}">${v}</option>`).join("");
@@ -160,15 +189,26 @@ async function loadScenarios() {
     sector.onchange();
 }
 
-// 3. MESAJLAŞMA VE ANALİZ
+// ============================================================================
+// 3. ÇEKİRDEK MESAJLAŞMA VE GROQ API ANALİZ MOTORU
+// ============================================================================
+
+/**
+ * Girdileri, metin tabanlı logları veya görselleri işleyerek Groq API üzerinden siber analizi tetikler
+ */
 async function runAnalysis() {
     const input = document.getElementById("prompt-in");
     const btn = document.getElementById("analyze-btn");
     const fileInput = document.getElementById("file-input");
     const text = input && input.value ? input.value.trim() : "";
    
+    // Herhangi bir girdi yoksa boş tetiklemeyi iptal eder
     if(!text && (!fileInput || !fileInput.files[0])) return;
+    
+    // YENİ VAKA GÜVENCESİ: Analiz tetiklendiği an geçmiş bağlarını koparıp bağımsız kanal açar
     window.currentChatId = null;
+
+    // API Key Güvenlik Kontrolü
     const savedKey = localStorage.getItem("cassandra_groq_key");
     if (!savedKey) {
         alert("Lütfen önce giriş ekranından geçerli bir API Key girin! 🔑");
@@ -177,11 +217,13 @@ async function runAnalysis() {
         return;
     }
 
+    // Aktif form parametrelerini toplama
     const expertElement = document.querySelector('input[name="exp"]:checked');
     const expert = expertElement ? expertElement.value : "RED TEAM"; 
     const vaka = document.getElementById("vaka-select") ? document.getElementById("vaka-select").value : "-";
     const sector = document.getElementById("sector-select") ? document.getElementById("sector-select").value : "-";
     
+    // Kullanıcı talebini ekrana yansıtma ve arayüzü kilitleme (Race Condition önleyici)
     appendMsg("user", text || "Görsel Analiz Talebi");
     if(input) input.value = "";
     if(btn) {
@@ -193,7 +235,7 @@ async function runAnalysis() {
         document.getElementById('cassandra-status-area').style.display = 'flex';
     }
 
-    // NOKTA ANİMASYONU İÇİN INTERVAL TANIMLAMASI
+    // YAPAY ZEKA DÜŞÜNÜYOR ANİMASYONU (Dinamik Noktalama)
     let dotInterval;
     const flow = document.getElementById("chat-flow");
     if (flow) {
@@ -212,7 +254,6 @@ async function runAnalysis() {
         flow.appendChild(loadingDiv);
         flow.scrollTop = flow.scrollHeight;
 
-        // Soldan sağa nokta döndürme döngüsü (.) -> (..) -> (...)
         const dotsSpan = document.getElementById("dynamic-dots");
         let dotCount = 0;
         dotInterval = setInterval(() => {
@@ -225,10 +266,12 @@ async function runAnalysis() {
         let base64Image = null;
         let finalPrompt = text; 
     
+        // MULTIPART DOSYA VE LOG OKUMA KONTROLÜ
         if (fileInput && fileInput.files[0]) {
             const file = fileInput.files[0];
             if (file.size > 2 * 1024 * 1024) throw new Error("Dosya çok büyük (Maks 2MB)");
             
+            // Log/Metin uzantısı algılama filtresi
             if (file.type.match("text.*") || file.name.endsWith(".txt") || file.name.endsWith(".log") || file.name.endsWith(".json") || file.name.endsWith(".csv")) {
                 const fileContent = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -237,11 +280,13 @@ async function runAnalysis() {
                     reader.readAsText(file); 
                 });
                 
+                // Ham log verisini prompt metnine güvenli bir şekilde ekleme
                 finalPrompt = finalPrompt 
                     ? `${finalPrompt}\n\n--- EKLENEN DOSYA İÇERİĞİ ---\n${fileContent}`
                     : `Lütfen şu dosya içeriğini analiz et:\n\n--- EKLENEN DOSYA İÇERİĞİ ---\n${fileContent}`;
             } 
             else {
+                // Eğer log değilse görsel vaka analizi (Vision) için Base64 formatına çevirme
                 base64Image = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = () => resolve(reader.result.split(',')[1]);
@@ -251,6 +296,7 @@ async function runAnalysis() {
             }
         }
 
+        // Llama model gereksinimlerine göre payload yapısını metinsel veya vision olarak dallandırma
         let messageContent;
         if (base64Image) {
             messageContent = [
@@ -258,9 +304,10 @@ async function runAnalysis() {
                 { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
             ];
         } else {
-            messageContent = finalPrompt;
+            messageContent = finalPrompt; // %100 Saf String (Llama 3.3/4 log okuma uyumluluğu için)
         }
 
+        // Groq API Entegrasyon Katmanı
         const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -302,22 +349,25 @@ async function runAnalysis() {
             throw new Error("Yapay zekadan geçerli bir analiz yanıtı alınamadı.");
         }
 
+        // Elde edilen verileri yapılandırılmış rapor nesnesine dönüştürme
         const report = {
             reportId: Math.floor(Math.random() * 9000 + 1000),
             expert, 
             attackVector: vaka,
-            userPrompt: finalPrompt,
+            userPrompt: finalPrompt, // İleride geçmişten çağrıldığında kullanıcının ne sorduğunu görmek için kayda ekledik
             analysis: aiResponse,
             timestamp: new Date().toISOString()
         };
         
+        // Yanıtı ekrana basma ve geçmiş veri tabanına işleme
         appendMsg("assistant", aiResponse, `${expert} // CAS-${report.reportId}`, report);
         saveHistory(report);
 
     } catch (e) {
         appendMsg("assistant", `⚠️ Hata: ${e.message}`);
     } finally {
-        if(dotInterval) clearInterval(dotInterval); // Döngüyü bitir ve temizle
+        // Arayüz kilitlerini kaldırma ve temizlik işlemleri (Garbage Collection)
+        if(dotInterval) clearInterval(dotInterval);
         const tempBubble = document.getElementById("cassandra-loading-bubble");
         if(tempBubble) tempBubble.remove();
         
@@ -336,7 +386,13 @@ async function runAnalysis() {
     }
 }
 
-// 4. MESAJ EKLEME VE YENİ PASLAMA SİSTEMİ
+// ============================================================================
+// 4. METİN BİÇİMLENDİRME VE DİNAMİK BUTON (DOM) YÖNETİMİ
+// ============================================================================
+
+/**
+ * Terminal ekranına mesaj bloklarını dinamik buton yetenekleriyle birlikte yerleştirir
+ */
 function appendMsg(role, text, meta = "", report = null) {
     const flow = document.getElementById("chat-flow");
     if(!flow) return;
@@ -346,6 +402,7 @@ function appendMsg(role, text, meta = "", report = null) {
     if(role === "user") {
         div.innerHTML = `<div class="msg-body">${text}</div>`;
     } else {
+        // Markdown kalın yazıları temizler ve satır atlamalarını HTML'e uyumlu hale getirir
         const cleanText = text.replace(/\*\*/g, "").replace(/\n/g, "<br>");
         div.innerHTML = `
             <div class="msg-head assistant">
@@ -355,9 +412,11 @@ function appendMsg(role, text, meta = "", report = null) {
             <div class="msg-body">${cleanText}</div>
         `;
         
+        // Alt işlev buton konteynerı (Copy, PDF, Pasla)
         const actionsDiv = document.createElement("div");
         actionsDiv.className = "msg-actions";
         
+        // COPY (Panoya Kopyala) Butonu
         const copyBtn = document.createElement("button");
         copyBtn.className = "action-btn copy-btn";
         copyBtn.innerText = "COPY";
@@ -368,7 +427,9 @@ function appendMsg(role, text, meta = "", report = null) {
         };
         actionsDiv.appendChild(copyBtn);
 
+        // Eğer mesaj bir rapora bağlıysa (Arşiv dahil) PDF ve Paslama yeteneklerini entegre et
         if(report) {
+            // STRATEGIC REPORT (PDF İndirme) Butonu
             const pdfBtn = document.createElement("button");
             pdfBtn.className = "action-btn report-btn";
             pdfBtn.innerText = "STRATEGIC REPORT (PDF)";
@@ -385,6 +446,7 @@ function appendMsg(role, text, meta = "", report = null) {
                 "Compliance Officer"
             ];
             
+            // PASLA (Uzman Değiştirerek Yeniden Analiz) Mekanizması
             if (allExpertsList.length > 1) {
                 const passContainer = document.createElement("div");
                 passContainer.style.display = "inline-flex";
@@ -426,6 +488,7 @@ function appendMsg(role, text, meta = "", report = null) {
                         }
                     });
                     
+                    // Önceki bulguları yeni uzmana brifing olarak paslama prompt şablonu
                     const passText = `Önceki uzman (${report.expert}) şu bulguları raporladı:\n"${text}"\n\nŞimdi rolün: ${targetExpert}. Bu durumu kendi uzmanlık perspektifinden değerlendir, eksikleri bul ve bir aksiyon planı çıkar.`;
                     const input = document.getElementById("prompt-in");
                     if(input) {
@@ -446,7 +509,13 @@ function appendMsg(role, text, meta = "", report = null) {
     flow.scrollTop = flow.scrollHeight;
 }
 
-// 5. GEÇMİŞ YÖNETİMİ
+// ============================================================================
+// 5. BAĞIMSIZ ANALİZ GEÇMİŞİ VE YAŞAM DÖNGÜSÜ YÖNETİMİ
+// ============================================================================
+
+/**
+ * Üretilen siber vakayı yerel depolama alanına yazar ve listeyi tazeler
+ */
 function saveHistory(report) {
     const history = JSON.parse(localStorage.getItem(CHAT_SESSIONS_KEY) || "[]");
     history.push(report);
@@ -454,6 +523,9 @@ function saveHistory(report) {
     renderHistory();
 }
 
+/**
+ * Sol paneldeki geçmiş vaka listesini sıfır hata ve bağımsızlık kuralıyla ekrana basar
+ */
 function renderHistory() {
     const list = document.getElementById("history-list");
     if(!list) return;
@@ -464,31 +536,36 @@ function renderHistory() {
         const div = document.createElement("div");
         div.className = "history-item";
         div.innerHTML = `<b>CAS-${item.reportId}</b><br><small>${item.attackVector}</small><span class="delete-history-btn">✖</span>`;
+        
         div.onclick = (e) => {
+            // Silme butonuna basıldıysa doğrudan ID tabanlı siliciyi tetikler
             if(e.target.className === 'delete-history-btn') {
-                deleteHistoryItem(history.length - 1 - idx);
-            }    } else {
-                // 1. Önce ekranı jilet gibi temizliyoruz
+                deleteHistoryItem(item.reportId);
+            } else {
+                // KESİNTİSİZ GEÇMİŞ DETAYI GÖSTERİMİ
                 const flow = document.getElementById("chat-flow");
                 if (flow) {
-                    flow.innerHTML = ""; 
+                    flow.innerHTML = ""; // Ekranı temizleyip üst üste binmeyi önler
                 }
 
-                // 2. Aktif vaka kimliğini tıklanan raporun ID'si yapıyoruz
+                // Aktif oturum kimliğini seçilen arşiv kartına mühürler
                 window.currentChatId = item.reportId; 
 
-                // 3. Önce kullanıcının ne sorduğunu ekrana basıyoruz
+                // Kullanıcının attığı orijinal log/soruyu tepeye basar
                 appendMsg("user", item.userPrompt || "Geçmiş Log/Talep İçeriği");
 
-                // 4. KESİN ÇÖZÜM: Nesneyi korumak için derin kopyasını (clone) oluşturup öyle gönderiyoruz
+                // KESİN ÇÖZÜM: Nesne referansının runtime'da bozulmaması için derin kopyasını (clone) çıkartıp butonlarıyla basar
                 const reportClone = JSON.parse(JSON.stringify(item));
                 appendMsg("assistant", reportClone.analysis, `ARŞİV: ${reportClone.reportId} // ${reportClone.expert}`, reportClone);
             }
         };
         list.appendChild(div);
-         });
-      }
+    });
+}
 
+/**
+ * İndeks kayması risklerini yok etmek amacıyla raporu benzersiz ID'si üzerinden bulup geçmişten siler
+ */
 function deleteHistoryItem(reportId) {
     let history = JSON.parse(localStorage.getItem(CHAT_SESSIONS_KEY) || "[]");
     history = history.filter(item => item.reportId !== reportId);
@@ -496,17 +573,23 @@ function deleteHistoryItem(reportId) {
     renderHistory();
 }
 
-if(e.target.className === 'delete-history-btn') {
-    deleteHistoryItem(item.reportId); // İndeks yerine direkt ID gönderiyoruz kanka
-}
+// ============================================================================
+// 6. STRATEJİK PDF RAPORLAMA KATMANI (pdfMake)
+// ============================================================================
 
-// 6. PDF ÇIKTISI
+/**
+ * Analiz sonuçlarını kurumsal siber güvenlik şablonunda PDF dökümanına dönüştürüp indirir
+ */
 function downloadPdf(data) {
     if(typeof pdfMake === 'undefined') return alert("PDF modülü yüklenemedi.");
 
+    // Dosya adındaki illegal işletim sistemi karakterlerini sterilize etme
     const safeVakaName = data.attackVector.replace(/[\/\\?%*:|"<>]/g, '-'); 
     const fileName = `${safeVakaName} - CAS-${data.reportId}.pdf`;
 
+    /**
+     * Markdown kalın metin belirteçlerini pdfMake nesne dizilerine ayrıştırır
+     */
     function parseMarkdownToPdf(text) {
         const paragraphs = text.split('\n');
         const formatted = [];
@@ -521,6 +604,7 @@ function downloadPdf(data) {
         return formatted;
     }
 
+    // PDF Döküman Matrisi Yapılandırması
     const docDef = {
         pageSize: 'A4',
         pageMargins: [40, 40, 40, 60], 
@@ -568,7 +652,11 @@ function downloadPdf(data) {
     pdfMake.createPdf(docDef).download(fileName);
 }
 
-// GİRİŞ EKRANI (MODAL) YÖNETİMİ
+// ============================================================================
+// 7. GİRİŞ MODAL KONTROLÜ VE ETKİLEŞİM DİNLEYİCİLERİ
+// ============================================================================
+
+// DOM Hazır olduğunda API anahtar durumunu analiz edip yetkilendirme kapısını yönetir
 document.addEventListener("DOMContentLoaded", () => {
     const savedKey = localStorage.getItem("cassandra_groq_key");
     const modal = document.getElementById("apiKeyModal");
@@ -596,13 +684,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// BAŞLATICILAR
+// Sistem yükleme zinciri tetikleyicileri
 window.onload = async () => { 
     initSystem(); 
     await loadScenarios(); 
     renderHistory(); 
 };
 
+// UI Element Buton Click Olay İlişkilendirmeleri
 if(document.getElementById("analyze-btn")) {
     document.getElementById("analyze-btn").onclick = runAnalysis;
 }
@@ -619,13 +708,16 @@ if(document.getElementById("file-input")) {
     };
 }
 
-// 7. PANO RESİM YAPIŞTIRMA DESTEĞİ
+// ============================================================================
+// 8. GELİŞMİŞ PANO RESİM/LOG YAPIŞTIRMA (CLIPBOARD PASTE) DESTEĞİ
+// ============================================================================
 document.addEventListener('paste', (event) => {
     const items = (event.clipboardData || event.originalEvent.clipboardData).items;
     
     for (let index in items) {
         const item = items[index];
         
+        // Panoya anlık kopyalanan ekran görüntülerini algılayıp DataTransfer mimarisi ile input'a besler
         if (item.kind === 'file' && item.type.includes('image')) {
             const blob = item.getAsFile();
             const fileInput = document.querySelector('input[type="file"]');
@@ -645,7 +737,7 @@ document.addEventListener('paste', (event) => {
                         }
                     }, 2000);
                 }
-                console.log("📸 Resim panodan başarıyla eklendi!");
+                console.log("📸 Resim panodan başarıyla arabelleğe eklendi!");
             }
         }
     }

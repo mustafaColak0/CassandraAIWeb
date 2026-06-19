@@ -179,6 +179,8 @@ async function runAnalysis() {
         document.getElementById('cassandra-status-area').style.display = 'flex';
     }
 
+    // NOKTA ANİMASYONU İÇİN INTERVAL TANIMLAMASI
+    let dotInterval;
     const flow = document.getElementById("chat-flow");
     if (flow) {
         const loadingDiv = document.createElement("div");
@@ -190,11 +192,19 @@ async function runAnalysis() {
                 <span class="expert-tag">CASSANDRA AI // THINKING</span>
             </div>
             <div class="msg-body" style="color: #8892b0; font-style: italic;">
-                <span class="typing-effect">Cassandra AI mesajınıza yanıt üretiyor...</span>
+                <span id="dynamic-typing-text">Cassandra AI mesajınıza yanıt üretiyor</span><span id="dynamic-dots"></span>
             </div>
         `;
         flow.appendChild(loadingDiv);
         flow.scrollTop = flow.scrollHeight;
+
+        // Soldan sağa nokta döndürme döngüsü (.) -> (..) -> (...)
+        const dotsSpan = document.getElementById("dynamic-dots");
+        let dotCount = 0;
+        dotInterval = setInterval(() => {
+            dotCount = (dotCount + 1) % 4;
+            if(dotsSpan) dotsSpan.textContent = ".".repeat(dotCount);
+        }, 400);
     }
 
     try {
@@ -244,7 +254,7 @@ async function runAnalysis() {
                 "Authorization": `Bearer ${savedKey}`
             },
             body: JSON.stringify({
-                model: "meta-llama/llama-4-scout-17b-16e-instruct", 
+                model: "llama-3.2-11b-vision-preview", // Log ve görsel analizini sorunsuz yapabilmesi için kararlı modele çekildi
                 messages: [
                     {
                         role: "system",
@@ -252,7 +262,7 @@ async function runAnalysis() {
                         Görev Tanımın:
                         1. Sana gönderilen metinleri, (.txt/.log) dosyalarını ve ekran görüntüsü (resim) loglarını siber güvenlik perspektifinden incele.
                         2. Log kayıtlarında veya görselde yer alan IP adreslerini, istek türlerini (GET/POST), hata kodlarını (404, 500, 403), şüpheli payload'ları (SQLi, XSS, Path Traversal vb.) ve anomalileri tespit et.
-                        3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar dan bir aksiyon planı hazırla.
+                        3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar ve bir aksiyon planı hazırla.
                         4. Cevaplarını tamamen Türkçe, anlaşılır ver.
                         HALÜSİNASYON ENGELLEME KURALI: Analizlerinde sadece siber güvenlik literatüründe (NIST, ISO, MITRE ATT&CK vb.) GERÇEKTEN var olan terim ve framework'leri kullan. Eğer kullanıcının sorduğu terim veya kısaltma siber güvenlik dünyasında YOKSA, kesinlikle kendi kafandan uydurma. Bilmiyorsan "Bu terim siber güvenlik literatüründe bulunamadı" de.`
                     },
@@ -292,6 +302,7 @@ async function runAnalysis() {
     } catch (e) {
         appendMsg("assistant", `⚠️ Hata: ${e.message}`);
     } finally {
+        if(dotInterval) clearInterval(dotInterval); // Döngüyü bitir ve temizle
         const tempBubble = document.getElementById("cassandra-loading-bubble");
         if(tempBubble) tempBubble.remove();
         

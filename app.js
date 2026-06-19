@@ -632,4 +632,4 @@ document.addEventListener('paste', (event) => {
             }
         }
     }
-});
+};

@@ -467,33 +467,37 @@ function renderHistory() {
         div.onclick = (e) => {
             if(e.target.className === 'delete-history-btn') {
                 deleteHistoryItem(history.length - 1 - idx);
-            }    else {
-    // 1. Önce ekranı jilet gibi temizliyoruz
-    const flow = document.getElementById("chat-flow");
-    if (flow) {
-        flow.innerHTML = ""; 
-    }
+            }    } else {
+                // 1. Önce ekranı jilet gibi temizliyoruz
+                const flow = document.getElementById("chat-flow");
+                if (flow) {
+                    flow.innerHTML = ""; 
+                }
 
-    // 2. Aktif vaka kimliğini tıklanan raporun ID'si yapıyoruz
-    window.currentChatId = item.reportId; 
+                // 2. Aktif vaka kimliğini tıklanan raporun ID'si yapıyoruz
+                window.currentChatId = item.reportId; 
 
-    // 3. Önce senin ne sorduğunu/hangi logu attığını ekrana basıyoruz
-    // Eğer eski raporlarda userPrompt yoksa varsayılan bir metin yazdırıyoruz
-    appendMsg("user", item.userPrompt || "Geçmiş Log/Talep İçeriği");
+                // 3. Önce kullanıcının ne sorduğunu ekrana basıyoruz
+                appendMsg("user", item.userPrompt || "Geçmiş Log/Talep İçeriği");
 
-    // 4. Sonra yapay zekanın verdiği cevabı tüm butonlarıyla (Copy, PDF, Pasla) birlikte basıyoruz
-    appendMsg("assistant", item.analysis, `ARŞİV: ${item.reportId} // ${item.expert}`, item);
-    }
-            };
-            list.appendChild(div);
+                // 4. KESİN ÇÖZÜM: Nesneyi korumak için derin kopyasını (clone) oluşturup öyle gönderiyoruz
+                const reportClone = JSON.parse(JSON.stringify(item));
+                appendMsg("assistant", reportClone.analysis, `ARŞİV: ${reportClone.reportId} // ${reportClone.expert}`, reportClone);
+            }
+        };
+        list.appendChild(div);
          });
       }
 
-function deleteHistoryItem(index) {
-    const history = JSON.parse(localStorage.getItem(CHAT_SESSIONS_KEY) || "[]");
-    history.splice(index, 1);
+function deleteHistoryItem(reportId) {
+    let history = JSON.parse(localStorage.getItem(CHAT_SESSIONS_KEY) || "[]");
+    history = history.filter(item => item.reportId !== reportId);
     localStorage.setItem(CHAT_SESSIONS_KEY, JSON.stringify(history));
     renderHistory();
+}
+
+if(e.target.className === 'delete-history-btn') {
+    deleteHistoryItem(item.reportId); // İndeks yerine direkt ID gönderiyoruz kanka
 }
 
 // 6. PDF ÇIKTISI

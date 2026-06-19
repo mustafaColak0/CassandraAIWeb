@@ -11,21 +11,20 @@
 <body>
 
     <div id="apiKeyModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 30, 0.95); z-index: 99999; display: flex; justify-content: center; align-items: center; font-family: 'Poppins', sans-serif;">
-    <div style="background: #111936; padding: 40px; border-radius: 16px; box-shadow: 0 0 30px rgba(0, 210, 255, 0.3); text-align: center; max-width: 450px; width: 90%; border: 1px solid #00d2ff;">
-        <h2 style="color: #00d2ff; margin-bottom: 10px; font-size: 24px; text-transform: uppercase; letter-spacing: 1px;">🛡️ Cassandra AI Giriş</h2>
-        <p style="color: #a2b4dc; font-size: 14px; margin-bottom: 25px;">Uygulamayı kullanabilmek için lütfen geçerli bir Groq API Key girin. Anahtarınız tarayıcınızda güvenle saklanacaktır.</p>
-        
-        <input type="password" id="modalApiKeyInput" placeholder="gsk_..." style="width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #2c3a6b; background: #070d24; color: #fff; font-size: 16px; margin-bottom: 20px; outline: none; transition: 0.3s; box-sizing: border-box;">
-        
-        <button id="saveKeyBtn" style="width: 100%; padding: 14px; border: none; border-radius: 8px; background: linear-gradient(45deg, #0072ff, #00d2ff); color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase;">Sisteme Bağlan</button>
-        
-        <p style="margin-top: 15px; font-size: 11px; color: #64748b;">Anahtarınız yoksa <a href="https://console.groq.com/" target="_blank" style="color: #00d2ff; text-decoration: none; font-weight: bold;">Groq Console</a> üzerinden ücretsiz alabilirsiniz.</p>
+        <div style="background: #111936; padding: 40px; border-radius: 16px; box-shadow: 0 0 30px rgba(0, 210, 255, 0.3); text-align: center; max-width: 450px; width: 90%; border: 1px solid #00d2ff;">
+            <h2 style="color: #00d2ff; margin-bottom: 10px; font-size: 24px; text-transform: uppercase; letter-spacing: 1px;">🛡️ Cassandra AI Giriş</h2>
+            <p style="color: #a2b4dc; font-size: 14px; margin-bottom: 25px;">Uygulamayı kullanabilmek için lütfen geçerli bir Groq API Key girin. Anahtarınız tarayıcınızda güvenle saklanacaktır.</p>
+            
+            <input type="password" id="modalApiKeyInput" placeholder="gsk_..." style="width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #2c3a6b; background: #070d24; color: #fff; font-size: 16px; margin-bottom: 20px; outline: none; transition: 0.3s; box-sizing: border-box;">
+            
+            <button id="saveKeyBtn" style="width: 100%; padding: 14px; border: none; border-radius: 8px; background: linear-gradient(45deg, #0072ff, #00d2ff); color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase;">Sisteme Bağlan</button>
+            
+            <p style="margin-top: 15px; font-size: 11px; color: #64748b;">Anahtarınız yoksa <a href="https://console.groq.com/" target="_blank" style="color: #00d2ff; text-decoration: none; font-weight: bold;">Groq Console</a> üzerinden ücretsiz alabilirsiniz.</p>
+        </div>
     </div>
-</div>
+
     <div class="bg-layer">
-       
         <div class="scrolling-line line-2">WE SAW IT COMING WE SAW IT COMING</div>
-       
     </div>
 
     <div id="intro-overlay">
@@ -33,6 +32,7 @@
     </div>
 
     <div id="app-container">
+        
         <aside id="sidebar">
             <div class="sidebar-header">Learned Panel</div>
             
@@ -48,7 +48,7 @@
                     <label>
                         <input type="radio" name="exp" value="Red Team Expert" checked> 
                         <span class="analyst-logo red">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4d6d"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z "/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4d6d"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
                         </span> Red Team Expert
                     </label>
                     <label><input type="radio" name="exp" value="Blue Team Responder"> <span class="analyst-logo blue">🛡️</span> Blue Team Responder</label>
@@ -59,29 +59,28 @@
                     <label><input type="radio" name="exp" value="Compliance Officer"> <span class="analyst-logo silver">⚖️</span> Compliance Officer</label>
                 </div>
             </div>
-            <br>
-            <br>
             
-            <div class="new-chat-section" style="margin-bottom: 15px;">
-    <button id="new-chat-btn" class="new-chat-btn">➕ Yeni Sohbet</button>
-</div>
+            <div class="new-chat-section" style="margin-top: 15px; margin-bottom: 15px;">
+                <button id="new-chat-btn" class="new-chat-btn">➕ Yeni Sohbet</button>
+            </div>
 
-<div class="history-section">
-    <div class="history-header">
-        <label style="margin:0;">ANALİZ GEÇMİŞİ</label>
-        <button id="history-toggle-btn" class="history-control-btn">📂</button>
-    </div>
-    <div id="history-content" class="history-content active">
-        <div id="history-list"></div>
-        
-        <div id="cassandra-status-area" class="cassandra-status-area" style="display: none;">
-            <div class="spinner"></div>
-            <span>CassandraAI sorunuza yanıt üretiyor...</span>
-        </div>
+            <div class="history-section">
+                <div class="history-header">
+                    <label style="margin:0;">ANALİZ GEÇMİŞİ</label>
+                    <button id="history-toggle-btn" class="history-control-btn">📂</button>
+                </div>
+                <div id="history-content" class="history-content active">
+                    <div id="history-list"></div>
+                    
+                    <div id="cassandra-status-area" class="cassandra-status-area" style="display: none;">
+                        <div class="spinner"></div>
+                        <span>CassandraAI sorunuza yanıt üretiyor...</span>
+                    </div>
 
-        <button id="clear-history-btn" class="clear-all-btn">🗑️ TÜMÜNÜ SIFIRLA</button>
-    </div>
-</div>
+                    <button id="clear-history-btn" class="clear-all-btn">🗑️ TÜMÜNÜ SIFIRLA</button>
+                </div>
+            </div>
+        </aside>
 
         <main id="main-view">
             <header class="status-bar-wrapper">

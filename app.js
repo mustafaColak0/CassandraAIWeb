@@ -146,6 +146,9 @@ async function runAnalysis() {
         btn.innerText = "RUNNING...";
     }
 
+    // BİLDİRİMİ AÇMA
+    document.getElementById('cassandra-status-area').style.display = 'flex';
+
     try {
         let base64Image = null;
         let finalPrompt = text; 
@@ -246,6 +249,9 @@ async function runAnalysis() {
     } catch (e) {
         appendMsg("assistant", `⚠️ Hata: ${e.message}`);
     } finally {
+        // BİLDİRİMİ KAPATMA
+        document.getElementById('cassandra-status-area').style.display = 'none';
+        
         if(btn) {
             btn.disabled = false;
             btn.innerText = "ANALYZE";

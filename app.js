@@ -254,7 +254,7 @@ async function runAnalysis() {
                 "Authorization": `Bearer ${savedKey}`
             },
             body: JSON.stringify({
-                model: "llama-3.3-70b-versatile", // Log ve görsel analizini sorunsuz yapabilmesi için kararlı modele çekildi
+                model: "meta-llama/llama-4-scout-17b-16e-instruct", 
                 messages: [
                     {
                         role: "system",

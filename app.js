@@ -103,7 +103,7 @@ if (newChatBtn) {
             flow.scrollTop = flow.scrollHeight;
         }
         
-        // 2. Hafızadaki aktif sohbet ID'sini temizle (Eski oturum üzerine yazmasın)
+        // 2. Hafızadaki aktif sohbet ID'sini temizle
         if (typeof currentChatId !== 'undefined') {
             currentChatId = null; 
         }
@@ -119,17 +119,16 @@ if (newChatBtn) {
             selectedFile = null;
         }
 
-        // 4. İsteğe bağlı: Analist seçimini ilk analiste (Red Team) geri döndür
+        // 4. Analist seçimini varsayılana çek (Red Team)
         const firstAnalyst = document.querySelector('input[name="exp"]');
         if (firstAnalyst) firstAnalyst.checked = true;
 
-        // Ekranı güncellemek için tetikleme yapıyorsan:
+        // 5. Ekran güncelleme tetikleyicisi
         if (typeof updateDisplay === 'function') {
             setTimeout(updateDisplay, 100);
         }
     };
 }
-
 // 2. SENARYO YÜKLEME
 async function loadScenarios() {
     const fallbacks = {

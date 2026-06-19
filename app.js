@@ -152,7 +152,7 @@ async function runAnalysis() {
     const btn = document.getElementById("analyze-btn");
     const fileInput = document.getElementById("file-input");
     const text = input && input.value ? input.value.trim() : "";
-          
+    window.currentChatId = null;
     if(!text && (!fileInput || !fileInput.files[0])) return;
     
     const savedKey = localStorage.getItem("cassandra_groq_key");
@@ -452,9 +452,11 @@ function renderHistory() {
         div.onclick = (e) => {
             if(e.target.className === 'delete-history-btn') {
                 deleteHistoryItem(history.length - 1 - idx);
-            } else {
-                appendMsg("assistant", item.analysis, `ARŞİV: ${item.reportId}`, item);
-            }
+            }    else {
+                      appendMsg("assistant", item.analysis, `ARŞİV: ${item.reportId}`, item);
+                      // NOKTA ATIŞI EKLEME: Tıklanan vakanın ID'sini aktife alıyoruz
+                     window.currentChatId = item.reportId; 
+}
         };
         list.appendChild(div);
     });

@@ -59,6 +59,27 @@
                     <label><input type="radio" name="exp" value="Compliance Officer"> <span class="analyst-logo silver">⚖️</span> Compliance Officer</label>
                 </div>
             </div>
+            
+            <div class="new-chat-section" style="margin-bottom: 15px;">
+    <button id="new-chat-btn" class="new-chat-btn">➕ Yeni Sohbet</button>
+</div>
+
+<div class="history-section">
+    <div class="history-header">
+        <label style="margin:0;">ANALİZ GEÇMİŞİ</label>
+        <button id="history-toggle-btn" class="history-control-btn">📂</button>
+    </div>
+    <div id="history-content" class="history-content active">
+        <div id="history-list"></div>
+        
+        <div id="cassandra-status-area" class="cassandra-status-area" style="display: none;">
+            <div class="spinner"></div>
+            <span>CassandraAI sorunuza yanıt üretiyor...</span>
+        </div>
+
+        <button id="clear-history-btn" class="clear-all-btn">🗑️ TÜMÜNÜ SIFIRLA</button>
+    </div>
+</div>
 
             <div class="history-section">
                 <div class="history-header">

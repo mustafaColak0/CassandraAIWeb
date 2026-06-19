@@ -1,9 +1,12 @@
 // 1. SİSTEM BAŞLATMA VE GLOBAL TANIMLAMALAR
+// Diğer dosyalarla çakışmaması için window objesi üzerinden güvenli kontrol yapıyoruz
 if (!window.scenarios) {
     window.scenarios = {};
 }
 
 const CHAT_SESSIONS_KEY = "cassandra_soc_history_v4";
+
+// BACKEND URLSİ (Render üzerindeki yeni backend'e yönlendiriyor)
 const BACKEND_URL = "https://cassandra-ai-backend.onrender.com"; 
 
 function initSystem() {
@@ -35,6 +38,7 @@ function initSystem() {
         const rawExp = expEl ? expEl.value.trim().toLowerCase() : "red team expert";
         let fullAnalystName = ""; 
 
+        // Sadece Red Team için özel SVG kalkanı, diğerleri emojili kararlı tasarım
         if (rawExp.includes("red team")) {
             fullAnalystName = `<svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4d6d" style="vertical-align: middle; margin-right: 5px;"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg> RED TEAM EXPERT`;
         } else if (rawExp.includes("blue team")) {
@@ -55,6 +59,8 @@ function initSystem() {
         
         if(document.getElementById("display-sector")) document.getElementById("display-sector").textContent = secVal;
         if(document.getElementById("display-vaka")) document.getElementById("display-vaka").textContent = vakVal;
+        
+        // Uzman adını güncelliyoruz, böylece kullanıcı seçimine göre dinamik olarak değişiyor
         if(document.getElementById("display-analyst")) document.getElementById("display-analyst").innerHTML = fullAnalystName;
     };
 
@@ -73,7 +79,7 @@ function initSystem() {
         }
     };
 
-    // 🌟 YENİ SOHBET 
+    // YENİ SOHBET BUTONU
     const newChatBtn = document.getElementById("new-chat-btn");
     if (newChatBtn) {
         newChatBtn.onclick = () => {
@@ -120,6 +126,7 @@ async function loadScenarios() {
         targetScenarios = fallbacks; 
     }
     
+    // Global senaryoları güncelliyoruz, böylece diğer fonksiyonlar güncel verilere erişebilir
     Object.keys(window.scenarios).forEach(key => delete window.scenarios[key]);
     Object.assign(window.scenarios, targetScenarios);
     
@@ -143,6 +150,7 @@ async function runAnalysis() {
           
     if(!text && (!fileInput || !fileInput.files[0])) return;
     
+    // Kullanıcının saklanan Groq API anahtarını alıyoruz
     const savedKey = localStorage.getItem("cassandra_groq_key");
     if (!savedKey) {
         alert("Lütfen önce giriş ekranından geçerli bir API Key girin! 🔑");
@@ -163,14 +171,14 @@ async function runAnalysis() {
         btn.innerText = "RUNNING...";
     }
 
-    if(document.getElementById('cassandra-status-area')) {
-        document.getElementById('cassandra-status-area').style.display = 'flex';
-    }
+    // BİLDİRİMİ AÇMA
+    document.getElementById('cassandra-status-area').style.display = 'flex';
 
+    // Sohbet akışına geçici "Yazıyor..." balonu ekle
     const flow = document.getElementById("chat-flow");
     if (flow) {
         const loadingDiv = document.createElement("div");
-        loadingDiv.id = "cassandra-loading-bubble"; 
+        loadingDiv.id = "cassandra-loading-bubble"; // Kaldırmak için ID verdik
         loadingDiv.className = "msg ai-msg";
         loadingDiv.innerHTML = `
             <div class="msg-head assistant">
@@ -182,13 +190,14 @@ async function runAnalysis() {
             </div>
         `;
         flow.appendChild(loadingDiv);
-        flow.scrollTop = flow.scrollHeight;
+        flow.scrollTop = flow.scrollHeight; // Ekranı en aşağı kaydır
     }
 
     try {
         let base64Image = null;
         let finalPrompt = text; 
     
+        // Dosya veya resim yükleme kontrolü
         if (fileInput && fileInput.files[0]) {
             const file = fileInput.files[0];
             if (file.size > 2 * 1024 * 1024) throw new Error("Dosya çok büyük (Maks 2MB)");
@@ -215,6 +224,8 @@ async function runAnalysis() {
             }
         }
 
+        // --- ENGELE TAKILMAYAN DOĞRUDAN GROQ BAĞLANTISI ---
+        // Kullanıcı resim yüklediyse Llama 4 Scout'un bayıldığı array yapısını kuruyoruz
         let messageContent;
         if (base64Image) {
             messageContent = [
@@ -232,11 +243,18 @@ async function runAnalysis() {
                 "Authorization": `Bearer ${savedKey}`
             },
             body: JSON.stringify({
-                model: "meta-llama/llama-4-scout-17b-16e-instruct", 
+                model: "meta-llama/llama-4-scout-17b-16e-instruct", // Orijinal canavar modelin
                 messages: [
                     {
                         role: "system",
-                        content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}.\n\nGörev Tanımın:\n1. Sana gönderilen metinleri ve logları incele.\n2. Anomalileri tespit et.\n3. Aksiyon planı hazırla.\n4. Cevaplarını tamamen Türkçe, anlaşılır ver.`
+                        content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. 
+
+                       Görev Tanımın:
+1. Sana gönderilen metinleri, (.txt/.log) dosyalarını ve ekran görüntüsü (resim) loglarını siber güvenlik perspektifinden incele.
+2. Log kayıtlarında veya görselde yer alan IP adreslerini, istek türlerini (GET/POST), hata kodlarını (404, 500, 403), şüpheli payload'ları (SQLi, XSS, Path Traversal vb.) ve anomalileri tespit et.
+3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar ve bir aksiyon planı hazırla.
+4. Cevaplarını tamamen Türkçe, anlaşılır ver.
+ HALÜSİNASYON ENGELLEME KURALI: Analizlerinde sadece siber güvenlik literatüründe (NIST, ISO, MITRE ATT&CK vb.) GERÇEKTEN var olan terim ve framework'leri kullan. Eğer kullanıcının sorduğu terim veya kısaltma siber güvenlik dünyasında YOKSA, kesinlikle kendi kafandan uydurma. Bilmiyorsan "Bu terim siber güvenlik literatüründe bulunamadı" de.`
                     },
                     {
                         role: "user",
@@ -254,7 +272,7 @@ async function runAnalysis() {
         }
         
         const data = await res.json();
-        const aiResponse = data.choices[0].message.content; 
+        const aiResponse = data.choices[0].message.content; // Doğrudan Groq'tan gelen cevabı okuyoruz
 
         if (!aiResponse) {
             throw new Error("Yapay zekadan geçerli bir analiz yanıtı alınamadı.");
@@ -268,19 +286,21 @@ async function runAnalysis() {
             timestamp: new Date().toISOString()
         };
         
+        // Ekrana basma ve geçmişe kaydetme fonksiyonları tetikleniyor
         appendMsg("assistant", aiResponse, `${expert} // CAS-${report.reportId}`, report);
         saveHistory(report);
 
     } catch (e) {
         appendMsg("assistant", `⚠️ Hata: ${e.message}`);
     } finally {
+
+        // Cevap geldiğinde veya hata oluştuğunda geçici balonu uçur
         const tempBubble = document.getElementById("cassandra-loading-bubble");
         if(tempBubble) tempBubble.remove();
         
-        if(document.getElementById('cassandra-status-area')) {
-            document.getElementById('cassandra-status-area').style.display = 'none';
-        }
-        
+        // BİLDİRİMİ KAPATMA
+        document.getElementById('cassandra-status-area').style.display = 'none';
+
         if(btn) {
             btn.disabled = false;
             btn.innerText = "ANALYZE";
@@ -302,11 +322,7 @@ function appendMsg(role, text, meta = "", report = null) {
     if(role === "user") {
         div.innerHTML = `<div class="msg-body">${text}</div>`;
     } else {
-        // 🌟 ÇÖZÜM: Tüm Markdown mimarisini düzgünce koruyan güvenli render yapısı
-        let cleanText = text
-            .replace(/\n/g, "<br>")
-            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-            
+        const cleanText = text.replace(/\*\*/g, "").replace(/\n/g, "<br>");
         div.innerHTML = `
             <div class="msg-head assistant">
                 <span class="chat-avatar assistant gold">CSA</span>
@@ -336,8 +352,13 @@ function appendMsg(role, text, meta = "", report = null) {
             actionsDiv.appendChild(pdfBtn);
 
             const allExpertsList = [
-                "Red Team Expert", "Blue Team Responder", "Chief Strategist",
-                "OSINT Specialist", "Threat Intelligence", "Forensics Specialist", "Compliance Officer"
+                "Red Team Expert",
+                "Blue Team Responder",
+                "Chief Strategist",
+                "OSINT Specialist",
+                "Threat Intelligence",
+                "Forensics Specialist",
+                "Compliance Officer"
             ];
             
             if (allExpertsList.length > 1) {
@@ -381,7 +402,7 @@ function appendMsg(role, text, meta = "", report = null) {
                         }
                     });
                     
-                    const passText = `Önceki uzman (${report.expert}) şu bulguları raporladı:\n"${text}"\n\nŞimdi rolün: ${targetExpert}. Bu durumu kendi uzmanlık perspektifinden değerlendir.`;
+                    const passText = `Önceki uzman (${report.expert}) şu bulguları raporladı:\n"${text}"\n\nŞimdi rolün: ${targetExpert}. Bu durumu kendi uzmanlık perspektifinden değerlendir, eksikleri bul ve bir aksiyon planı çıkar.`;
                     const input = document.getElementById("prompt-in");
                     if(input) {
                         input.value = passText;
@@ -394,6 +415,7 @@ function appendMsg(role, text, meta = "", report = null) {
                 actionsDiv.appendChild(passContainer);
             }
         }
+        
         div.appendChild(actionsDiv);
     }
     flow.appendChild(div);
@@ -514,7 +536,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (modal) {
         modal.style.display = "none";
     }
-
+    // API Key kaydetme işlemi
     const saveBtn = document.getElementById("saveKeyBtn");
     if(saveBtn) {
         saveBtn.addEventListener("click", () => {

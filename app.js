@@ -90,17 +90,21 @@ if (newChatBtn) {
             
             const div = document.createElement("div");
             div.className = "msg ai-msg";
+            
+            // TERS TIRNAK (`) AÇILIŞI VE KAPANIŞI TAMAMEN DÜZELTİLDİ
             div.innerHTML = `
                 <div class="msg-head assistant">
-                    <span class="chat-avatar assistant gold">CSA</span>
-                    <span class="expert-tag">SYSTEM INITIALIZER</span>
+                    <div class="cyber-c-spinner"></div>
+                    <span class="expert-tag" style="margin-left: 5px;">CASSANDRA AI // THINKING</span>
                 </div>
-                <div class="msg-body">
-                    <p>Yeni analiz paneli başlatıldı. Lütfen incelemek istediğiniz log girdilerini veya görsel dosyaları sisteme aktarın.</p>
+                <div class="msg-body" style="color: #8892b0; font-style: italic; position: relative; padding-bottom: 10px;">
+                    <span class="typing-text">Cassandra AI mesajınıza yanıt üretiyor...</span>
+                    <div class="neon-scan-line"></div>
                 </div>
             `;
+            
             flow.appendChild(div);
-            flow.scrollTop = flow.scrollHeight;
+            flow.scrollTop = flow.scrollHeight; // Sayfayı aşağı kaydırır
         }
         
         // 2. Hafızadaki aktif sohbet ID'sini temizle
@@ -128,6 +132,11 @@ if (newChatBtn) {
             setTimeout(updateDisplay, 100);
         }
     };
+}
+
+// Dosyanın altındaki diğer fonksiyonların tetikleyicisi (Eğer gerekiyorsa)
+if (typeof updateDisplay === 'function') {
+    setTimeout(updateDisplay, 500);
 }
 // 2. SENARYO YÜKLEME
 async function loadScenarios() {

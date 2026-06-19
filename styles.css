@@ -511,6 +511,17 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     60% { content: '..'; }
     80%, 100% { content: '...'; }
 }
+.msg { 
+  position: relative; 
+  z-index: 2; 
+  max-width: 85%; 
+  padding: 20px 25px; 
+  border-radius: 10px; 
+  background: var(--panel-2); 
+  border: 1px solid rgba(255,255,255,0.03); 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  overflow: hidden; /* 🌟 Çizginin ve spinner'ın kutu dışına taşmasını net engeller */
+}
 
 
 /* Sohbet alanına özel çakan renkli flaşlar */

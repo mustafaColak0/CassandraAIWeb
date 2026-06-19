@@ -166,9 +166,9 @@ async function runAnalysis() {
     const btn = document.getElementById("analyze-btn");
     const fileInput = document.getElementById("file-input");
     const text = input && input.value ? input.value.trim() : "";
-    window.currentChatId = null;
+   
     if(!text && (!fileInput || !fileInput.files[0])) return;
-    
+    window.currentChatId = null;
     const savedKey = localStorage.getItem("cassandra_groq_key");
     if (!savedKey) {
         alert("Lütfen önce giriş ekranından geçerli bir API Key girin! 🔑");
@@ -467,9 +467,18 @@ function renderHistory() {
             if(e.target.className === 'delete-history-btn') {
                 deleteHistoryItem(history.length - 1 - idx);
             }    else {
-                      appendMsg("assistant", item.analysis, `ARŞİV: ${item.reportId}`, item);
-                      // NOKTA ATIŞI EKLEME: Tıklanan vakanın ID'sini aktife alıyoruz
-                     window.currentChatId = item.reportId; 
+    // 1. Önce ekranı jilet gibi temizliyoruz
+    const flow = document.getElementById("chat-flow");
+    if (flow) {
+        flow.innerHTML = ""; 
+    }
+
+    // 2. Aktif vaka kimliğini tıklanan raporun ID'si yapıyoruz
+    window.currentChatId = item.reportId; 
+
+    // 3. ÖNEMLİ DEĞİŞİKLİK: appendMsg'e report nesnesini göndermiyoruz (null geçiyoruz) 
+    // Böylece geçmişe tıkladığında altında pasla/pdf butonları türeyip sistemi tetiklemeyecek.
+    appendMsg("assistant", item.analysis, `ARŞİV: ${item.reportId}`, null);
 }
         };
         list.appendChild(div);

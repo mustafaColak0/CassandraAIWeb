@@ -79,16 +79,25 @@ const updateDisplay = () => {
         }
     };
     // YENİ SOHBET BUTONU
-    const newChatBtn = document.getElementById("new-chat-btn");
+   const newChatBtn = document.getElementById("new-chat-btn");
     if(newChatBtn) {
         newChatBtn.onclick = () => {
             const flow = document.getElementById("chat-flow");
             if(flow) {
                 flow.innerHTML = ""; // Ekrandaki mesajları temizler
-                // İsteğe bağlı: Yeni sohbet açıldığında AI'dan ilk mesaj gelsin
-                appendMsg("assistant", "Yeni analiz paneli başlatıldı. Lütfen incelemek istediğiniz log girdilerini veya görsel dosyaları sisteme aktarın.", "SYSTEM // RESET");
+                const div = document.createElement("div");
+                div.className = "msg ai-msg";
+                div.innerHTML = `
+                    <div class="msg-head assistant">
+                        <span class="chat-avatar assistant gold">CSA</span>
+                        <span class="expert-tag">SYSTEM // RESET</span>
+                    </div>
+                    <div class="msg-body">Yeni analiz paneli başlatıldı. Lütfen incelemek istediğiniz log girdilerini veya görsel dosyaları sisteme aktarın.</div>
+                `;
+                flow.appendChild(div);
+                flow.scrollTop = flow.scrollHeight; // Sayfayı aşağı kaydırır
             }
-            };
+        };
     }
     setTimeout(updateDisplay, 500);
 }

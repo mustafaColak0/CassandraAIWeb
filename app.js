@@ -215,7 +215,7 @@ async function runAnalysis() {
             const file = fileInput.files[0];
             if (file.size > 2 * 1024 * 1024) throw new Error("Dosya çok büyük (Maks 2MB)");
             
-            if (file.type.match("text.*") || file.name.endsWith(".txt")) {
+            if (file.type.match("text.*") || file.name.endsWith(".txt") || file.name.endsWith(".log") || file.name.endsWith(".json") || file.name.endsWith(".csv")) {
                 const fileContent = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = () => resolve(reader.result);

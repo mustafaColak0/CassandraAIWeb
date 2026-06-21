@@ -299,7 +299,6 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 
 /* RESPONSIVE (MOBILE) */
 @media (max-width: 768px) {
-    /* Ana ekranı ve body'yi tamamen dikey akışa zorluyoruz, taşmaları açıyoruz */
     html, body, #app-container, #main-view { 
         height: auto !important; 
         min-height: 100vh !important; 
@@ -309,129 +308,111 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
         display: flex !important;
     }
     
-    /* Sol paneli (Sidebar) mobilde tam genişlik yapıp flex akışına alıyoruz */
     #sidebar { 
         width: 100% !important; 
         max-width: 100% !important; 
         height: auto !important; 
         border-right: none !important; 
         border-bottom: 1px solid var(--border) !important; 
-        padding: 15px !important;
+        padding: 12px !important;
         display: flex !important;
         flex-direction: column !important;
-        position: relative !important;
     }
     
-    /* Mesajlaşma alanını mobilde kısıtlamıyoruz ki aşağı kaydırılabilsin */
     #chat-flow { 
         height: auto !important; 
-        min-height: 300px !important; 
-        overflow-y: visible !important;
+        min-height: 320px !important; 
     }
     
     .msg { max-width: 95% !important; width: auto !important; }
 
-    /* ----------------------------------------------------------------------
-       MESSY AREA RESET: BİRBİRİNE GİREN TÜM ALT BANT ELEMANLARINI SIFIRLIYORUZ
-       ---------------------------------------------------------------------- */
-    
-    /* 1. Kapsayıcı Bant: İçindeki flex kurallarını ve sabit yükseklikleri patlatıyoruz */
+    /* --- BANT VE BOŞLUK DÜZENLEMELERİ --- */
     .status-bar-wrapper {
-        margin-top: 20px !important;
-        padding: 15px !important;
+        margin-top: 15px !important; /* Tümünü sıfırla butonunun altına çeker */
+        padding: 10px !important;
         background: var(--panel) !important;
         display: flex !important;
         flex-direction: column !important;
         height: auto !important;
-        width: 100% !important;
-        border-top: 1px solid var(--border) !important;
     }
 
-    /* 2. Cassandra AI ve Saatlerin Olduğu İç Bant */
+    /* Ana esnek kutuyu dikey yapıp tüm elemanları merkeze hizalıyoruz */
     .status-bar { 
         height: auto !important; 
         display: flex !important;
-        flex-direction: column !important; /* Alt alta dizilim */
+        flex-direction: column !important; 
         align-items: center !important; 
         justify-content: center !important;
-        gap: 10px !important;
-        padding: 0 !important;
+        gap: 6px !important; /* Elemanların dikey aralığı */
+        padding: 5px 0 !important;
         width: 100% !important;
     }
 
-    /* CASSANDRA AI YAZISI: En üstte ve tam ortalı */
+    /* 1. SIRA: CASSANDRA AI YAZISI (Tam üstte ve ortada) */
     .main-title {
+        order: 1 !important;
         display: block !important;
         width: 100% !important;
         text-align: center !important;
-        font-size: 1.6rem !important;
-        margin: 5px 0 !important;
-        font-family: "Rajdhani", sans-serif !important;
-        font-weight: 700 !important;
+        font-size: 1.4rem !important;
+        letter-spacing: 2px !important;
+        margin: 4px 0 !important;
+        color: #ffffff !important;
     }
 
-    /* LOCAL / UTC SAATLERİ: Başlığın hemen altında ortalı */
+    /* 2. SIRA: LOCAL VE UTC SAATLERİ (Başlığın tam altında, yan yana ve ortalı) */
     .time-group {
+        order: 2 !important;
         display: flex !important;
-        justify-content: center !important;
+        flex-direction: row !important; /* Saatlerin yan yana kalmasını sağlar */
+        justify-content: center !important; /* Yan yana olan saatleri tam ortalar */
         align-items: center !important;
-        gap: 20px !important;
+        gap: 15px !important; /* Saatlerin arasındaki yatay boşluk */
         width: 100% !important;
-        margin: 5px 0 !important;
-        font-size: 0.9rem !important;
+        margin: 2px 0 6px 0 !important;
+        font-size: 0.85rem !important;
     }
 
-    /* SYSTEM: ACTIVE BADGE'İ: Saatlerin de altında */
+    /* 3. SIRA: SYSTEM: ACTIVE BADGE'İ (Saatlerin de altında temiz duruş) */
     .threat-pill {
+        order: 3 !important;
         display: inline-block !important;
-        margin: 5px auto !important;
+        margin: 0 auto !important;
         text-align: center !important;
-        float: none !important;
     }
 
-    /* 3. Sektör, Vaka, Analist Bilgilerinin Olduğu En Alt İnce Bant */
+    /* --- SEKTÖR, VAKA, ANALİST BÖLÜMÜNÜ YUKARI KAYDIRMA --- */
     .analysis-params-bar {
-        height: auto !important; /* 30px zincirini kırdık */
+        height: auto !important; 
         display: flex !important;
-        flex-direction: column !important; /* Mobilde her bilgi bir satır */
+        flex-direction: column !important; /* Mobilde alt alta sıralansınlar */
         align-items: center !important;
         justify-content: center !important;
-        gap: 8px !important;
-        padding: 12px 0 !important;
-        margin-top: 10px !important;
+        gap: 6px !important;
+        padding: 10px 0 !important;
+        margin-top: 5px !important; /* Üstteki gruba yaklaştırıyoruz */
         border-top: 1px solid rgba(34, 211, 238, 0.1) !important;
         width: 100% !important;
     }
 
-    /* İçerideki parametre elemanları */
     .param-item {
         display: block !important;
         width: 100% !important;
         text-align: center !important;
-        font-size: 0.82rem !important;
+        font-size: 0.8rem !important;
         margin: 0 !important;
     }
-    
+
     /* Mavi SYSTEM INITIALIZER kutusu */
     .system-initializer, 
     [class*="initializer"] {
         width: 100% !important;
-        margin-top: 15px !important;
-        position: relative !important;
-    }
-
-    /* Alt input (Mesaj yazma) alanının mobilde sabit kalıp ekranı kapatmasını engelliyoruz */
-    #input-zone-wrapper {
-        position: relative !important;
-        bottom: auto !important;
-        left: auto !important;
-        width: 100% !important;
-        z-index: 9999 !important;
+        margin-top: 8px !important;
     }
 }
 
 @media (max-width: 480px) {
     .main-title {
-        font-size: 1.3rem !important;
+        font-size: 1.2rem !important;
     }
 }

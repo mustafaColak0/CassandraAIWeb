@@ -296,8 +296,9 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 .bg-layer { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.05; display: flex; flex-direction: column; justify-content: space-around; }
 .scrolling-line { font-family: 'Rajdhani', sans-serif; font-size: 6rem; white-space: nowrap; animation: scrollRight 40s linear infinite; }
 @keyframes scrollRight { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
-
-/* RESPONSIVE (MOBILE & TABLET DÜZENLEME) */
+/* ==========================================================================
+   CASSANDRA AI MOBİL HİZALAMA OPERASYONU
+   ========================================================================== */
 @media (max-width: 768px) {
     html, body, #app-container { 
         height: auto !important; 
@@ -325,58 +326,87 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     
     .msg { max-width: 95% !important; width: auto !important; }
 
-    /* --- BOŞLUĞU KAPATIP YUKARI ÇEKME OPERASYONU --- */
-    /* Local/UTC'den başlayıp system initializer'a kadar olan kapsayıcıyı yukarı yapıştırıyoruz */
+    /* --- ÜST ÜSTE BİNMEYİ BİTİREN ANA KAPSAYICI --- */
     .dashboard-meta-grid, 
     [class*="meta"], 
     [class*="status"] { 
         display: flex !important;
-        flex-direction: column !important; /* Üst üste binmeyi engellemek için dikey sıra */
-        align-items: stretch !important;
-        gap: 15px !important; /* Elemanların arasına nefes aldıracak boşluk */
+        flex-direction: column !important; /* Her şeyi dikey nizamda yukarıdan aşağıya dizer */
+        align-items: center !important; /* Tüm elemanları yatayda tam ortalar */
         width: 100% !important;
-        margin-top: -10px !important; /* Butonun altındaki boşluğu yok edip yukarı çeker */
-        padding: 10px !important;
+        margin-top: -15px !important; /* Butonun altındaki boşluğu sıfırlayıp yukarı çeker */
+        padding: 5px 10px !important;
         position: relative !important;
-        top: auto !important;
+        gap: 8px !important; /* Elemanların arasındaki dikey mesafeyi daraltır */
     }
 
-    /* İstatistik satırlarını (Sektör, Vaka, Analist vb.) mobilde düzgünce ayırıyoruz */
-    .dashboard-meta-grid > div,
-    .dashboard-meta-grid > span,
-    [class*="info-row"] {
+    /* --- CASSANDRA AI BAŞLIĞI EN ÜSTE --- */
+    .dashboard-meta-grid h1,
+    #sidebar h1,
+    [class*="title"] {
+        order: 1 !important; /* Flex düzeninde en üste zorlar */
+        font-size: 1.4rem !important;
+        letter-spacing: 2px !important;
+        text-align: center !important;
+        margin: 5px 0 0 0 !important;
+        width: 100% !important;
+    }
+
+    /* --- SYSTEM: ACTIVE BADGE'İ BAŞLIĞIN HEMEN ALTINA --- */
+    .system-status-badge,
+    .system-active {
+        order: 2 !important; /* Başlığın hemen altına yerleşir */
+        position: static !important;
+        margin: 2px auto !important;
+        display: inline-block !important;
+    }
+
+    /* --- LOCAL VE UTC SAATLERİ ORTALI BİR ŞEKİLDE ÜÇÜNCÜ SIRADA --- */
+    /* Saatlerin yazdığı div veya p etiketini hedefler */
+    .dashboard-meta-grid .time-info,
+    .dashboard-meta-grid > p,
+    [class*="time"] {
+        order: 3 !important; 
         display: flex !important;
-        flex-wrap: wrap !important;
-        justify-content: space-between !important;
+        justify-content: center !important; /* Saatleri yan yana ortalar */
+        gap: 15px !important;
+        font-size: 0.85rem !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* --- SEKTÖR, VAKA, ANALİST SATIRLARINI YUKARI ÇEKME VE DÜZENLEME --- */
+    .dashboard-meta-grid > div,
+    [class*="info-row"],
+    [class*="stats"] {
+        order: 4 !important; /* En alt kısma hizalanır ama gap ufak olduğu için yukarı kayar */
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important; /* Mobilde alt alta temiz dursunlar */
         align-items: center !important;
-        gap: 8px !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-        padding-bottom: 8px !important;
+        text-align: center !important;
+        gap: 4px !important;
+        margin: 0 !important;
+        padding-top: 5px !important;
+    }
+
+    /* İçerideki yazıların fontunu hafif küçültüyoruz ki taşma yapmasın */
+    .dashboard-meta-grid span,
+    .dashboard-meta-grid strong {
+        font-size: 0.8rem !important;
     }
 }
 
 @media (max-width: 480px) {
-    /* Başlık ve butonların font ayarları */
-    .dashboard-meta-grid h1, 
-    #sidebar h1 {
+    .dashboard-meta-grid h1 {
         font-size: 1.2rem !important;
-        text-align: center !important;
-        margin: 5px 0 !important;
     }
-
-    /* System Active badge'ini ortala ve rahatlat */
-    .system-status-badge,
-    .system-active {
-        position: static !important; 
-        margin: 5px auto !important;
-        display: inline-block !important;
-        text-align: center !important;
-    }
-
-    /* System Initializer kutusunun taşmasını engelle */
+    
+    /* Mavi SYSTEM INITIALIZER kutusunu da yukarıdaki gruba yaklaştırıyoruz */
     .system-initializer, 
     [class*="initializer"] {
         width: 100% !important;
-        margin-top: 10px !important;
+        margin-top: 5px !important; 
     }
 }

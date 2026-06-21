@@ -297,12 +297,12 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 .scrolling-line { font-family: 'Rajdhani', sans-serif; font-size: 6rem; white-space: nowrap; animation: scrollRight 40s linear infinite; }
 @keyframes scrollRight { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 
-/* RESPONSIVE (MOBILE) */
+/* RESPONSIVE (MOBILE & TABLET DÜZENLEME) */
 @media (max-width: 768px) {
     html, body, #app-container { 
         height: auto !important; 
         min-height: 100vh !important; 
-        overflow: auto !important; 
+        overflow-y: auto !important; 
         overflow-x: hidden !important; 
         flex-direction: column !important; 
     }
@@ -314,57 +314,69 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
         border-right: none !important; 
         border-bottom: 1px solid var(--border) !important; 
         padding: 12px !important;
-        /* ELEMANLARIN ALT ALTA RAHATÇA SIĞMASI İÇİN FLEX ESNEKLİĞİ */
         display: flex !important;
         flex-direction: column !important;
     }
     
-    #chat-flow { height: 50vh !important; }
+    #chat-flow { 
+        height: auto !important; 
+        min-height: 300px !important; 
+    }
+    
     .msg { max-width: 95% !important; width: auto !important; }
 
-
-    /* flex-wrap ile alanları kurtarıyoruz */
+    /* --- BOŞLUĞU KAPATIP YUKARI ÇEKME OPERASYONU --- */
+    /* Local/UTC'den başlayıp system initializer'a kadar olan kapsayıcıyı yukarı yapıştırıyoruz */
     .dashboard-meta-grid, 
     [class*="meta"], 
     [class*="status"] { 
         display: flex !important;
-        flex-wrap: wrap !important; /* Alan daralınca elemanlar otomatik alt satıra insin */
-        flex-direction: row !important; /* Önce yan yana denesinler */
-        justify-content: space-between !important;
-        gap: 10px !important;
+        flex-direction: column !important; /* Üst üste binmeyi engellemek için dikey sıra */
+        align-items: stretch !important;
+        gap: 15px !important; /* Elemanların arasına nefes aldıracak boşluk */
         width: 100% !important;
-        margin-top: 15px !important; /* Tümünü sıfırla butonundan biraz uzaklaşsın */
-        position: relative !important; /* Üst üste binmeyi engellemek için absolute'ları ez */
+        margin-top: -10px !important; /* Butonun altındaki boşluğu yok edip yukarı çeker */
+        padding: 10px !important;
+        position: relative !important;
         top: auto !important;
-        left: auto !important;
-        right: auto !important;
     }
 
-    /* İçerideki küçük infoların (Sektör, Vaka, Analist vb.) genişliğini ayarla */
+    /* İstatistik satırlarını (Sektör, Vaka, Analist vb.) mobilde düzgünce ayırıyoruz */
     .dashboard-meta-grid > div,
-    .dashboard-meta-grid > span {
-        flex: 1 1 40% !important; /* Mobilde ikişerli yan yana veya tek tek dizilsinler */
-        min-width: 120px !important;
-        font-size: 0.8rem !important;
+    .dashboard-meta-grid > span,
+    [class*="info-row"] {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 8px !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        padding-bottom: 8px !important;
     }
 }
 
 @media (max-width: 480px) {
-    /* Ekran iyice daralınca (CASSANDRA AI yazısının patladığı an) her şeyi tek kolona çekiyoruz */
-    .dashboard-meta-grid { 
-        flex-direction: column !important;
-        align-items: center !important;
+    /* Başlık ve butonların font ayarları */
+    .dashboard-meta-grid h1, 
+    #sidebar h1 {
+        font-size: 1.2rem !important;
         text-align: center !important;
+        margin: 5px 0 !important;
     }
 
-    .dashboard-meta-grid h1, 
-    .dashboard-meta-grid p {
-        font-size: 0.9rem !important;
-    }
-    
+    /* System Active badge'ini ortala ve rahatlat */
     .system-status-badge,
     .system-active {
         position: static !important; 
-        margin: 10px auto !important;
+        margin: 5px auto !important;
+        display: inline-block !important;
+        text-align: center !important;
+    }
+
+    /* System Initializer kutusunun taşmasını engelle */
+    .system-initializer, 
+    [class*="initializer"] {
+        width: 100% !important;
+        margin-top: 10px !important;
     }
 }

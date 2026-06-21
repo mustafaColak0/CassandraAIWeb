@@ -296,9 +296,8 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 .bg-layer { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.05; display: flex; flex-direction: column; justify-content: space-around; }
 .scrolling-line { font-family: 'Rajdhani', sans-serif; font-size: 6rem; white-space: nowrap; animation: scrollRight 40s linear infinite; }
 @keyframes scrollRight { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
-/* ==========================================================================
-   CASSANDRA AI MOBİL HİZALAMA OPERASYONU
-   ========================================================================== */
+
+/* RESPONSIVE (MOBILE) */
 @media (max-width: 768px) {
     html, body, #app-container { 
         height: auto !important; 
@@ -321,92 +320,80 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     
     #chat-flow { 
         height: auto !important; 
-        min-height: 300px !important; 
+        min-height: 350px !important; 
     }
     
     .msg { max-width: 95% !important; width: auto !important; }
 
-    /* --- ÜST ÜSTE BİNMEYİ BİTİREN ANA KAPSAYICI --- */
-    .dashboard-meta-grid, 
-    [class*="meta"], 
-    [class*="status"] { 
+    /* --- CORTLAYAN ESKİ STATİK YÜKSEKLİKLERİ İPTAL EDİYORUZ --- */
+    .status-bar-wrapper {
+        margin-top: 15px !important; /* Butonun hemen altına yapışsın */
+        padding: 15px !important;
+        background: rgba(10, 19, 32, 0.95) !important;
+    }
+
+    .status-bar { 
+        height: auto !important; /* 45px sınırını kaldırıp alanı özgür bırakıyoruz */
         display: flex !important;
-        flex-direction: column !important; /* Her şeyi dikey nizamda yukarıdan aşağıya dizer */
-        align-items: center !important; /* Tüm elemanları yatayda tam ortalar */
-        width: 100% !important;
-        margin-top: -15px !important; /* Butonun altındaki boşluğu sıfırlayıp yukarı çeker */
-        padding: 5px 10px !important;
-        position: relative !important;
-        gap: 8px !important; /* Elemanların arasındaki dikey mesafeyi daraltır */
-    }
-
-    /* --- CASSANDRA AI BAŞLIĞI EN ÜSTE --- */
-    .dashboard-meta-grid h1,
-    #sidebar h1,
-    [class*="title"] {
-        order: 1 !important; /* Flex düzeninde en üste zorlar */
-        font-size: 1.4rem !important;
-        letter-spacing: 2px !important;
-        text-align: center !important;
-        margin: 5px 0 0 0 !important;
-        width: 100% !important;
-    }
-
-    /* --- SYSTEM: ACTIVE BADGE'İ BAŞLIĞIN HEMEN ALTINA --- */
-    .system-status-badge,
-    .system-active {
-        order: 2 !important; /* Başlığın hemen altına yerleşir */
-        position: static !important;
-        margin: 2px auto !important;
-        display: inline-block !important;
-    }
-
-    /* --- LOCAL VE UTC SAATLERİ ORTALI BİR ŞEKİLDE ÜÇÜNCÜ SIRADA --- */
-    /* Saatlerin yazdığı div veya p etiketini hedefler */
-    .dashboard-meta-grid .time-info,
-    .dashboard-meta-grid > p,
-    [class*="time"] {
-        order: 3 !important; 
-        display: flex !important;
-        justify-content: center !important; /* Saatleri yan yana ortalar */
-        gap: 15px !important;
-        font-size: 0.85rem !important;
-        width: 100% !important;
-        margin: 0 !important;
+        flex-direction: column !important; /* Her şeyi dikey sıraya alıyoruz */
+        align-items: center !important; 
+        gap: 12px !important; /* Elemanların arasına nefes aldırıyoruz */
         padding: 0 !important;
     }
 
-    /* --- SEKTÖR, VAKA, ANALİST SATIRLARINI YUKARI ÇEKME VE DÜZENLEME --- */
-    .dashboard-meta-grid > div,
-    [class*="info-row"],
-    [class*="stats"] {
-        order: 4 !important; /* En alt kısma hizalanır ama gap ufak olduğu için yukarı kayar */
-        width: 100% !important;
-        display: flex !important;
-        flex-direction: column !important; /* Mobilde alt alta temiz dursunlar */
-        align-items: center !important;
+    /* --- CASSANDRA AI YAZISI EN ÜSTE --- */
+    .main-title {
+        order: 1 !important;
+        font-size: 1.5rem !important;
         text-align: center !important;
-        gap: 4px !important;
         margin: 0 !important;
-        padding-top: 5px !important;
     }
 
-    /* İçerideki yazıların fontunu hafif küçültüyoruz ki taşma yapmasın */
-    .dashboard-meta-grid span,
-    .dashboard-meta-grid strong {
+    /* --- SYSTEM: ACTIVE BADGE'İ BAŞLIĞIN ALTINA --- */
+    .threat-pill {
+        order: 2 !important;
+        position: static !important;
+        margin: 0 auto !important;
+    }
+
+    /* --- LOCAL VE UTC SAATLERİ ORTALI ŞEKİLDE ÜÇÜNCÜ SIRAYA --- */
+    .time-group {
+        order: 3 !important;
+        display: flex !important;
+        justify-content: center !important;
+        gap: 20px !important;
+        width: 100% !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* --- SEKTÖR, VAKA, ANALİST PANELİ (ANALYSIS-PARAMS-BAR) --- */
+    .analysis-params-bar {
+        height: auto !important; /* 30px sınırını kırıyoruz */
+        display: flex !important;
+        flex-direction: column !important; /* Mobilde alt alta temiz dizilim */
+        align-items: center !important;
+        gap: 8px !important;
+        padding: 10px 0 0 0 !important;
+        border-top: 1px solid rgba(34, 211, 238, 0.1) !important;
+        width: 100% !important;
+    }
+
+    .param-item {
+        text-align: center !important;
         font-size: 0.8rem !important;
+        width: 100% !important;
+    }
+
+    /* --- SYSTEM INITIALIZER KUTUSU --- */
+    .system-initializer, 
+    [class*="initializer"] {
+        width: 100% !important;
+        margin-top: 10px !important;
     }
 }
 
 @media (max-width: 480px) {
-    .dashboard-meta-grid h1 {
-        font-size: 1.2rem !important;
-    }
-    
-    /* Mavi SYSTEM INITIALIZER kutusunu da yukarıdaki gruba yaklaştırıyoruz */
-    .system-initializer, 
-    [class*="initializer"] {
-        width: 100% !important;
-        margin-top: 5px !important; 
+    .main-title {
+        font-size: 1.3rem !important;
     }
 }

@@ -328,7 +328,7 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 
     /* --- BANT VE BOŞLUK DÜZENLEMELERİ --- */
     .status-bar-wrapper {
-        margin-top: 15px !important; /* Tümünü sıfırla butonunun altına çeker */
+        margin-top: 15px !important; 
         padding: 10px !important;
         background: var(--panel) !important;
         display: flex !important;
@@ -336,19 +336,18 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
         height: auto !important;
     }
 
-    /* Ana esnek kutuyu dikey yapıp tüm elemanları merkeze hizalıyoruz */
     .status-bar { 
         height: auto !important; 
         display: flex !important;
         flex-direction: column !important; 
         align-items: center !important; 
         justify-content: center !important;
-        gap: 6px !important; /* Elemanların dikey aralığı */
+        gap: 6px !important; 
         padding: 5px 0 !important;
         width: 100% !important;
     }
 
-    /* 1. SIRA: CASSANDRA AI YAZISI (Tam üstte ve ortada) */
+    /* 1. SIRA: CASSANDRA AI YAZISI */
     .main-title {
         order: 1 !important;
         display: block !important;
@@ -360,37 +359,37 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
         color: #ffffff !important;
     }
 
-    /* 2. SIRA: LOCAL VE UTC SAATLERİ (Başlığın tam altında, yan yana ve ortalı) */
+    /* 2. SIRA: LOCAL VE UTC SAATLERİ */
     .time-group {
         order: 2 !important;
         display: flex !important;
-        flex-direction: row !important; /* Saatlerin yan yana kalmasını sağlar */
-        justify-content: center !important; /* Yan yana olan saatleri tam ortalar */
+        flex-direction: row !important; 
+        justify-content: center !important; 
         align-items: center !important;
-        gap: 15px !important; /* Saatlerin arasındaki yatay boşluk */
+        gap: 15px !important; 
         width: 100% !important;
         margin: 2px 0 6px 0 !important;
         font-size: 0.85rem !important;
     }
 
-    /* 3. SIRA: SYSTEM: ACTIVE BADGE'İ (Saatlerin de altında temiz duruş) */
+    /* 3. SIRA: SYSTEM: ACTIVE BADGE'İ */
     .threat-pill {
         order: 3 !important;
-        display: inline-block !important;
-        margin: 0 auto !important;
-        text-align: center !important;
+        display: inline-flex !important; /* Nokta yan yana dursun diye flex yaptık */
+        align-self: center !important; /* Dikey flex içinde tam ortalama garantisi */
+        margin: 4px 0 !important;
     }
 
-    /* --- SEKTÖR, VAKA, ANALİST BÖLÜMÜNÜ YUKARI KAYDIRMA --- */
+    /* --- SEKTÖR, VAKA, ANALİST BÖLÜMÜ --- */
     .analysis-params-bar {
         height: auto !important; 
         display: flex !important;
-        flex-direction: column !important; /* Mobilde alt alta sıralansınlar */
+        flex-direction: column !important; 
         align-items: center !important;
         justify-content: center !important;
         gap: 6px !important;
         padding: 10px 0 !important;
-        margin-top: 5px !important; /* Üstteki gruba yaklaştırıyoruz */
+        margin-top: 5px !important; 
         border-top: 1px solid rgba(34, 211, 238, 0.1) !important;
         width: 100% !important;
     }
@@ -403,7 +402,6 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
         margin: 0 !important;
     }
 
-    /* Mavi SYSTEM INITIALIZER kutusu */
     .system-initializer, 
     [class*="initializer"] {
         width: 100% !important;
@@ -414,5 +412,51 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 @media (max-width: 480px) {
     .main-title {
         font-size: 1.2rem !important;
+    }
+}
+
+/* ==========================================================================
+   NEON PING DOT (YANIP SÖNEN NOKTA) OPERASYONU
+   ========================================================================== */
+.threat-pill, 
+.system-status-badge, 
+.system-active {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important; 
+    border: none !important; 
+    color: #00ff00 !important; 
+    font-family: 'Rajdhani', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 0.8rem !important;
+    letter-spacing: 1.5px !important;
+    text-transform: uppercase !important;
+    gap: 8px !important; 
+    padding: 0 !important;
+}
+
+.threat-pill::before, 
+.system-status-badge::before, 
+.system-active::before {
+    content: "" !important;
+    width: 8px !important;
+    height: 8px !important;
+    background-color: #00ff00 !important; 
+    border-radius: 50% !important; 
+    display: inline-block !important;
+    box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00 !important; 
+    animation: siberPing 1s ease-in-out infinite alternate !important; 
+}
+
+@keyframes siberPing {
+    0% {
+        opacity: 0.3;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1.1);
+        box-shadow: 0 0 14px #00ff00, 0 0 25px #00ff00;
     }
 }

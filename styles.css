@@ -29,7 +29,7 @@ body { margin: 0; padding: 0; height: 100vh; background: var(--bg); color: var(-
 /* ANA İSKELET */
 #app-container { position: relative; z-index: 10; display: flex; width: 100vw; height: 100vh; overflow: hidden; }
 
-/* SOL PANEL (SIDEBAR) KESİN ÇÖZÜMÜ */
+/* SOL PANEL (SIDEBAR) */
 #sidebar { 
     width: 320px; 
     flex-shrink: 0; 
@@ -51,13 +51,13 @@ body { margin: 0; padding: 0; height: 100vh; background: var(--bg); color: var(-
     flex-shrink: 0; 
 }
 
-/* Üst form elemanlarını sarmalayan alan (Boşluklar tamamen sıfırlandı) */
+/* Üst form elemanlarını düzenleme */
 .sidebar-scroll-area {
     flex: 1;
     overflow-y: auto;
     min-height: 0;
     padding-right: 4px;
-    margin-bottom: 0px; /* Boşluk kaldırıldı */
+    margin-bottom: 0px; 
 }
 .sidebar-scroll-area::-webkit-scrollbar { width: 4px; }
 .sidebar-scroll-area::-webkit-scrollbar-thumb { background: rgba(34, 211, 238, 0.2); border-radius: 4px; }
@@ -72,7 +72,7 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 .radio-group label:hover { background: rgba(34, 211, 238, 0.05); border-color: rgba(34, 211, 238, 0.1); }
 .radio-group input[type="radio"] { margin-right: 8px; cursor: pointer; }
 
-/* Yeni Sohbet Alanı (Analistlerin hemen dibine çekildi) */
+/* Yeni Sohbet Alanı */
 .new-chat-section {
     margin-top: 4px;
     margin-bottom: 6px;
@@ -299,8 +299,72 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
 
 /* RESPONSIVE (MOBILE) */
 @media (max-width: 768px) {
-    html, body, #app-container { height: auto !important; min-height: 100vh !important; overflow: auto !important; overflow-x: hidden !important; flex-direction: column !important; }
-    #sidebar { width: 100% !important; max-width: 100% !important; height: auto !important; border-right: none !important; border-bottom: 1px solid var(--border) !important; padding: 12px !important; }
+    html, body, #app-container { 
+        height: auto !important; 
+        min-height: 100vh !important; 
+        overflow: auto !important; 
+        overflow-x: hidden !important; 
+        flex-direction: column !important; 
+    }
+    
+    #sidebar { 
+        width: 100% !important; 
+        max-width: 100% !important; 
+        height: auto !important; 
+        border-right: none !important; 
+        border-bottom: 1px solid var(--border) !important; 
+        padding: 12px !important;
+        /* ELEMANLARIN ALT ALTA RAHATÇA SIĞMASI İÇİN FLEX ESNEKLİĞİ */
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
     #chat-flow { height: 50vh !important; }
     .msg { max-width: 95% !important; width: auto !important; }
+
+
+    /* flex-wrap ile alanları kurtarıyoruz */
+    .dashboard-meta-grid, 
+    [class*="meta"], 
+    [class*="status"] { 
+        display: flex !important;
+        flex-wrap: wrap !important; /* Alan daralınca elemanlar otomatik alt satıra insin */
+        flex-direction: row !important; /* Önce yan yana denesinler */
+        justify-content: space-between !important;
+        gap: 10px !important;
+        width: 100% !important;
+        margin-top: 15px !important; /* Tümünü sıfırla butonundan biraz uzaklaşsın */
+        position: relative !important; /* Üst üste binmeyi engellemek için absolute'ları ez */
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+    }
+
+    /* İçerideki küçük infoların (Sektör, Vaka, Analist vb.) genişliğini ayarla */
+    .dashboard-meta-grid > div,
+    .dashboard-meta-grid > span {
+        flex: 1 1 40% !important; /* Mobilde ikişerli yan yana veya tek tek dizilsinler */
+        min-width: 120px !important;
+        font-size: 0.8rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Ekran iyice daralınca (CASSANDRA AI yazısının patladığı an) her şeyi tek kolona çekiyoruz */
+    .dashboard-meta-grid { 
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    .dashboard-meta-grid h1, 
+    .dashboard-meta-grid p {
+        font-size: 0.9rem !important;
+    }
+    
+    .system-status-badge,
+    .system-active {
+        position: static !important; 
+        margin: 10px auto !important;
+    }
 }

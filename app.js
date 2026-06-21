@@ -1,5 +1,5 @@
 // 1. GLOBAL TANIMLAMALAR & CASSANDRA AI SİSTEM BAŞLATICI
-// Eğer window üzerinde senaryolar nesnesi tanımlı değilse siber matrisi bozmamak için başlatıyoruz.
+// Eğer window üzerinde senaryolar nesnesi tanımlı değilse düzeni bozmamak için başlatıyoruz.
 if (!window.scenarios) {
     window.scenarios = {};
 }
@@ -14,9 +14,8 @@ if (typeof window.selectedFile === 'undefined') window.selectedFile = null;
 // Backend API entegrasyonu için merkezi URL yapılandırması
 const BACKEND_URL = "https://cassandra-ai-backend.onrender.com"; 
 
-/**
- * Siber Arayüz Saatlerini, Karşılama Ekranını ve Dinamik Değişim Tetikleyicilerini Başlatır
- */
+//  Siber Arayüz Saatlerini, Karşılama Ekranını ve Dinamik Değişim Tetikleyicilerini Başlatır 
+ 
 function initSystem() {
     // SOC (Security Operations Center) operasyonel takibi için Local ve UTC saat döngüsü
     setInterval(() => {
@@ -40,9 +39,7 @@ function initSystem() {
         }
     }, 2500);
 
-    /**
-     * Seçilen Analist, Sektör ve Vaka tipine göre üst gösterge panelini (HUD) günceller
-     */
+    // Seçilen Analist, Sektör ve Vaka tipine göre üst gösterge panelini (HUD) günceller
     const updateDisplay = () => {
         const secVal = document.getElementById("sector-select")?.value || "-";
         const vakVal = document.getElementById("vaka-select")?.value || "-";
@@ -117,7 +114,7 @@ function initSystem() {
                 flow.scrollTop = flow.scrollHeight;
             }
             
-            // KESİN ARINMA: Aktif vaka kimliğini sıfırlayarak yeni analizi bağımsız hücreye alır
+            //Aktif vaka kimliğini sıfırlayarak yeni analizi bağımsız hücreye alır
             window.currentChatId = null; 
             
             // Giriş alanları ve dosya önizleme yapılarını temizleme
@@ -149,13 +146,10 @@ function initSystem() {
     updateDisplay();
 }
 
-// ============================================================================
-// 2. SENARYO VE VERİ YÜKLEME KATMANI
-// ============================================================================
 
-/**
- * Backend üzerinden veya yerel yedek (fallback) havuzundan siber saldırı senaryolarını yükler
- */
+// 2. SENARYO VE VERİ YÜKLEME KATMANI
+
+// Backend üzerinden veya yerel yedek (fallback) havuzundan siber saldırı senaryolarını yükler
 async function loadScenarios() {
     const fallbacks = {
         "Ağ Güvenliği": ["Port Tarama", "DDoS Analizi"],
@@ -198,13 +192,10 @@ async function loadScenarios() {
     sector.onchange();
 }
 
-// ============================================================================
 // 3. ÇEKİRDEK MESAJLAŞMA VE GROQ API ANALİZ MOTORU
-// ============================================================================
 
-/**
- * Girdileri, metin tabanlı logları veya görselleri işleyerek Groq API üzerinden siber analizi tetikler
- */
+//Girdileri, metin tabanlı logları veya görselleri işleyerek Groq API üzerinden siber analizi tetikler
+ 
 async function runAnalysis() {
     const input = document.getElementById("prompt-in");
     const btn = document.getElementById("analyze-btn");
@@ -214,7 +205,7 @@ async function runAnalysis() {
     // Herhangi bir girdi yoksa boş tetiklemeyi iptal eder
     if(!text && (!fileInput || !fileInput.files[0])) return;
     
-    // YENİ VAKA GÜVENCESİ: Analiz tetiklendiği an geçmiş bağlarını koparıp bağımsız kanal açar
+    //Analiz tetiklendiği an geçmiş bağlarını koparıp bağımsız kanal açar
     window.currentChatId = null;
 
     // API Key Güvenlik Kontrolü
@@ -395,13 +386,9 @@ async function runAnalysis() {
     }
 }
 
-// ============================================================================
 // 4. METİN BİÇİMLENDİRME VE DİNAMİK BUTON (DOM) YÖNETİMİ
-// ============================================================================
 
-/**
- * Terminal ekranına mesaj bloklarını dinamik buton yetenekleriyle birlikte yerleştirir
- */
+// Terminal ekranına mesaj bloklarını dinamik buton yetenekleriyle birlikte yerleştirir
 function appendMsg(role, text, meta = "", report = null) {
     const flow = document.getElementById("chat-flow");
     if(!flow) return;
@@ -518,13 +505,9 @@ function appendMsg(role, text, meta = "", report = null) {
     flow.scrollTop = flow.scrollHeight;
 }
 
-// ============================================================================
 // 5. BAĞIMSIZ ANALİZ GEÇMİŞİ VE YAŞAM DÖNGÜSÜ YÖNETİMİ
-// ============================================================================
 
-/**
- * Üretilen siber vakayı yerel depolama alanına yazar ve listeyi tazeler
- */
+// Üretilen siber vakayı yerel depolama alanına yazar ve listeyi tazeler
 function saveHistory(report) {
     const history = JSON.parse(localStorage.getItem(CHAT_SESSIONS_KEY) || "[]");
     history.push(report);
@@ -532,9 +515,8 @@ function saveHistory(report) {
     renderHistory();
 }
 
-/**
- * Sol paneldeki geçmiş vaka listesini sıfır hata ve bağımsızlık kuralıyla ekrana basar
- */
+///Sol paneldeki geçmiş vaka listesini sıfır hata ve bağımsızlık kuralıyla ekrana basar
+
 function renderHistory() {
     const list = document.getElementById("history-list");
     if(!list) return;
@@ -551,7 +533,7 @@ function renderHistory() {
             if(e.target.className === 'delete-history-btn') {
                 deleteHistoryItem(item.reportId);
             } else {
-                // KESİNTİSİZ GEÇMİŞ DETAYI GÖSTERİMİ
+                // GEÇMİŞ DETAYI GÖSTERİMİ
                 const flow = document.getElementById("chat-flow");
                 if (flow) {
                     flow.innerHTML = ""; // Ekranı temizleyip üst üste binmeyi önler
@@ -572,9 +554,8 @@ function renderHistory() {
     });
 }
 
-/**
- * İndeks kayması risklerini yok etmek amacıyla raporu benzersiz ID'si üzerinden bulup geçmişten siler
- */
+// İndeks kayması risklerini yok etmek amacıyla raporu benzersiz ID'si üzerinden bulup geçmişten siler
+
 function deleteHistoryItem(reportId) {
     let history = JSON.parse(localStorage.getItem(CHAT_SESSIONS_KEY) || "[]");
     history = history.filter(item => item.reportId !== reportId);
@@ -582,13 +563,10 @@ function deleteHistoryItem(reportId) {
     renderHistory();
 }
 
-// ============================================================================
 // 6. STRATEJİK PDF RAPORLAMA KATMANI (pdfMake)
-// ============================================================================
 
-/**
- * Analiz sonuçlarını kurumsal siber güvenlik şablonunda PDF dökümanına dönüştürüp indirir
- */
+ // Analiz sonuçlarını kurumsal siber güvenlik şablonunda PDF dökümanına dönüştürüp indirir
+
 function downloadPdf(data) {
     if(typeof pdfMake === 'undefined') return alert("PDF modülü yüklenemedi.");
 
@@ -596,9 +574,9 @@ function downloadPdf(data) {
     const safeVakaName = data.attackVector.replace(/[\/\\?%*:|"<>]/g, '-'); 
     const fileName = `${safeVakaName} - CAS-${data.reportId}.pdf`;
 
-    /**
-     * Markdown kalın metin belirteçlerini pdfMake nesne dizilerine ayrıştırır
-     */
+    
+     // Markdown kalın metin belirteçlerini pdfMake nesne dizilerine ayrıştırır
+     
     function parseMarkdownToPdf(text) {
         const paragraphs = text.split('\n');
         const formatted = [];
@@ -661,9 +639,7 @@ function downloadPdf(data) {
     pdfMake.createPdf(docDef).download(fileName);
 }
 
-// ============================================================================
 // 7. GİRİŞ MODAL KONTROLÜ VE ETKİLEŞİM DİNLEYİCİLERİ
-// ============================================================================
 
 // DOM Hazır olduğunda API anahtar durumunu analiz edip yetkilendirme kapısını yönetir
 document.addEventListener("DOMContentLoaded", () => {
@@ -694,7 +670,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Sistem yükleme zinciri tetikleyicileri
-// CRITICAL FIX: Önce asenkron verileri çekip kutuları besliyoruz, ardından HUD paneli (initSystem) ayağa kalkıyor.
+// Önce asenkron verileri çekip kutuları besliyoruz, ardından HUD paneli (initSystem) ayağa kalkıyor.
 window.onload = async () => { 
     await loadScenarios(); 
     initSystem(); 
@@ -718,9 +694,9 @@ if(document.getElementById("file-input")) {
     };
 }
 
-// ============================================================================
+
 // 8. GELİŞMİŞ PANO RESİM/LOG YAPIŞTIRMA (CLIPBOARD PASTE) DESTEĞİ
-// ============================================================================
+
 document.addEventListener('paste', (event) => {
     const items = (event.clipboardData || event.originalEvent.clipboardData).items;
     

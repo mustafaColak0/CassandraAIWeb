@@ -372,12 +372,14 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
         font-size: 0.85rem !important;
     }
 
-    /* 3. SIRA: SYSTEM: ACTIVE BADGE'İ */
+    /* 3. SIRA: SYSTEM: ACTIVE BADGE'İ (Noktanın Mobilde Gelmeme Sorununu Çözen Kısım) */
     .threat-pill {
         order: 3 !important;
-        display: inline-flex !important; /* Nokta yan yana dursun diye flex yaptık */
-        align-self: center !important; /* Dikey flex içinde tam ortalama garantisi */
-        margin: 4px 0 !important;
+        display: inline-flex !important; /* inline-block yerine inline-flex verdik */
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 5px auto !important;
+        text-align: center !important;
     }
 
     /* --- SEKTÖR, VAKA, ANALİST BÖLÜMÜ --- */
@@ -415,9 +417,7 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     }
 }
 
-/* ==========================================================================
-   NEON PING DOT (YANIP SÖNEN NOKTA) OPERASYONU
-   ========================================================================== */
+/* NEON PING DOT (YANIP SÖNEN NOKTA) OPERASYONU */
 .threat-pill, 
 .system-status-badge, 
 .system-active {
@@ -434,6 +434,7 @@ select:hover { border-color: var(--neon); box-shadow: 0 0 8px rgba(34, 211, 238,
     text-transform: uppercase !important;
     gap: 8px !important; 
     padding: 0 !important;
+    margin: 5px auto !important;
 }
 
 .threat-pill::before, 

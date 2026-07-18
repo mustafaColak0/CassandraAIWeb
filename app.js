@@ -298,24 +298,22 @@ async function runAnalysis() {
         // Llama model gereksinimlerine göre payload yapısını metinsel veya vision olarak dallandırma
 
         let messageContent;
-        // Groq üzerindeki en güncel ve kararlı metin/log modeli
         let selectedModel = "llama-3.3-70b-versatile"; 
+        let finalContent = "";
 
         if (base64Image) {
-            // EĞER RESİM VARSA: Groq'un vizyon modeline geçiş yapıyoruz
-            selectedModel = "llama-3.2-11b-vision-preview"; 
-            messageContent = [
-                { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik görselini/ekran görüntüsünü analiz et." },
-                { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
-            ];
+            // 🛡️ HİÇBİR DEĞİŞKENE GÜVENMEYİP BURADA DOĞRUDAN STRİNGE ÇEVİRİYORUZ
+            // Böylece array hatası vermesi imkansız hale geliyor.
+            finalContent = "Kullanıcı bir görsel/ekran görüntüsü yüklemek istedi. Lütfen ona şu sistemi siber güvenlik diliyle açıkla: 'CASSANDRA AI şu an aktif Groq altyapısında sadece metin tabanlı logları ve .txt analizlerini desteklemektedir. Görsel analizi şu an devre dışıdır. Lütfen incelemek istediğiniz log kayıtlarını metin olarak yapıştırın.'";
         } else {
-            // 🛡️ EĞER LOG/TXT VARSA: Güçlü Llama 3.3 modelinde kalıyoruz 
-            // ve 12.000 TPM limitine takılmamak için metni akıllıca kırpıyoruz (~12.000 karakter)
-            let safePrompt = finalPrompt;
-            if (safePrompt && safePrompt.length > 12000) {
-                safePrompt = safePrompt.substring(0, 12000) + "\n\n[... UYARI: Log dosyasının devamı Groq ücretsiz katman limiti (12K TPM) nedeniyle Cassandra tarafından kırpılmıştır. ...]";
+            // 🛡️ ZIRHLI LİMİT KORUMASI (Requested 27565 hatasını kökten bitiriyoruz)
+            // 27.565 karakter veya token fark etmeksizin veriyi acımasızca 10.000 karaktere indiriyoruz.
+            // Bu sayede 12.000 TPM sınırına takılması matematiksel olarak İMKANSIZ.
+            let strictPrompt = finalPrompt || "";
+            if (strictPrompt.length > 10000) {
+                strictPrompt = strictPrompt.substring(0, 10000) + "\n\n[... UYARI: Log dosyasının devamı Groq API'nin ücretsiz katmanındaki 12.000 TPM sınırı nedeniyle Cassandra tarafından otomatik olarak kesilmiştir. ...]";
             }
-            messageContent = safePrompt; 
+            finalContent = strictPrompt;
         }
 
         // Groq API Entegrasyon Katmanı
@@ -358,22 +356,14 @@ async function runAnalysis() {
 
                     },
 
-                    {
-
+                     {
                         role: "user",
-
-                        content: messageContent
-
+                        content: String(finalContent) // Zorla string yapıyoruz ki API hata fırlatamasın!
                     }
-
                 ],
-
                 temperature: 0.2,
-
-                max_tokens: 2048
-
+                max_tokens: 1000 // Çıktıyı da kısa tutuyoruz ki limit dolmasın
             })
-
         });
 
         

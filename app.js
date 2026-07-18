@@ -298,21 +298,24 @@ async function runAnalysis() {
         // Llama model gereksinimlerine göre payload yapısını metinsel veya vision olarak dallandırma
 
         let messageContent;
+        // Groq üzerindeki en güncel ve kararlı metin/log modeli
+        let selectedModel = "llama-3.3-70b-versatile"; 
 
         if (base64Image) {
-
+            // EĞER RESİM VARSA: Groq'un vizyon modeline geçiş yapıyoruz
+            selectedModel = "llama-3.2-11b-vision-preview"; 
             messageContent = [
-
-                { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik vakasını ve görseli analiz et." },
-
+                { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik görselini/ekran görüntüsünü analiz et." },
                 { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
-
             ];
-
         } else {
-
-            messageContent = finalPrompt; // %100 Saf String (Llama 3.3/4 log okuma uyumluluğu için)
-
+            // 🛡️ EĞER LOG/TXT VARSA: Güçlü Llama 3.3 modelinde kalıyoruz 
+            // ve 12.000 TPM limitine takılmamak için metni akıllıca kırpıyoruz (~12.000 karakter)
+            let safePrompt = finalPrompt;
+            if (safePrompt && safePrompt.length > 12000) {
+                safePrompt = safePrompt.substring(0, 12000) + "\n\n[... UYARI: Log dosyasının devamı Groq ücretsiz katman limiti (12K TPM) nedeniyle Cassandra tarafından kırpılmıştır. ...]";
+            }
+            messageContent = safePrompt; 
         }
 
         // Groq API Entegrasyon Katmanı

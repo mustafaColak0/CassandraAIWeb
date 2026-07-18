@@ -17,7 +17,7 @@ const BACKEND_URL = "https://cassandra-ai-backend.onrender.com";
 //  Siber Arayüz Saatlerini, Karşılama Ekranını ve Dinamik Değişim Tetikleyicilerini Başlatır 
  
 function initSystem() {
-    // SOC (Security Operations Center) operasyonel takibi için Local ve UTC saat döngüsü
+    // SOC (Security Operations Center) operasyonel takibi için Local ve UTC samat döngüsü
     setInterval(() => {
         const now = new Date();
         const local = document.getElementById("clock-local");
@@ -298,27 +298,24 @@ async function runAnalysis() {
         // Llama model gereksinimlerine göre payload yapısını metinsel veya vision olarak dallandırma
 
         let messageContent;
-        let selectedModel = "llama-3.3-70b-versatile"; 
-        let finalContent = "";
+        // ⚡ Google Gemini'nin en güncel, hızlı ve multimodal (Metin + Resim) canavarı
+        let selectedModel = "gemini-2.0-flash"; 
 
         if (base64Image) {
-            // 🛡️ HİÇBİR DEĞİŞKENE GÜVENMEYİP BURADA DOĞRUDAN STRİNGE ÇEVİRİYORUZ
-            // Böylece array hatası vermesi imkansız hale geliyor.
-            finalContent = "Kullanıcı bir görsel/ekran görüntüsü yüklemek istedi. Lütfen ona şu sistemi siber güvenlik diliyle açıkla: 'CASSANDRA AI şu an aktif Groq altyapısında sadece metin tabanlı logları ve .txt analizlerini desteklemektedir. Görsel analizi şu an devre dışıdır. Lütfen incelemek istediğiniz log kayıtlarını metin olarak yapıştırın.'";
+            // 👁️ RESİM VARSA: OpenAI Vision formatında dizi olarak kusursuzca gönderiyoruz
+            messageContent = [
+                { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik görselini/ekran görüntüsünü analiz et." },
+                { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
+            ];
         } else {
-            // 🛡️ ZIRHLI LİMİT KORUMASI (Requested 27565 hatasını kökten bitiriyoruz)
-            // 27.565 karakter veya token fark etmeksizin veriyi acımasızca 10.000 karaktere indiriyoruz.
-            // Bu sayede 12.000 TPM sınırına takılması matematiksel olarak İMKANSIZ.
-            let strictPrompt = finalPrompt || "";
-            if (strictPrompt.length > 10000) {
-                strictPrompt = strictPrompt.substring(0, 10000) + "\n\n[... UYARI: Log dosyasının devamı Groq API'nin ücretsiz katmanındaki 12.000 TPM sınırı nedeniyle Cassandra tarafından otomatik olarak kesilmiştir. ...]";
-            }
-            finalContent = strictPrompt;
+            // 🛡️ BÜYÜK LOG / TXT VARSA: Gemini'ın devasa bağlam penceresi sayesinde 
+            // artık logları kırpmamıza HİÇ GEREK YOK. Dosyayı olduğu gibi gönderiyoruz!
+            messageContent = finalPrompt; 
         }
 
         // Groq API Entegrasyon Katmanı
 
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
 
             method: "POST",
 

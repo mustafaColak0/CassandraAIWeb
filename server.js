@@ -64,7 +64,7 @@ GÖREVİN:
                 { role: "system", content: systemInstruction },
                 { role: "user", content: messageContent }
             ],
-            model: "llama-3.2-11b-vision-preview", 
+            model: "meta-llama/llama-4-scout-17b-16e-instruct", 
             temperature: 0.5,
             max_tokens: 2048
         });

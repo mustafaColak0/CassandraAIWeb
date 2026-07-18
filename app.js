@@ -299,7 +299,7 @@ async function runAnalysis() {
         // Llama model gereksinimlerine göre payload yapısını metinsel veya vision olarak dallandırma
         let messageContent;
         //  HEM RESİM HEM METİN İÇİN RESMİ VE STABİL GÜNCEL MODEL:
-        let selectedModel = "llama-3.2-11b-vision-instant"; 
+        let selectedModel = "llama-3.3-70b-versatile"; 
 
         if (base64Image) {
             // Resim varsa array formatında gönderiyoruz

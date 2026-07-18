@@ -295,47 +295,85 @@ async function runAnalysis() {
                 });
             }
         }
+        // Llama model gereksinimlerine göre payload yapısını metinsel veya vision olarak dallandırma
+
         let messageContent;
-        // Groq tablosundaki en güçlü ve yüksek limitli metin/log modeli:
-        let selectedModel = "llama-3.3-70b-versatile"; 
 
         if (base64Image) {
-            // MODEL SADECE STRING BEKLEDİĞİ İÇİN DIZI (ARRAY) YERİNE SAF STRING GÖNDERİYORUZ
-            // Böylece "messages[1].content must be a string" hatası %100 engelleniyor.
-            messageContent = "Kullanıcı bir görsel yüklemeye çalıştı. Lütfen kullanıcıya şu uyarıyı siber güvenlik temalı bir dille ilet: 'CASSANDRA AI şu an aktif Groq altyapısında sadece siber güvenlik metin loglarını ve .txt analizlerini desteklemektedir. Görsel/Vision analizi şu an devre dışıdır. Lütfen incelemek istediğiniz log kayıtlarını metin olarak yapıştırın.'";
+
+            messageContent = [
+
+                { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik vakasını ve görseli analiz et." },
+
+                { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
+
+            ];
+
         } else {
-            // Devasa log dosyalarında limiti zorlamamak için güvenli kırpma sınırı
-            let safePrompt = finalPrompt;
-            if (safePrompt && safePrompt.length > 50000) {
-                safePrompt = safePrompt.substring(0, 50000) + "\n\n[... Orijinal log dosyasının devamı hacim nedeniyle kırpıldı ...]";
-            }
-            messageContent = safePrompt; 
+
+            messageContent = finalPrompt; // %100 Saf String (Llama 3.3/4 log okuma uyumluluğu için)
+
         }
 
         // Groq API Entegrasyon Katmanı
+
         const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+
             method: "POST",
+
             headers: {
+
                 "Content-Type": "application/json",
+
                 "Authorization": `Bearer ${savedKey}`
+
             },
+
             body: JSON.stringify({
-                model: selectedModel, 
+
+                model: "meta-llama/llama-4-scout-17b-16e-instruct", 
+
                 messages: [
+
                     {
+
                         role: "system",
-                        content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}.
-                        Sana gönderilen metinleri, logları (.txt) siber güvenlik perspektifinden incele ve tamamen Türkçe yanıt ver.`
+
+                        content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. 
+
+                        Görev Tanımın:
+
+                        1. Sana gönderilen metinleri, (.txt/.log) dosyalarını ve ekran görüntüsü (resim) loglarını siber güvenlik perspektifinden incele.
+
+                        2. Log kayıtlarında veya görselde yer alan IP adreslerini, istek türlerini (GET/POST), hata kodlarını (404, 500, 403), şüpheli payload'ları (SQLi, XSS, Path Traversal vb.) ve anomalileri tespit et.
+
+                        3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar ve bir aksiyon planı hazırla.
+
+                        4. Cevaplarını tamamen Türkçe, anlaşılır ver.
+
+                        HALÜSİNASYON ENGELLEME KURALI: Analizlerinde sadece siber güvenlik literatüründe (NIST, ISO, MITRE ATT&CK vb.) GERÇEKTEN var olan terim ve framework'leri kullan. Eğer kullanıcının sorduğu terim veya kısaltma siber güvenlik dünyasında YOKSA, kesinlikle kendi kafandan uydurma. Bilmiyorsan "Bu terim siber güvenlik literatüründe bulunamadı" de.`
+
                     },
+
                     {
+
                         role: "user",
-                        content: messageContent // Artık ne olursa olsun %100 String!
+
+                        content: messageContent
+
                     }
+
                 ],
+
                 temperature: 0.2,
-                max_tokens: 3000
+
+                max_tokens: 2048
+
             })
+
         });
+
+        
         
         if (!res.ok) {
             const errorData = await res.json().catch(() => ({}));

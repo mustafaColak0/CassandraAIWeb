@@ -296,24 +296,16 @@ async function runAnalysis() {
             }
         }
 
-        // Llama model gereksinimlerine göre payload yapısını metinsel veya vision olarak dallandırma
-        let messageContent;
-        //  HEM RESİM HEM METİN İÇİN RESMİ VE STABİL GÜNCEL MODEL:
+let messageContent;
+        // Groq tablosundaki en güçlü ve yüksek limitli (300K TPM) metin/log modeli:
         let selectedModel = "llama-3.3-70b-versatile"; 
 
         if (base64Image) {
-            // Resim varsa array formatında gönderiyoruz
-            messageContent = [
-                { type: "text", text: finalPrompt || "Lütfen bu siber配置 güvenlik vakasını ve görseli analiz et." },
-                { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
-            ];
+            messageContent = "Kullanıcı bir görsel yüklemeye çalıştı. Lütfen kullanıcıya şu uyarıyı siber güvenlik temalı bir dille ilet: 'CASSANDRA AI şu an aktif Groq altyapısında sadece metin tabanlı logları ve .txt analizlerini desteklemektedir. Görsel/Vision analizi şu an devre dışıdır. Lütfen incelemek istediğiniz log kayıtlarını metin olarak yapıştırın.'";
         } else {
-            // DAKİKALIK TOKEN LİMİTİ (TPM) KORUMASI
-            // Ücretsiz hesaptaki limit hatalarını (6000 TPM) tamamen önlemek için
-            // karakter sınırını ~15.000 seviyesine çekerek kendini garantiye alıyor.
             let safePrompt = finalPrompt;
-            if (safePrompt && safePrompt.length > 15000) {
-                safePrompt = safePrompt.substring(0, 15000) + "\n\n[... Orijinal log dosyasının devamı TPM limiti nedeniyle Cassandra tarafından kırpıldı ...]";
+            if (safePrompt && safePrompt.length > 40000) {
+                safePrompt = safePrompt.substring(0, 40000) + "\n\n[... Orijinal log dosyasının devamı hacim sınırı nedeniyle Cassandra tarafından kırpıldı ...]";
             }
             messageContent = safePrompt; 
         }
@@ -326,21 +318,21 @@ async function runAnalysis() {
                 "Authorization": `Bearer ${savedKey}`
             },
             body: JSON.stringify({
-                model: selectedModel, // Dinamik model: Resim gelirse vision, log gelirse 70b-specdec çalışacak
+                model: selectedModel, 
                 messages: [
                     {
                         role: "system",
-                        content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. 
+                        content: `Sen CASSANDRA AI siber acceleration analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. 
                         Görev Tanımın:
-                        1. Sana gönderilen metinleri, (.txt/.log) dosyalarını ve ekran görüntüsü (resim) loglarını siber güvenlik perspektifinden incele.
-                        2. Log kayıtlarında veya görselde yer alan IP adreslerini, istek türlerini (GET/POST), hata kodlarını (404, 500, 403), şüpheli payload'ları (SQLi, XSS, Path Traversal vb.) ve anomalileri tespit et.
+                        1. Sana gönderilen metinleri ve (.txt/.log) dosyalarını siber güvenlik perspektifinden incele.
+                        2. Log kayıtlarında yer alan IP adreslerini, istek türlerini (GET/POST), hata kodlarını (404, 500, 403), şüpheli payload'ları (SQLi, XSS, Path Traversal vb.) ve anomalileri tespit et.
                         3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar ve bir aksiyon planı hazırla.
                         4. Cevaplarını tamamen Türkçe, anlaşılır ver.
                         HALÜSİNASYON ENGELLEME KURALI: Analizlerinde sadece siber gelecek literatüründe (NIST, ISO, MITRE ATT&CK vb.) GERÇEKTEN var olan terim ve framework'leri kullan. Eğer kullanıcının sorduğu terim veya kısaltma siber güvenlik dünyasında YOKSA, kesinlikle kendi kafandan uydurma. Bilmiyorsan "Bu terim siber güvenlik literatüründe bulunamadı" de.`
                     },
                     {
                         role: "user",
-                        content: messageContent
+                        content: messageContent 
                     }
                 ],
                 temperature: 0.2,

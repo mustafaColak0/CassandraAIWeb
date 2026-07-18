@@ -297,14 +297,19 @@ async function runAnalysis() {
         }
 
         // Llama model gereksinimlerine göre payload yapısını metinsel veya vision olarak dallandırma
-        let messageContent;
+ let messageContent;
+        let selectedModel = "llama-3.3-70b-specdec"; // Varsayılan güçlü metin analizi modeli (Büyük loglar için yüksek limitli)
+
         if (base64Image) {
+            // Eğer resim varsa hem formatı array yapıyoruz hem de modeli VISION modeline çekiyoruz
+            selectedModel = "llama-3.2-11b-vision-preview"; 
             messageContent = [
                 { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik vakasını ve görseli analiz et." },
                 { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
             ];
         } else {
-            messageContent = finalPrompt; // %100 Saf String (Llama 3.3/4 log okuma uyumluluğu için)
+            // Eğer sadece metin veya büyük log dosyasıysa saf string kalıyor
+            messageContent = finalPrompt; 
         }
 
         // Groq API Entegrasyon Katmanı
@@ -315,7 +320,7 @@ async function runAnalysis() {
                 "Authorization": `Bearer ${savedKey}`
             },
             body: JSON.stringify({
-                model: "llama-3.1-8b-instant", 
+                model: selectedModel, // Dinamik model: Resim gelirse vision, log gelirse 70b-specdec çalışacak
                 messages: [
                     {
                         role: "system",
@@ -325,7 +330,7 @@ async function runAnalysis() {
                         2. Log kayıtlarında veya görselde yer alan IP adreslerini, istek türlerini (GET/POST), hata kodlarını (404, 500, 403), şüpheli payload'ları (SQLi, XSS, Path Traversal vb.) ve anomalileri tespit et.
                         3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar ve bir aksiyon planı hazırla.
                         4. Cevaplarını tamamen Türkçe, anlaşılır ver.
-                        HALÜSİNASYON ENGELLEME KURALI: Analizlerinde sadece siber güvenlik literatüründe (NIST, ISO, MITRE ATT&CK vb.) GERÇEKTEN var olan terim ve framework'leri kullan. Eğer kullanıcının sorduğu terim veya kısaltma siber güvenlik dünyasında YOKSA, kesinlikle kendi kafandan uydurma. Bilmiyorsan "Bu terim siber güvenlik literatüründe bulunamadı" de.`
+                        HALÜSİNASYON ENGELLEME KURALI: Analizlerinde sadece siber gelecek literatüründe (NIST, ISO, MITRE ATT&CK vb.) GERÇEKTEN var olan terim ve framework'leri kullan. Eğer kullanıcının sorduğu terim veya kısaltma siber güvenlik dünyasında YOKSA, kesinlikle kendi kafandan uydurma. Bilmiyorsan "Bu terim siber güvenlik literatüründe bulunamadı" de.`
                     },
                     {
                         role: "user",
@@ -333,7 +338,7 @@ async function runAnalysis() {
                     }
                 ],
                 temperature: 0.2,
-                max_tokens: 2048
+                max_tokens: 3000 
             })
         });
         

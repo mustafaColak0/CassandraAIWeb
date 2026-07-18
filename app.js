@@ -302,7 +302,7 @@ async function runAnalysis() {
 
         if (base64Image) {
             // Eğer resim varsa hem formatı array yapıyoruz hem de modeli VISION modeline çekiyoruz
-            selectedModel = "llama-3.2-11b-vision-instruct"; 
+            selectedModel = "llama-3.2-11b-vision-preview"; 
             messageContent = [
                 { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik vakasını ve görseli analiz et." },
                 { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }

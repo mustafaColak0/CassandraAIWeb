@@ -302,18 +302,16 @@ async function runAnalysis() {
 
         if (base64Image) {
             // Eğer resim varsa hem formatı array yapıyoruz hem de modeli VISION modeline çekiyoruz
-            selectedModel = "llama-3.2-11b-vision-preview"; 
+            selectedModel = "llama-3.2-90b-vision-instruct"; 
             messageContent = [
                 { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik vakasını ve görseli analiz et." },
                 { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
             ];
-      } else {
-            //  DAKİKALIK TOKEN LİMİTİ (TPM) KORUMASI
-            // Eğer log/metin çok uzunsa, ücretsiz plandaki 12.000 limitini aşmamak için 
-            // metni güvenli bir boyuta (yaklaşık ~8000-9000 token / ~35.000 karakter) kırpıyoruz.
+  } else {
+            // Devasa loglarda limit hatası (TPM) yememek için koruma sınırı
             let safePrompt = finalPrompt;
-            if (safePrompt && safePrompt.length > 35000) {
-                safePrompt = safePrompt.substring(0, 35000) + "\n\n[... Orijinal log dosyasının devamı yüksek hacim nedeniyle kırpıldı ...]";
+            if (safePrompt && safePrompt.length > 30000) {
+                safePrompt = safePrompt.substring(0, 30000) + "\n\n[... Orijinal log dosyasının devamı limit nedeniyle kırpıldı ...]";
             }
             messageContent = safePrompt; 
         }

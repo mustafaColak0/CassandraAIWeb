@@ -298,18 +298,24 @@ async function runAnalysis() {
 
         // Llama model gereksinimlerine göre payload yapısını metinsel veya vision olarak dallandırma
         let messageContent;
-        let selectedModel = "llama-3.3-70b-versatile"; // Varsayılan güçlü metin analizi modeli (Büyük loglar için yüksek limitli)
+        let selectedModel = "llama-3.3-70b-specdec"; // Varsayılan güçlü metin analizi modeli (Büyük loglar için yüksek limitli)
 
         if (base64Image) {
             // Eğer resim varsa hem formatı array yapıyoruz hem de modeli VISION modeline çekiyoruz
-            selectedModel = "llama-3.2-90b-vision-preview"; 
+            selectedModel = "llama-3.2-11b-vision-instruct"; 
             messageContent = [
                 { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik vakasını ve görseli analiz et." },
                 { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
             ];
-        } else {
-            // Eğer sadece metin veya büyük log dosyasıysa saf string kalıyor
-            messageContent = finalPrompt; 
+      } else {
+            //  DAKİKALIK TOKEN LİMİTİ (TPM) KORUMASI
+            // Eğer log/metin çok uzunsa, ücretsiz plandaki 12.000 limitini aşmamak için 
+            // metni güvenli bir boyuta (yaklaşık ~8000-9000 token / ~35.000 karakter) kırpıyoruz.
+            let safePrompt = finalPrompt;
+            if (safePrompt && safePrompt.length > 35000) {
+                safePrompt = safePrompt.substring(0, 35000) + "\n\n[... Orijinal log dosyasının devamı yüksek hacim nedeniyle kırpıldı ...]";
+            }
+            messageContent = safePrompt; 
         }
 
         // Groq API Entegrasyon Katmanı
@@ -338,7 +344,7 @@ async function runAnalysis() {
                     }
                 ],
                 temperature: 0.2,
-                max_tokens: 3000 
+                max_tokens: 2048 
             })
         });
         

@@ -295,17 +295,20 @@ async function runAnalysis() {
                 });
             }
         }
-
-let messageContent;
-        // Groq tablosundaki en güçlü ve yüksek limitli (300K TPM) metin/log modeli:
+        let messageContent;
+        // Groq panelindeki aktif metin modelimiz:
         let selectedModel = "llama-3.3-70b-versatile"; 
 
         if (base64Image) {
-            messageContent = "Kullanıcı bir görsel yüklemeye çalıştı. Lütfen kullanıcıya şu uyarıyı siber güvenlik temalı bir dille ilet: 'CASSANDRA AI şu an aktif Groq altyapısında sadece metin tabanlı logları ve .txt analizlerini desteklemektedir. Görsel/Vision analizi şu an devre dışıdır. Lütfen incelemek istediğiniz log kayıtlarını metin olarak yapıştırın.'";
+            //  Görsel yüklendiğinde string koruması sağlayarak hatayı engelliyoruz.
+            messageContent = "Kullanıcı bir görsel yüklemeye çalıştı. Lütfen kullanıcıya şu uyarıyı siber güvenlik temalı bir dille ilet: 'CASSANDRA AI şu an aktif Groq altyapısında sadece metin tabanlı log kayıtlarını ve .txt dosyalarını desteklemektedir. Görsel/Vision analizi şu an devre dışıdır. Lütfen incelemek istediğiniz log kayıtlarını metin formatında yapıştırarak analiz işlemine devam edin.'";
         } else {
+            // 12.000 TPM LİMİT KORUMASI (Kritik Alan)
+            // Groq hesabındaki 12.000 token sınırını (Requested 18796 hatasını) aşmamak için 
+            // metni güvenli bir karakter sınırına (~28.000 karakter / yaklaşık 7.000-8.000 token) çekiyoruz.
             let safePrompt = finalPrompt;
-            if (safePrompt && safePrompt.length > 40000) {
-                safePrompt = safePrompt.substring(0, 40000) + "\n\n[... Orijinal log dosyasının devamı hacim sınırı nedeniyle Cassandra tarafından kırpıldı ...]";
+            if (safePrompt && safePrompt.length > 28000) {
+                safePrompt = safePrompt.substring(0, 28000) + "\n\n[... UYARI: Orijinal log dosyasının devamı, Groq API'nin ücretsiz katmanındaki 12.000 TPM (Dakikalık Token) sınırı nedeniyle Cassandra tarafından otomatik olarak kırpılmıştır. Analize bu ilk kısım üzerinden devam edilmektedir. ...]";
             }
             messageContent = safePrompt; 
         }
@@ -322,21 +325,21 @@ let messageContent;
                 messages: [
                     {
                         role: "system",
-                        content: `Sen CASSANDRA AI siber acceleration analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. 
+                        content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. 
                         Görev Tanımın:
-                        1. Sana gönderilen metinleri ve (.txt/.log) dosyalarını siber güvenlik perspektifinden incele.
+                        1. Sana gönderilen metinleri, (.txt/.log) dosyalarını siber güvenlik perspektifinden incele.
                         2. Log kayıtlarında yer alan IP adreslerini, istek türlerini (GET/POST), hata kodlarını (404, 500, 403), şüpheli payload'ları (SQLi, XSS, Path Traversal vb.) ve anomalileri tespit et.
                         3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar ve bir aksiyon planı hazırla.
                         4. Cevaplarını tamamen Türkçe, anlaşılır ver.
-                        HALÜSİNASYON ENGELLEME KURALI: Analizlerinde sadece siber gelecek literatüründe (NIST, ISO, MITRE ATT&CK vb.) GERÇEKTEN var olan terim ve framework'leri kullan. Eğer kullanıcının sorduğu terim veya kısaltma siber güvenlik dünyasında YOKSA, kesinlikle kendi kafandan uydurma. Bilmiyorsan "Bu terim siber güvenlik literatüründe bulunamadı" de.`
+                        HALÜSİNASYON ENGELLEME KURALI: Analizlerinde sadece siber güvenlik literatüründe (NIST, ISO, MITRE ATT&CK vb.) GERÇEKTEN var olan terim ve framework'leri kullan. Eğer kullanıcının sorduğu terim veya kısaltma siber güvenlik dünyasında YOKSA, kesinlikle kendi kafandan uydurma. Bilmiyorsan "Bu terim siber güvenlik literatüründe bulunamadı" de.`
                     },
                     {
                         role: "user",
-                        content: messageContent 
+                        content: messageContent // %100 Güvenli String Veri
                     }
                 ],
                 temperature: 0.2,
-                max_tokens: 2048 
+                max_tokens: 2048 // Yanıt limitini de şişirmemek için optimize ettik
             })
         });
         

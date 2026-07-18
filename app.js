@@ -298,20 +298,22 @@ async function runAnalysis() {
 
         // Llama model gereksinimlerine göre payload yapısını metinsel veya vision olarak dallandırma
         let messageContent;
-        let selectedModel = "llama-3.1-8b-instant"; // Varsayılan güçlü metin analizi modeli (Büyük loglar için yüksek limitli)
+        //  HEM RESİM HEM METİN İÇİN RESMİ VE STABİL GÜNCEL MODEL:
+        let selectedModel = "llama-3.2-11b-vision-instant"; 
 
         if (base64Image) {
-            // Eğer resim varsa hem formatı array yapıyoruz hem de modeli VISION modeline çekiyoruz
-            selectedModel = "llama-3.2-11b-vision-preview"; 
+            // Resim varsa array formatında gönderiyoruz
             messageContent = [
-                { type: "text", text: finalPrompt || "Lütfen bu siber güvenlik vakasını ve görseli analiz et." },
+                { type: "text", text: finalPrompt || "Lütfen bu siber配置 güvenlik vakasını ve görseli analiz et." },
                 { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
             ];
-  } else {
-            // Devasa loglarda limit hatası (TPM) yememek için koruma sınırı
+        } else {
+            // DAKİKALIK TOKEN LİMİTİ (TPM) KORUMASI
+            // Ücretsiz hesaptaki limit hatalarını (6000 TPM) tamamen önlemek için
+            // karakter sınırını ~15.000 seviyesine çekerek kendini garantiye alıyor.
             let safePrompt = finalPrompt;
-            if (safePrompt && safePrompt.length > 30000) {
-                safePrompt = safePrompt.substring(0, 30000) + "\n\n[... Orijinal log dosyasının devamı limit nedeniyle kırpıldı ...]";
+            if (safePrompt && safePrompt.length > 15000) {
+                safePrompt = safePrompt.substring(0, 15000) + "\n\n[... Orijinal log dosyasının devamı TPM limiti nedeniyle Cassandra tarafından kırpıldı ...]";
             }
             messageContent = safePrompt; 
         }

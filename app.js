@@ -315,7 +315,7 @@ async function runAnalysis() {
                 "Authorization": `Bearer ${savedKey}`
             },
             body: JSON.stringify({
-                model: "llama-3.3-70b-specdec", 
+                model: "llama-3.2-11b-vision-instruct", 
                 messages: [
                     {
                         role: "system",

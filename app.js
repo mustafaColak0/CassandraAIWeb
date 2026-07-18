@@ -296,19 +296,18 @@ async function runAnalysis() {
             }
         }
         let messageContent;
-        // Groq panelindeki aktif metin modelimiz:
+        // Groq tablosundaki en güçlü ve yüksek limitli metin/log modeli:
         let selectedModel = "llama-3.3-70b-versatile"; 
 
         if (base64Image) {
-            //  Görsel yüklendiğinde string koruması sağlayarak hatayı engelliyoruz.
-            messageContent = "Kullanıcı bir görsel yüklemeye çalıştı. Lütfen kullanıcıya şu uyarıyı siber güvenlik temalı bir dille ilet: 'CASSANDRA AI şu an aktif Groq altyapısında sadece metin tabanlı log kayıtlarını ve .txt dosyalarını desteklemektedir. Görsel/Vision analizi şu an devre dışıdır. Lütfen incelemek istediğiniz log kayıtlarını metin formatında yapıştırarak analiz işlemine devam edin.'";
+            // MODEL SADECE STRING BEKLEDİĞİ İÇİN DIZI (ARRAY) YERİNE SAF STRING GÖNDERİYORUZ
+            // Böylece "messages[1].content must be a string" hatası %100 engelleniyor.
+            messageContent = "Kullanıcı bir görsel yüklemeye çalıştı. Lütfen kullanıcıya şu uyarıyı siber güvenlik temalı bir dille ilet: 'CASSANDRA AI şu an aktif Groq altyapısında sadece siber güvenlik metin loglarını ve .txt analizlerini desteklemektedir. Görsel/Vision analizi şu an devre dışıdır. Lütfen incelemek istediğiniz log kayıtlarını metin olarak yapıştırın.'";
         } else {
-            // 12.000 TPM LİMİT KORUMASI (Kritik Alan)
-            // Groq hesabındaki 12.000 token sınırını (Requested 18796 hatasını) aşmamak için 
-            // metni güvenli bir karakter sınırına (~28.000 karakter / yaklaşık 7.000-8.000 token) çekiyoruz.
+            // Devasa log dosyalarında limiti zorlamamak için güvenli kırpma sınırı
             let safePrompt = finalPrompt;
-            if (safePrompt && safePrompt.length > 28000) {
-                safePrompt = safePrompt.substring(0, 28000) + "\n\n[... UYARI: Orijinal log dosyasının devamı, Groq API'nin ücretsiz katmanındaki 12.000 TPM (Dakikalık Token) sınırı nedeniyle Cassandra tarafından otomatik olarak kırpılmıştır. Analize bu ilk kısım üzerinden devam edilmektedir. ...]";
+            if (safePrompt && safePrompt.length > 50000) {
+                safePrompt = safePrompt.substring(0, 50000) + "\n\n[... Orijinal log dosyasının devamı hacim nedeniyle kırpıldı ...]";
             }
             messageContent = safePrompt; 
         }
@@ -325,21 +324,16 @@ async function runAnalysis() {
                 messages: [
                     {
                         role: "system",
-                        content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. 
-                        Görev Tanımın:
-                        1. Sana gönderilen metinleri, (.txt/.log) dosyalarını siber güvenlik perspektifinden incele.
-                        2. Log kayıtlarında yer alan IP adreslerini, istek türlerini (GET/POST), hata kodlarını (404, 500, 403), şüpheli payload'ları (SQLi, XSS, Path Traversal vb.) ve anomalileri tespit et.
-                        3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar ve bir aksiyon planı hazırla.
-                        4. Cevaplarını tamamen Türkçe, anlaşılır ver.
-                        HALÜSİNASYON ENGELLEME KURALI: Analizlerinde sadece siber güvenlik literatüründe (NIST, ISO, MITRE ATT&CK vb.) GERÇEKTEN var olan terim ve framework'leri kullan. Eğer kullanıcının sorduğu terim veya kısaltma siber güvenlik dünyasında YOKSA, kesinlikle kendi kafandan uydurma. Bilmiyorsan "Bu terim siber güvenlik literatüründe bulunamadı" de.`
+                        content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}.
+                        Sana gönderilen metinleri, logları (.txt) siber güvenlik perspektifinden incele ve tamamen Türkçe yanıt ver.`
                     },
                     {
                         role: "user",
-                        content: messageContent // %100 Güvenli String Veri
+                        content: messageContent // Artık ne olursa olsun %100 String!
                     }
                 ],
                 temperature: 0.2,
-                max_tokens: 2048 // Yanıt limitini de şişirmemek için optimize ettik
+                max_tokens: 3000
             })
         });
         

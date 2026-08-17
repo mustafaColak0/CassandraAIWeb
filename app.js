@@ -299,7 +299,7 @@ async function runAnalysis() {
 
         let messageContent;
         // Groq üzerindeki en güncel ve kararlı metin/log modeli
-        let selectedModel = "llama-3.1-70b-versatile"; 
+        let selectedModel = "llama-3.1-8b-instant"; 
 
         if (base64Image) {
             // EĞER RESİM VARSA: Groq'un vizyon modeline geçiş yapıyoruz
@@ -334,7 +334,7 @@ async function runAnalysis() {
 
             body: JSON.stringify({
 
-                model: "llama-3.1-70b-versatile", 
+                model: "llama-3.1-8b-instant", 
 
                 messages: [
 

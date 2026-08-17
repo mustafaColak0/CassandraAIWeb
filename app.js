@@ -334,7 +334,7 @@ async function runAnalysis() {
 
             body: JSON.stringify({
 
-                model: "llama-3.3-70b-versatile", 
+                model: "llama-3.1-70b-versatile", 
 
                 messages: [
 

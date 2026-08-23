@@ -59,46 +59,71 @@ GÖREVİN:
         }
 
         // MODEL ADI (Groq vizyon modeli hem metin hem resmi destekler)
-const completion = await dynamicGroq.chat.completions.create({
-    model: "qwen/qwen3.6-27b",
+const createCompletion = async () => {
+    return await dynamicGroq.chat.completions.create({
+        model: "qwen/qwen3.6-27b",
 
-    messages: [
-        {
-            role: "system",
-            content: systemInstruction
-        },
-        {
-            role: "user",
-            content: messageContent
-        }
-    ],
+        messages: [
+            {
+                role: "system",
+                content: systemInstruction
+            },
+            {
+                role: "user",
+                content: messageContent
+            }
+        ],
 
-    temperature: 0.7,
-    max_completion_tokens: 4096,
+        temperature: 0.5,
+        max_completion_tokens: 4096,
+        reasoning_effort: "none"
+    });
+};
 
-    // Cassandra için reasoning'i kapatıyoruz.
-    // Böylece tokenların "thinking" kısmında tükenip
-    // content'in boş dönmesi riskini kaldırıyoruz.
-    reasoning_effort: "none"
-});
 
-console.log(
-    "GROQ RESPONSE:",
-    JSON.stringify(completion, null, 2)
-);
+// 1. DENEME
+let completion = await createCompletion();
 
 let finalAnalysis =
     completion.choices?.[0]?.message?.content?.trim();
 
+
+// GROQ BAZEN BOŞ CONTENT DÖNDÜRÜRSE
+// OTOMATİK OLARAK BİR KEZ DAHA DENE
 if (!finalAnalysis) {
+
+    console.warn(
+        "⚠️ İlk Groq yanıtı boş geldi. Tekrar deneniyor..."
+    );
+
+    console.log(
+        "İLK GROQ RESPONSE:",
+        JSON.stringify(completion, null, 2)
+    );
+
+    await new Promise(resolve =>
+        setTimeout(resolve, 700)
+    );
+
+    completion = await createCompletion();
+
+    finalAnalysis =
+        completion.choices?.[0]?.message?.content?.trim();
+}
+
+
+// İKİNCİ DENEME DE BAŞARISIZSA
+if (!finalAnalysis) {
+
     console.error(
-        "BOŞ GROQ RESPONSE:",
+        "❌ GROQ İKİ KEZ BOŞ YANIT DÖNDÜRDÜ:",
         JSON.stringify(completion, null, 2)
     );
 
     throw new Error(
-        `Groq boş yanıt döndürdü. Finish reason: ${
-            completion.choices?.[0]?.finish_reason || "bilinmiyor"
+        `Groq yanıt üretemedi. Finish reason: ${
+            completion.choices?.[0]?.finish_reason ||
+            "bilinmiyor"
         }`
     );
 }

@@ -320,14 +320,16 @@ async function runAnalysis() {
 
         // Groq API Entegrasyon Katmanı
 
-       const res = await fetch(`${BACKEND_URL}/api/analyze`, {
-        method: "POST",
+        // Elde edilen verileri yapılandırılmış rapor nesnesine dönüştürme
+// BACKEND API ENTEGRASYON KATMANI
+const res = await fetch(`${BACKEND_URL}/api/analyze`, {
+    method: "POST",
 
-        headers: {
+    headers: {
         "Content-Type": "application/json"
-        },
+    },
 
-        body: JSON.stringify({
+    body: JSON.stringify({
         userApiKey: savedKey,
         expert: expert,
         attackVector: vaka,
@@ -337,59 +339,7 @@ async function runAnalysis() {
     })
 });
 
-            body: JSON.stringify({
-
-                model: "llama-3.1-8b-instant", 
-
-                messages: [
-
-                    {
-
-                        role: "system",
-
-                        content: `Sen CASSANDRA AI siber güvenlik analistisin. Rolün: ${expert}. Sektör: ${sector}. Vaka Türü: ${vaka}. 
-
-                        Görev Tanımın:
-
-                        1. Sana gönderilen metinleri, (.txt/.log) dosyalarını ve ekran görüntüsü (resim) loglarını siber güvenlik perspektifinden incele.
-
-                        2. Log kayıtlarında veya görselde yer alan IP adreslerini, istek türlerini (GET/POST), hata kodlarını (404, 500, 403), şüpheli payload'ları (SQLi, XSS, Path Traversal vb.) ve anomalileri tespit et.
-
-                        3. Bulduğun şüpheli durumları siber güvenlik uzmanı gözüyle profesyonelce analiz et, eksikleri çıkar ve bir aksiyon planı hazırla.
-
-                        4. Cevaplarını tamamen Türkçe, anlaşılır ver.
-
-                        HALÜSİNASYON ENGELLEME KURALI: Analizlerinde sadece siber güvenlik literatüründe (NIST, ISO, MITRE ATT&CK vb.) GERÇEKTEN var olan terim ve framework'leri kullan. Eğer kullanıcının sorduğu terim veya kısaltma siber güvenlik dünyasında YOKSA, kesinlikle kendi kafandan uydurma. Bilmiyorsan "Bu terim siber güvenlik literatüründe bulunamadı" de.`
-
-                    },
-
-                    {
-
-                        role: "user",
-
-                        content: messageContent
-
-                    }
-
-                ],
-
-                temperature: 0.2,
-
-                max_tokens: 2048
-
-            })
-
-        });
-
-
-        
-        
-        if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            throw new Error(errorData.error?.message || `Groq API Hatası: ${res.status}`);
-        }
-        
-      const data = await res.json();
+const data = await res.json();
 
 if (!res.ok) {
     throw new Error(
@@ -401,19 +351,29 @@ if (!res.ok) {
 
 const aiResponse = data.analysis;
 
-        // Elde edilen verileri yapılandırılmış rapor nesnesine dönüştürme
-        const report = {
-            reportId: Math.floor(Math.random() * 9000 + 1000),
-            expert, 
-            attackVector: vaka,
-            userPrompt: finalPrompt, // İleride geçmişten çağrıldığında kullanıcının ne sorduğunu görmek için kayda ekledik
-            analysis: aiResponse,
-            timestamp: new Date().toISOString()
-        };
-        
-        // Yanıtı ekrana basma ve geçmiş veri tabanına işleme
-        appendMsg("assistant", aiResponse, `${expert} // CAS-${report.reportId}`, report);
-        saveHistory(report);
+if (!aiResponse) {
+    throw new Error("Yapay zekadan geçerli bir analiz yanıtı alınamadı.");
+}
+
+// Elde edilen verileri yapılandırılmış rapor nesnesine dönüştürme
+const report = {
+    reportId: data.reportId || Math.floor(Math.random() * 9000 + 1000),
+    expert,
+    attackVector: vaka,
+    userPrompt: finalPrompt,
+    analysis: aiResponse,
+    timestamp: new Date().toISOString()
+};
+
+// Yanıtı ekrana bas ve geçmişe kaydet
+appendMsg(
+    "assistant",
+    aiResponse,
+    `${expert} // CAS-${report.reportId}`,
+    report
+);
+
+saveHistory(report);
 
     } catch (e) {
         appendMsg("assistant", `⚠️ Hata: ${e.message}`);

@@ -59,15 +59,15 @@ GÖREVİN:
         }
 
         // MODEL ADI (Groq vizyon modeli hem metin hem resmi destekler)
-        const completion = await dynamicGroq.chat.completions.create({
-            messages: [
-                { role: "system", content: systemInstruction },
-                { role: "user", content: messageContent }
-            ],
-            model: "meta-llama/llama-4-scout-17b-16e-instruct", 
-            temperature: 0.5,
-            max_tokens: 2048
-        });
+       const completion = await dynamicGroq.chat.completions.create({
+        messages: [
+        { role: "system", content: systemInstruction },
+        { role: "user", content: messageContent }
+        ],
+        model: "qwen/qwen3.6-27b",
+        temperature: 0.5,
+        max_completion_tokens: 2048
+    });
 
         let finalAnalysis = completion.choices[0]?.message?.content;
         if (!finalAnalysis) {

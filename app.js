@@ -320,17 +320,22 @@ async function runAnalysis() {
 
         // Groq API Entegrasyon Katmanı
 
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+       const res = await fetch(`${BACKEND_URL}/api/analyze`, {
+        method: "POST",
 
-            method: "POST",
+        headers: {
+        "Content-Type": "application/json"
+        },
 
-            headers: {
-
-                "Content-Type": "application/json",
-
-                "Authorization": `Bearer ${savedKey}`
-
-            },
+        body: JSON.stringify({
+        userApiKey: savedKey,
+        expert: expert,
+        attackVector: vaka,
+        sector: sector,
+        prompt: finalPrompt,
+        image: base64Image
+    })
+});
 
             body: JSON.stringify({
 
@@ -384,12 +389,17 @@ async function runAnalysis() {
             throw new Error(errorData.error?.message || `Groq API Hatası: ${res.status}`);
         }
         
-        const data = await res.json();
-        const aiResponse = data.choices[0].message.content; 
+      const data = await res.json();
 
-        if (!aiResponse) {
-            throw new Error("Yapay zekadan geçerli bir analiz yanıtı alınamadı.");
-        }
+if (!res.ok) {
+    throw new Error(
+        data.error ||
+        data.detay ||
+        `Backend API Hatası: ${res.status}`
+    );
+}
+
+const aiResponse = data.analysis;
 
         // Elde edilen verileri yapılandırılmış rapor nesnesine dönüştürme
         const report = {

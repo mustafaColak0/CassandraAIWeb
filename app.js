@@ -497,12 +497,47 @@ function appendMsg(role, text, meta = "", report = null) {
                     });
                     
                     // Önceki bulguları yeni uzmana brifing olarak paslama prompt şablonu
-                    const passText = `Önceki uzman (${report.expert}) şu bulguları raporladı:\n"${text}"\n\nŞimdi rolün: ${targetExpert}. Bu durumu kendi uzmanlık perspektifinden değerlendir, eksikleri bul ve bir aksiyon planı çıkar.`;
-                    const input = document.getElementById("prompt-in");
-                    if(input) {
-                        input.value = passText;
-                        runAnalysis();
-                    }
+                   // PASLA zincirinde önceki raporun kontrolsüz büyümesini önlüyoruz
+const cleanPreviousAnalysis = String(text || "")
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .trim()
+    .slice(0, 8000);
+
+const passText = `
+CASSANDRA AI UZMAN DEVİR PROTOKOLÜ
+
+Önceki Uzman:
+${report.expert}
+
+Yeni Uzman:
+${targetExpert}
+
+Önceki Uzmanın Bulguları:
+--- BAŞLANGIÇ ---
+${cleanPreviousAnalysis}
+--- BİTİŞ ---
+
+GÖREV:
+Önceki uzmanın raporunu aynen tekrar etme.
+
+${targetExpert} rolünün uzmanlık alanına göre:
+
+1. Önceki analizde eksik kalan noktaları tespit et.
+2. Bulguları kendi uzmanlık perspektifinden değerlendir.
+3. Öncelikli riskleri belirt.
+4. Uygulanabilir bir aksiyon planı oluştur.
+5. Yeterli veri veya kanıt yoksa bunu açıkça belirt.
+6. Önceki uzman rolünü taklit etme.
+
+Yanıtını Türkçe, düzenli ve profesyonel biçimde oluştur.
+`.trim();
+
+const input = document.getElementById("prompt-in");
+
+if (input) {
+    input.value = passText;
+    runAnalysis();
+}
                 };
                 
                 passContainer.appendChild(selectTarget);

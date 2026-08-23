@@ -59,7 +59,7 @@ GÖREVİN:
         }
 
         // MODEL ADI (Groq vizyon modeli hem metin hem resmi destekler)
-     const completion = await dynamicGroq.chat.completions.create({
+const completion = await dynamicGroq.chat.completions.create({
     model: "qwen/qwen3.6-27b",
 
     messages: [
@@ -73,35 +73,35 @@ GÖREVİN:
         }
     ],
 
-    temperature: 0.5,
-    max_completion_tokens: 2048,
-    reasoning_format: "hidden"
+    temperature: 0.7,
+    max_completion_tokens: 4096,
+
+    // Cassandra için reasoning'i kapatıyoruz.
+    // Böylece tokenların "thinking" kısmında tükenip
+    // content'in boş dönmesi riskini kaldırıyoruz.
+    reasoning_effort: "none"
 });
 
-        let finalAnalysis = completion.choices[0]?.message?.content;
-        if (!finalAnalysis) {
-            throw new Error("Groq modelinden boş veya geçersiz bir yanıt döndü.");
-        }
-        
-        const forbidden = ["```python", "import requests", "X-Forwarded-For", "sizdirilan_veriler.json"];
-        if (forbidden.some(p => finalAnalysis.toLowerCase().includes(p.toLowerCase()))) {
-            finalAnalysis = "🛑 GÜVENLİK ENGELİ: Bu talep etik/yasal sınırları aşan teknikler içerdiği için filtrelenmiştir.";
-        }
-        
-        return res.json({
-            analysis: finalAnalysis,
-            reportId: Math.floor(Math.random() * 9000 + 1000)
-        });
+console.log(
+    "GROQ RESPONSE:",
+    JSON.stringify(completion, null, 2)
+);
 
-    } catch (error) {
-        console.error("DİNAMİK API HATASI:", error);
-        // Hata kodunu ve mesajını şeffaf bir şekilde frontend'e paslıyoruz
-        return res.status(error.status || 500).json({ 
-            error: error.message || "Groq API veya Sunucu hatası oluştu! ❌",
-            detay: error.error?.message || error.message
-        });
-    }
-});
+let finalAnalysis =
+    completion.choices?.[0]?.message?.content?.trim();
+
+if (!finalAnalysis) {
+    console.error(
+        "BOŞ GROQ RESPONSE:",
+        JSON.stringify(completion, null, 2)
+    );
+
+    throw new Error(
+        `Groq boş yanıt döndürdü. Finish reason: ${
+            completion.choices?.[0]?.finish_reason || "bilinmiyor"
+        }`
+    );
+}
 
 app.get("/chat-bg", (_req, res) => { res.sendFile(CHAT_BG_PATH); });
 
